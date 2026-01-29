@@ -1,0 +1,29 @@
+{
+  "name": "farcaster-survivors",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Crypto-native bullet heaven game built as a Farcaster Mini App on Base L2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrionDigital/SURVIVOR.git"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
