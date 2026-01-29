@@ -8,10 +8,7 @@ import type { PlayerStats, PlayerGear } from "../types/player.js";
  * Calculate stat bonus from staked gear tokens
  * Using square root formula: bonus = sqrt(stakedAmount / 1e18) * multiplier
  */
-export function calculateGearBonus(
-  stakedAmount: bigint,
-  multiplier: number = 1
-): number {
+export function calculateGearBonus(stakedAmount: bigint, multiplier: number = 1): number {
   const normalized = Number(stakedAmount) / 1e18;
   return Math.sqrt(normalized) * multiplier;
 }
@@ -19,10 +16,7 @@ export function calculateGearBonus(
 /**
  * Calculate effective player stats with gear bonuses
  */
-export function calculateEffectiveStats(
-  baseStats: PlayerStats,
-  gear: PlayerGear
-): PlayerStats {
+export function calculateEffectiveStats(baseStats: PlayerStats, gear: PlayerGear): PlayerStats {
   return {
     maxHealth: baseStats.maxHealth + calculateGearBonus(gear.armor, 10),
     damage: baseStats.damage + calculateGearBonus(gear.weapon, 5),

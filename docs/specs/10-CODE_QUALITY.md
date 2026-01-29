@@ -148,14 +148,7 @@ module.exports = {
     "import/order": [
       "error",
       {
-        groups: [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index",
-        ],
+        groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
         "newlines-between": "always",
         alphabetize: { order: "asc" },
       },
@@ -400,8 +393,7 @@ const message = "Player " + name + " scored " + score;
 const power = player?.stats?.power ?? 0;
 
 // ❌ Avoid nested conditionals
-const power =
-  player && player.stats && player.stats.power ? player.stats.power : 0;
+const power = player && player.stats && player.stats.power ? player.stats.power : 0;
 
 // ✅ Use async/await
 async function fetchPlayer(id: string): Promise<Player> {

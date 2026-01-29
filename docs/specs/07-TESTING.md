@@ -437,9 +437,7 @@ test.describe("Gameplay", () => {
     await page.click('[data-testid="play-button"]');
 
     await expect(page.locator('[data-testid="game-canvas"]')).toBeVisible();
-    await expect(page.locator('[data-testid="hud-timer"]')).toContainText(
-      "0:00",
-    );
+    await expect(page.locator('[data-testid="hud-timer"]')).toContainText("0:00");
   });
 
   test("can pause and resume game", async ({ page }) => {
@@ -459,9 +457,7 @@ test.describe("Gameplay", () => {
     // Simulate death (via exposed test function)
     await page.evaluate(() => window.testHelpers.killPlayer());
 
-    await expect(
-      page.locator('[data-testid="game-over-screen"]'),
-    ).toBeVisible();
+    await expect(page.locator('[data-testid="game-over-screen"]')).toBeVisible();
     await expect(page.locator('[data-testid="rewards-earned"]')).toBeVisible();
   });
 });

@@ -2,7 +2,7 @@
 
 \[Working Title: Farcaster Survivors\]
 
-*A Crypto-Native Bullet Heaven Game on Farcaster*
+_A Crypto-Native Bullet Heaven Game on Farcaster_
 
 Version 2.0
 
@@ -71,27 +71,29 @@ movement and strategic weapon/passive selection during level-ups.
 
 **1.5 Key Updates in v2.0**
 
-  ------------------- ----------------------- ---------------------------
-  **Area**            **Previous (v1.0)**     **Updated (v2.0)**
+---
 
-  Platform            Farcaster Frames v2     Farcaster Mini Apps SDK
+**Area** **Previous (v1.0)** **Updated (v2.0)**
 
-  Token Supply        1 billion \$VSC         100 billion \$VSC
+Platform Farcaster Frames v2 Farcaster Mini Apps SDK
 
-  Fee Split           50% treasury / 50% burn 60% treasury / 40% burn
-                                              (dynamic)
+Token Supply 1 billion \$VSC 100 billion \$VSC
 
-  Deployment          External platforms      Self-deployed bonding
-                      (Clanker)               curves
+Fee Split 50% treasury / 50% burn 60% treasury / 40% burn
+(dynamic)
 
-  Gear System         Token threshold tiers   Hybrid rarity + maintenance
-                                              mechanic
+Deployment External platforms Self-deployed bonding
+(Clanker) curves
 
-  Game Mode           Multiple modes          Survival Mode only (linear
-                                              scaling)
+Gear System Token threshold tiers Hybrid rarity + maintenance
+mechanic
 
-  Global Upgrades     Internal registry       ERC-1155 NFTs
-  ------------------- ----------------------- ---------------------------
+Game Mode Multiple modes Survival Mode only (linear
+scaling)
+
+Global Upgrades Internal registry ERC-1155 NFTs
+
+---
 
 **2. Core Gameplay Systems**
 
@@ -129,46 +131,50 @@ Players can equip up to 6 weapons simultaneously. Each weapon has unique
 attack patterns, damage types, and upgrade paths. Weapons are selected
 during level-up choices and can evolve when certain conditions are met.
 
-  --------------- ------------------------------- -----------------------
-  **Weapon**      **Base Behavior**               **Evolution**
+---
 
-  Magic Wand      Fires homing projectile at      Holy Wand (piercing)
-                  nearest enemy                   
+**Weapon** **Base Behavior** **Evolution**
 
-  Knife           Throws knives in facing         Thousand Edge (bounce)
-                  direction                       
+Magic Wand Fires homing projectile at Holy Wand (piercing)
+nearest enemy
 
-  Axe             Throws high-damage axes in arc  Death Spiral (orbit)
+Knife Throws knives in facing Thousand Edge (bounce)
+direction
 
-  Cross           Boomerang that returns through  Heaven Sword (split)
-                  enemies                         
+Axe Throws high-damage axes in arc Death Spiral (orbit)
 
-  Fire Wand       Fires seeking flame projectiles Hellfire (explosion)
+Cross Boomerang that returns through Heaven Sword (split)
+enemies
 
-  Lightning Ring  Strikes random nearby enemies   Thunder Loop (chain)
-  --------------- ------------------------------- -----------------------
+Fire Wand Fires seeking flame projectiles Hellfire (explosion)
+
+Lightning Ring Strikes random nearby enemies Thunder Loop (chain)
+
+---
 
 **2.4 Passive Item System**
 
 Players can hold up to 6 passive items that modify stats or add special
 effects. Some passives combine with weapons to trigger evolutions.
 
-  ------------------- ------------------------------- -------------------
-  **Passive**         **Effect**                      **Evolution Combo**
+---
 
-  Spinach             +10% damage per level           N/A
+**Passive** **Effect** **Evolution Combo**
 
-  Armor               +5% damage reduction per level  N/A
+Spinach +10% damage per level N/A
 
-  Empty Tome          -8% cooldown per level          Magic Wand
-                                                      evolution
+Armor +5% damage reduction per level N/A
 
-  Candelabrador       +10% area per level             Fire Wand evolution
+Empty Tome -8% cooldown per level Magic Wand
+evolution
 
-  Bracer              +10% projectile speed per level Knife evolution
+Candelabrador +10% area per level Fire Wand evolution
 
-  Crown               +8% XP gain per level           N/A
-  ------------------- ------------------------------- -------------------
+Bracer +10% projectile speed per level Knife evolution
+
+Crown +8% XP gain per level N/A
+
+---
 
 **2.5 Experience and Leveling**
 
@@ -194,21 +200,23 @@ Each gear slot accepts a specific gear token, and the amount staked
 determines the power tier and bonuses applied to gameplay. This creates
 a direct link between token holdings and in-game power.
 
-  ------------------- ------------------- -------------------------------
-  **Gear Slot**       **Token**           **Stat Bonus**
+---
 
-  Weapon Core         \$WEAPON            +% Base Damage
+**Gear Slot** **Token** **Stat Bonus**
 
-  Armor Plate         \$ARMOR             +% Damage Reduction
+Weapon Core \$WEAPON +% Base Damage
 
-  Power Belt          \$POWER             +% Area of Effect
+Armor Plate \$ARMOR +% Damage Reduction
 
-  Combat Gloves       \$GLOVES            +% Attack Speed
+Power Belt \$POWER +% Area of Effect
 
-  Amulet              \$AMULET            +% XP Gain
+Combat Gloves \$GLOVES +% Attack Speed
 
-  Swift Boots         \$BOOTS             +% Movement Speed
-  ------------------- ------------------- -------------------------------
+Amulet \$AMULET +% XP Gain
+
+Swift Boots \$BOOTS +% Movement Speed
+
+---
 
 **3.2 Hybrid Rarity System**
 
@@ -217,24 +225,26 @@ discrete rarity tiers. Within each tier, power scales logarithmically
 with token amount. Crossing tier thresholds unlocks visual changes, new
 abilities, and multiplier bonuses.
 
-*Power Formula: BasePower x TierMultiplier x log(StakedTokens)*
+_Power Formula: BasePower x TierMultiplier x log(StakedTokens)_
 
-  ------------ --------------- ---------------- ------------ -------------------
-  **Tier**     **Token         **Multiplier**   **Visual**   **Special Ability**
-               Threshold**                                   
+---
 
-  Common       1 - 99          1.0x             Gray outline Base stats only
+**Tier** **Token **Multiplier\*\* **Visual** **Special Ability**
+Threshold\*\*
 
-  Uncommon     100 - 999       1.1x             Green glow   +5% crit chance
+Common 1 - 99 1.0x Gray outline Base stats only
 
-  Rare         1,000 - 9,999   1.25x            Blue aura    +10% crit damage
+Uncommon 100 - 999 1.1x Green glow +5% crit chance
 
-  Epic         10,000 - 99,999 1.5x             Purple       Unique visual
-                                                particles    effect
+Rare 1,000 - 9,999 1.25x Blue aura +10% crit damage
 
-  Legendary    100,000+        2.0x             Golden       Exclusive ability
-                                                flames       unlock
-  ------------ --------------- ---------------- ------------ -------------------
+Epic 10,000 - 99,999 1.5x Purple Unique visual
+particles effect
+
+Legendary 100,000+ 2.0x Golden Exclusive ability
+flames unlock
+
+---
 
 **3.3 Gear Maintenance System**
 
@@ -265,21 +275,23 @@ Permanent stat upgrades are implemented as ERC-1155 NFTs, providing
 collectibility, tradability, and clear ownership. Each upgrade category
 has 10 levels, with each level costing progressively more \$VSC to mint.
 
-  ------------------- --------------------------- -----------------------
-  **Upgrade**         **Effect Per Level**        **Max Bonus (Lv10)**
+---
 
-  Might               +1% base damage             +10% damage
+**Upgrade** **Effect Per Level** **Max Bonus (Lv10)**
 
-  Constitution        +1% max health              +10% health
+Might +1% base damage +10% damage
 
-  Swiftness           +0.5% movement speed        +5% speed
+Constitution +1% max health +10% health
 
-  Fortune             +1% luck                    +10% luck
+Swiftness +0.5% movement speed +5% speed
 
-  Wisdom              +1% XP gain                 +10% XP
+Fortune +1% luck +10% luck
 
-  Recovery            +0.1 HP/s regeneration      +1 HP/s regen
-  ------------------- --------------------------- -----------------------
+Wisdom +1% XP gain +10% XP
+
+Recovery +0.1 HP/s regeneration +1 HP/s regen
+
+---
 
 NFT implementation allows players to trade upgrade levels on secondary
 markets (OpenSea, etc.) and provides visual representation of
@@ -294,24 +306,26 @@ All tokens use custom-deployed bonding curves to enable trading without
 external liquidity requirements while keeping fees internal for
 sustainability and Base grant eligibility.
 
-  -------------- ----------------------------- --------------------------
-  **Token**      **Purpose**                   **Mechanism**
+---
 
-  \$VSC          Primary currency for all      Gameplay rewards, bonding
-                 transactions                  curve trading
+**Token** **Purpose** **Mechanism**
 
-  \$WEAPON       Weapon Core gear staking      Bonding curve vs \$VSC
+\$VSC Primary currency for all Gameplay rewards, bonding
+transactions curve trading
 
-  \$ARMOR        Armor Plate gear staking      Bonding curve vs \$VSC
+\$WEAPON Weapon Core gear staking Bonding curve vs \$VSC
 
-  \$POWER        Power Belt gear staking       Bonding curve vs \$VSC
+\$ARMOR Armor Plate gear staking Bonding curve vs \$VSC
 
-  \$GLOVES       Combat Gloves gear staking    Bonding curve vs \$VSC
+\$POWER Power Belt gear staking Bonding curve vs \$VSC
 
-  \$AMULET       Amulet gear staking           Bonding curve vs \$VSC
+\$GLOVES Combat Gloves gear staking Bonding curve vs \$VSC
 
-  \$BOOTS        Swift Boots gear staking      Bonding curve vs \$VSC
-  -------------- ----------------------------- --------------------------
+\$AMULET Amulet gear staking Bonding curve vs \$VSC
+
+\$BOOTS Swift Boots gear staking Bonding curve vs \$VSC
+
+---
 
 **4.2 Self-Deployed Bonding Curves**
 
@@ -323,7 +337,7 @@ economy.
 
 **Bonding Curve Formula**
 
-*Price = BasePrice + (Slope x Supply\^2)*
+_Price = BasePrice + (Slope x Supply\^2)_
 
 The polynomial (quadratic) curve provides intuitive price discovery
 where early buyers get better prices, later demand increases prices for
@@ -331,15 +345,17 @@ all holders, and large buys/sells have meaningful price impact.
 
 **Fee Structure**
 
-  ----------------------- --------------- -------------------------------
-  **Fee Type**            **Rate**        **Distribution**
+---
 
-  Buy Fee                 2%              60% Treasury, 40% Burn
+**Fee Type** **Rate** **Distribution**
 
-  Sell Fee                3%              60% Treasury, 40% Burn
+Buy Fee 2% 60% Treasury, 40% Burn
 
-  Gear Upgrade            5%              60% Treasury, 40% Burn
-  ----------------------- --------------- -------------------------------
+Sell Fee 3% 60% Treasury, 40% Burn
+
+Gear Upgrade 5% 60% Treasury, 40% Burn
+
+---
 
 **Dynamic Fee Adjustment**
 
@@ -374,21 +390,23 @@ trading fees (40% burn), premium cosmetics, and tournament entry fees.
 
 **4.4 Anti-Gaming Measures**
 
-  --------------------------- -------------------------------------------
-  **Measure**                 **Purpose**
+---
 
-  Session Verification        Server validates gameplay patterns to
-                              detect bots
+**Measure** **Purpose**
 
-  Diminishing Returns         Reward rate decreases after extended play
-                              sessions
+Session Verification Server validates gameplay patterns to
+detect bots
 
-  Cooldown Periods            Mandatory breaks between high-reward
-                              activities
+Diminishing Returns Reward rate decreases after extended play
+sessions
 
-  Behavioral Analysis         ML-based detection of automated play
-                              patterns
-  --------------------------- -------------------------------------------
+Cooldown Periods Mandatory breaks between high-reward
+activities
+
+Behavioral Analysis ML-based detection of automated play
+patterns
+
+---
 
 **5. Farcaster Mini Apps Integration**
 
@@ -406,25 +424,27 @@ wallet functionality, and platform features.
 
 **Key SDK Features**
 
-  ------------------- -------------------------------- -----------------------
-  **Feature**         **SDK Method**                   **Use Case**
+---
 
-  Authentication      sdk.actions.signIn()             Sign In With Farcaster
-                                                       (SIWF)
+**Feature** **SDK Method** **Use Case**
 
-  Wallet Access       sdk.wallet.ethProvider           Token transactions on
-                                                       Base
+Authentication sdk.actions.signIn() Sign In With Farcaster
+(SIWF)
 
-  User Context        sdk.context.user                 FID, username, display
-                                                       name, PFP
+Wallet Access sdk.wallet.ethProvider Token transactions on
+Base
 
-  Location Context    sdk.context.location             Where app was opened
-                                                       from
+User Context sdk.context.user FID, username, display
+name, PFP
 
-  Notifications       sdk.actions.sendNotification()   Re-engage players
+Location Context sdk.context.location Where app was opened
+from
 
-  Cast Sharing        sdk.actions.composeCast()        Share achievements
-  ------------------- -------------------------------- -----------------------
+Notifications sdk.actions.sendNotification() Re-engage players
+
+Cast Sharing sdk.actions.composeCast() Share achievements
+
+---
 
 **5.2 Manifest Configuration**
 
@@ -436,25 +456,27 @@ and embed settings.
 
 The SDK provides different context based on how the Mini App was opened:
 
-  ----------------- -------------------------- ---------------------------
-  **Context Type**  **Description**            **Available Data**
+---
 
-  cast_embed        Embedded in a cast         Cast author, hash, text,
-                                               embeds
+**Context Type** **Description** **Available Data**
 
-  cast_share        Shared via system share    Shared cast metadata
-                    sheet                      
+cast_embed Embedded in a cast Cast author, hash, text,
+embeds
 
-  notification      Opened from notification   Notification ID, title,
-                                               body
+cast_share Shared via system share Shared cast metadata
+sheet
 
-  launcher          Opened from Mini App       Basic context only
-                    launcher                   
+notification Opened from notification Notification ID, title,
+body
 
-  channel           Opened from a channel      Channel key, name, image
+launcher Opened from Mini App Basic context only
+launcher
 
-  open_miniapp      Opened by another Mini App Referrer domain
-  ----------------- -------------------------- ---------------------------
+channel Opened from a channel Channel key, name, image
+
+open_miniapp Opened by another Mini App Referrer domain
+
+---
 
 **5.4 Social Features**
 
@@ -486,19 +508,21 @@ Notifications are permission-based and respect user preferences.
 
 **6.1 Session Loop (5-30 minutes)**
 
-  ----------- --------------- ----------------------- -------------------
-  **Phase**   **Duration**    **Player Action**       **Reward**
+---
 
-  Start       0-2 min         Initial weapon          First levels
-                              selection               
+**Phase** **Duration** **Player Action** **Reward**
 
-  Build       2-10 min        Weapon/passive          Evolution unlocks
-                              synergies               
+Start 0-2 min Initial weapon First levels
+selection
 
-  Peak        10-20 min       Optimize for survival   High scores
+Build 2-10 min Weapon/passive Evolution unlocks
+synergies
 
-  End         Death           Review results          \$VSC + XP
-  ----------- --------------- ----------------------- -------------------
+Peak 10-20 min Optimize for survival High scores
+
+End Death Review results \$VSC + XP
+
+---
 
 **6.2 Daily Loop**
 
@@ -535,19 +559,21 @@ cycle continues.
 
 **7.2 Progression Dependencies**
 
-  ----------------------- ----------------------- -----------------------
-  **Input**               **Enables**             **Creates Demand For**
+---
 
-  Gameplay Time           XP + \$VSC Rewards      More sessions
+**Input** **Enables** **Creates Demand For**
 
-  \$VSC Holdings          Gear Token Purchases    Bonding curve volume
+Gameplay Time XP + \$VSC Rewards More sessions
 
-  Gear Tokens Staked      In-Game Power Boost     Competitive advantage
+\$VSC Holdings Gear Token Purchases Bonding curve volume
 
-  Maintenance Refills     Full Power Retention    \$VSC sink
+Gear Tokens Staked In-Game Power Boost Competitive advantage
 
-  NFT Minting             Permanent Stat Boosts   \$VSC sink
-  ----------------------- ----------------------- -----------------------
+Maintenance Refills Full Power Retention \$VSC sink
+
+NFT Minting Permanent Stat Boosts \$VSC sink
+
+---
 
 **7.3 Social-Economic Integration**
 
@@ -566,46 +592,50 @@ economic scenarios before mainnet deployment.
 
 **8.1 Technology Stack**
 
-  ----------------------- -----------------------------------------------
-  **Component**           **Technology**
+---
 
-  Platform                Farcaster Mini Apps (@farcaster/miniapp-sdk)
+**Component** **Technology**
 
-  Game Engine             Phaser 3 (JavaScript)
+Platform Farcaster Mini Apps (@farcaster/miniapp-sdk)
 
-  Frontend                React + TypeScript + Vite
+Game Engine Phaser 3 (JavaScript)
 
-  Backend                 Node.js + Express
+Frontend React + TypeScript + Vite
 
-  Database                PostgreSQL + Redis (caching)
+Backend Node.js + Express
 
-  Blockchain              Base L2 (Ethereum)
+Database PostgreSQL + Redis (caching)
 
-  Smart Contracts         Solidity (self-deployed)
-  ----------------------- -----------------------------------------------
+Blockchain Base L2 (Ethereum)
+
+Smart Contracts Solidity (self-deployed)
+
+---
 
 **8.2 Smart Contract Architecture**
 
-  --------------------------- -------------------------------------------
-  **Contract**                **Purpose**
+---
 
-  VSCToken.sol                Primary ERC-20 token with mint/burn
-                              controls
+**Contract** **Purpose**
 
-  GearToken.sol               Template for 6 gear tokens (ERC-20)
+VSCToken.sol Primary ERC-20 token with mint/burn
+controls
 
-  BondingCurve.sol            Polynomial bonding curve AMM with fee
-                              handling
+GearToken.sol Template for 6 gear tokens (ERC-20)
 
-  GearStaking.sol             Manages gear slot staking and power
-                              calculation
+BondingCurve.sol Polynomial bonding curve AMM with fee
+handling
 
-  MaintenancePool.sol         Handles maintenance decay and refill logic
+GearStaking.sol Manages gear slot staking and power
+calculation
 
-  GlobalUpgradeNFT.sol        ERC-1155 for global stat upgrades
+MaintenancePool.sol Handles maintenance decay and refill logic
 
-  RewardDistributor.sol       Manages gameplay reward distribution
-  --------------------------- -------------------------------------------
+GlobalUpgradeNFT.sol ERC-1155 for global stat upgrades
+
+RewardDistributor.sol Manages gameplay reward distribution
+
+---
 
 **8.3 Deployment Target**
 
@@ -633,84 +663,92 @@ blockchain execution.
 
 **9.1 \$VSC Token**
 
-  ----------------------- -----------------------------------------------
-  **Property**            **Value**
+---
 
-  Name                    Vampire Survivor Clone
+**Property** **Value**
 
-  Symbol                  \$VSC
+Name Vampire Survivor Clone
 
-  Decimals                18
+Symbol \$VSC
 
-  Max Supply              100,000,000,000 (100 billion)
+Decimals 18
 
-  Network                 Base (Ethereum L2)
+Max Supply 100,000,000,000 (100 billion)
 
-  Standard                ERC-20
+Network Base (Ethereum L2)
 
-  Minting                 Gameplay rewards, controlled by
-                          RewardDistributor
+Standard ERC-20
 
-  Burning                 Fee mechanism (40% of trading fees)
-  ----------------------- -----------------------------------------------
+Minting Gameplay rewards, controlled by
+RewardDistributor
+
+Burning Fee mechanism (40% of trading fees)
+
+---
 
 **9.2 Gear Tokens**
 
-  ----------------------- -----------------------------------------------
-  **Property**            **Value**
+---
 
-  Names                   \$WEAPON, \$ARMOR, \$POWER, \$GLOVES, \$AMULET,
-                          \$BOOTS
+**Property** **Value**
 
-  Decimals                18
+Names \$WEAPON, \$ARMOR, \$POWER, \$GLOVES, \$AMULET,
+\$BOOTS
 
-  Max Supply              Uncapped (bonding curve minted)
+Decimals 18
 
-  Network                 Base (Ethereum L2)
+Max Supply Uncapped (bonding curve minted)
 
-  Standard                ERC-20
+Network Base (Ethereum L2)
 
-  Trading                 Via bonding curve against \$VSC
-  ----------------------- -----------------------------------------------
+Standard ERC-20
+
+Trading Via bonding curve against \$VSC
+
+---
 
 **9.3 Bonding Curve Parameters**
 
-  ------------------- ----------------------- ---------------------------
-  **Parameter**       **Value**               **Notes**
+---
 
-  Curve Type          Polynomial (quadratic)  Price = Base + Slope x
-                                              Supply\^2
+**Parameter** **Value** **Notes**
 
-  Base Price          0.0001 \$VSC            Starting price per token
+Curve Type Polynomial (quadratic) Price = Base + Slope x
+Supply\^2
 
-  Slope               0.000001                Price acceleration factor
+Base Price 0.0001 \$VSC Starting price per token
 
-  Reserve Ratio       100%                    Fully collateralized
+Slope 0.000001 Price acceleration factor
 
-  Buy Fee             2%                      Applied on purchases
+Reserve Ratio 100% Fully collateralized
 
-  Sell Fee            3%                      Applied on sales
+Buy Fee 2% Applied on purchases
 
-  Fee Distribution    60% Treasury / 40% Burn Dynamically adjustable
-  ------------------- ----------------------- ---------------------------
+Sell Fee 3% Applied on sales
+
+Fee Distribution 60% Treasury / 40% Burn Dynamically adjustable
+
+---
 
 **9.4 Global Upgrade NFT**
 
-  ----------------------- -----------------------------------------------
-  **Property**            **Value**
+---
 
-  Standard                ERC-1155
+**Property** **Value**
 
-  Token IDs               1-6 (one per upgrade type)
+Standard ERC-1155
 
-  Max Level               10 per upgrade type
+Token IDs 1-6 (one per upgrade type)
 
-  Mint Cost               Progressive (Level\^2 x BaseCost)
+Max Level 10 per upgrade type
 
-  Tradeable               Yes (OpenSea compatible)
-  ----------------------- -----------------------------------------------
+Mint Cost Progressive (Level\^2 x BaseCost)
 
-*--- End of Document ---*
+Tradeable Yes (OpenSea compatible)
+
+---
+
+_--- End of Document ---_
 
 ---
 
@@ -773,47 +811,51 @@ stake.
 
 **10.4 Whale Deterrence Mechanics**
 
-  ----------------------- -----------------------------------------------
-  **Mechanism**           **How It Deters Whales**
+---
 
-  Price Impact            Large buys move the market price against the
-                          buyer, making manipulation expensive
+**Mechanism** **How It Deters Whales**
 
-  Capital at Risk         Betting against true beliefs loses money over
-                          time as markets resolve
+Price Impact Large buys move the market price against the
+buyer, making manipulation expensive
 
-  Information Premium     Knowledge and analysis matter more than raw
-                          capital
+Capital at Risk Betting against true beliefs loses money over
+time as markets resolve
 
-  Slippage Costs          Big positions incur significant slippage on
-                          entry and exit
+Information Premium Knowledge and analysis matter more than raw
+capital
 
-  Public Visibility       Large bets are visible, inviting counter-bets
-                          from informed traders
-  ----------------------- -----------------------------------------------
+Slippage Costs Big positions incur significant slippage on
+entry and exit
+
+Public Visibility Large bets are visible, inviting counter-bets
+from informed traders
+
+---
 
 **10.5 Governable Parameters**
 
 The following parameters can be modified through futarchy governance:
 
-  ----------------------- ------------------- ---------------------------
-  **Parameter**           **Current Value**   **Metric for Evaluation**
+---
 
-  Treasury/Burn Split     60% / 40%           30-day token velocity +
-                                              treasury runway
+**Parameter** **Current Value** **Metric for Evaluation**
 
-  Buy Fee Rate            2%                  Daily trading volume
+Treasury/Burn Split 60% / 40% 30-day token velocity +
+treasury runway
 
-  Sell Fee Rate           3%                  Net token holder growth
+Buy Fee Rate 2% Daily trading volume
 
-  Maintenance Decay Rate  1% per week         Weekly active players
+Sell Fee Rate 3% Net token holder growth
 
-  Reward Emission Rate    Variable            New player retention
-                                              (7-day)
+Maintenance Decay Rate 1% per week Weekly active players
 
-  Gear Tier Thresholds    1/100/1K/10K/100K   Median gear power
-                                              distribution
-  ----------------------- ------------------- ---------------------------
+Reward Emission Rate Variable New player retention
+(7-day)
+
+Gear Tier Thresholds 1/100/1K/10K/100K Median gear power
+distribution
+
+---
 
 **10.6 Dynamic Burn Rate Implementation**
 
@@ -821,37 +863,41 @@ The treasury/burn fee split is the primary candidate for dynamic
 adjustment via futarchy. Rather than hardcoded rules, the community can
 propose changes based on economic conditions:
 
-  ----------------------- ----------------------- -----------------------
-  **Scenario**            **Proposed Change**     **Success Metric**
+---
 
-  High inflation concern  Increase burn to 60%    Supply growth rate \<
-                                                  3%
+**Scenario** **Proposed Change** **Success Metric**
 
-  Treasury depletion      Decrease burn to 30%    Treasury runway \> 12
-                                                  months
+High inflation concern Increase burn to 60% Supply growth rate \<
+3%
 
-  Stagnant economy        Decrease burn to 20%    Trading volume increase
-                                                  \> 25%
+Treasury depletion Decrease burn to 30% Treasury runway \> 12
+months
 
-  Healthy growth          Maintain 40% burn       All metrics within
-                                                  targets
-  ----------------------- ----------------------- -----------------------
+Stagnant economy Decrease burn to 20% Trading volume increase
+\> 25%
+
+Healthy growth Maintain 40% burn All metrics within
+targets
+
+---
 
 **10.7 Technical Implementation**
 
-  --------------------------- -------------------------------------------
-  **Contract**                **Purpose**
+---
 
-  FutarchyGovernor.sol        Manages proposal lifecycle and market
-                              creation
+**Contract** **Purpose**
 
-  PredictionMarket.sol        LMSR-based market maker for conditional
-                              outcomes
+FutarchyGovernor.sol Manages proposal lifecycle and market
+creation
 
-  OracleResolver.sol          Reports actual metric values for settlement
+PredictionMarket.sol LMSR-based market maker for conditional
+outcomes
 
-  ProposalExecutor.sol        Executes passed proposals on-chain
-  --------------------------- -------------------------------------------
+OracleResolver.sol Reports actual metric values for settlement
+
+ProposalExecutor.sol Executes passed proposals on-chain
+
+---
 
 Markets use Logarithmic Market Scoring Rule (LMSR) for automated market
 making, ensuring liquidity at all price levels while maintaining bounded
@@ -878,135 +924,151 @@ Each Prestige NFT grants a unique background texture for the holder\'s
 leaderboard entry, making their ranking visually distinct from standard
 entries.
 
-  ------------------- ----------------------- ---------------------------
-  **Texture**         **Unlocked By**         **Visual Description**
+---
 
-  Void Shimmer        30-Minute Survivor      Deep purple with shifting
-                                              particle effects
+**Texture** **Unlocked By** **Visual Description**
 
-  Golden Flames       All Legendaries         Animated gold fire border
+Void Shimmer 30-Minute Survivor Deep purple with shifting
+particle effects
 
-  Crimson Storm       1M Enemies Defeated     Red lightning crackling
-                                              effect
+Golden Flames All Legendaries Animated gold fire border
 
-  Ethereal Frost      Season 1 Champion       Ice crystal overlay with
-                                              glow
+Crimson Storm 1M Enemies Defeated Red lightning crackling
+effect
 
-  Founder\'s Legacy   Genesis Player          Exclusive metallic gradient
-  ------------------- ----------------------- ---------------------------
+Ethereal Frost Season 1 Champion Ice crystal overlay with
+glow
+
+Founder\'s Legacy Genesis Player Exclusive metallic gradient
+
+---
 
 **Avatar Frames**
 
 Premium frames surround the player\'s Farcaster PFP in all game contexts
 (leaderboards, friend lists, cast embeds, challenge invites).
 
-  ------------------- --------------------------- -----------------------
-  **Frame**           **Unlocked By**             **Visual Description**
+---
 
-  Obsidian Crown      Top 10 All-Time             Dark crown with gem
-                                                  accents
+**Frame** **Unlocked By** **Visual Description**
 
-  Phoenix Wings       5 Evolution Masteries       Fiery wing extensions
+Obsidian Crown Top 10 All-Time Dark crown with gem
+accents
 
-  Diamond Edge        100K Total \$VSC Burned     Crystalline angular
-                                                  frame
+Phoenix Wings 5 Evolution Masteries Fiery wing extensions
 
-  Void Halo           All Weapons Mastered        Rotating dark energy
-                                                  ring
+Diamond Edge 100K Total \$VSC Burned Crystalline angular
+frame
 
-  Champion\'s Laurel  Tournament Winner           Golden laurel wreath
-  ------------------- --------------------------- -----------------------
+Void Halo All Weapons Mastered Rotating dark energy
+ring
+
+Champion\'s Laurel Tournament Winner Golden laurel wreath
+
+---
 
 **11.3 Achievement Categories**
 
 **Survival Mastery**
 
-  ----------------------- ------------------------------- ---------------
-  **NFT Name**            **Requirement**                 **Rarity**
+---
 
-  Iron Will               Survive 15 minutes              Rare
+**NFT Name** **Requirement** **Rarity**
 
-  Undying                 Survive 20 minutes              Epic
+Iron Will Survive 15 minutes Rare
 
-  Immortal                Survive 30 minutes              Legendary
+Undying Survive 20 minutes Epic
 
-  Eternal                 Survive 45 minutes              Mythic
-  ----------------------- ------------------------------- ---------------
+Immortal Survive 30 minutes Legendary
+
+Eternal Survive 45 minutes Mythic
+
+---
 
 **Combat Excellence**
 
-  ----------------------- ------------------------------- ---------------
-  **NFT Name**            **Requirement**                 **Rarity**
+---
 
-  Slayer                  100,000 lifetime kills          Rare
+**NFT Name** **Requirement** **Rarity**
 
-  Annihilator             500,000 lifetime kills          Epic
+Slayer 100,000 lifetime kills Rare
 
-  Extinction Event        1,000,000 lifetime kills        Legendary
+Annihilator 500,000 lifetime kills Epic
 
-  Godslayer               Defeat hidden boss              Mythic
-  ----------------------- ------------------------------- ---------------
+Extinction Event 1,000,000 lifetime kills Legendary
+
+Godslayer Defeat hidden boss Mythic
+
+---
 
 **Economic Contribution**
 
-  ----------------------- ------------------------------- ---------------
-  **NFT Name**            **Requirement**                 **Rarity**
+---
 
-  Patron                  50,000 \$VSC total burned       Rare
+**NFT Name** **Requirement** **Rarity**
 
-  Benefactor              250,000 \$VSC total burned      Epic
+Patron 50,000 \$VSC total burned Rare
 
-  Pillar                  1,000,000 \$VSC total burned    Legendary
+Benefactor 250,000 \$VSC total burned Epic
 
-  Architect               Top 10 governance participation Mythic
-  ----------------------- ------------------------------- ---------------
+Pillar 1,000,000 \$VSC total burned Legendary
+
+Architect Top 10 governance participation Mythic
+
+---
 
 **Competitive Achievement**
 
-  ----------------------- ------------------------------- ---------------
-  **NFT Name**            **Requirement**                 **Rarity**
+---
 
-  Contender               Top 100 weekly leaderboard      Rare
+**NFT Name** **Requirement** **Rarity**
 
-  Elite                   Top 10 weekly leaderboard       Epic
+Contender Top 100 weekly leaderboard Rare
 
-  Champion                Weekly #1 finish                Legendary
+Elite Top 10 weekly leaderboard Epic
 
-  Legend                  Season champion                 Mythic
-  ----------------------- ------------------------------- ---------------
+Champion Weekly #1 finish Legendary
+
+Legend Season champion Mythic
+
+---
 
 **Special & Limited**
 
-  ----------------------- ------------------------------- --------------------
-  **NFT Name**            **Requirement**                 **Rarity**
+---
 
-  Genesis                 Played during launch week       Legendary
-                                                          (time-limited)
+**NFT Name** **Requirement** **Rarity**
 
-  Pioneer                 First 1,000 players             Legendary
-                                                          (quantity-limited)
+Genesis Played during launch week Legendary
+(time-limited)
 
-  Oracle                  Correct 10 futarchy predictions Epic
+Pioneer First 1,000 players Legendary
+(quantity-limited)
 
-  Whale Hunter            Win governance vote against     Mythic
-                          whale opposition                
-  ----------------------- ------------------------------- --------------------
+Oracle Correct 10 futarchy predictions Epic
+
+Whale Hunter Win governance vote against Mythic
+whale opposition
+
+---
 
 **11.4 Technical Specification**
 
-  ----------------------- -----------------------------------------------
-  **Property**            **Value**
+---
 
-  Standard                ERC-721 (unique, non-fungible)
+**Property** **Value**
 
-  Metadata                On-chain SVG with dynamic traits
+Standard ERC-721 (unique, non-fungible)
 
-  Soulbound Option        Configurable per achievement type
+Metadata On-chain SVG with dynamic traits
 
-  Display Integration     Farcaster profile, Mini App, OpenSea
+Soulbound Option Configurable per achievement type
 
-  Verification            On-chain achievement oracle
-  ----------------------- -----------------------------------------------
+Display Integration Farcaster profile, Mini App, OpenSea
+
+Verification On-chain achievement oracle
+
+---
 
 **11.5 Anti-Farming Measures**
 
@@ -1016,4 +1078,4 @@ verification. Kill counts require pattern analysis to detect automation.
 Economic achievements are inherently resistant to farming due to real
 cost.
 
-*--- End of Addendum ---*
+_--- End of Addendum ---_

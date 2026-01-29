@@ -11,6 +11,7 @@ This document provides a detailed breakdown of all implementation tasks organize
 ### 1.1 Project Scaffolding
 
 #### Task 1.1.1: Initialize Monorepo
+
 **Priority:** P0 (Blocker)  
 **Estimate:** 4 hours  
 **Dependencies:** None
@@ -19,6 +20,7 @@ This document provides a detailed breakdown of all implementation tasks organize
 Set up the Turborepo monorepo structure with all workspaces.
 
 **Subtasks:**
+
 - [ ] Initialize pnpm workspace
 - [ ] Configure Turborepo (turbo.json)
 - [ ] Create directory structure (apps/, packages/, docs/)
@@ -28,6 +30,7 @@ Set up the Turborepo monorepo structure with all workspaces.
 - [ ] Create root package.json with scripts
 
 **Acceptance Criteria:**
+
 - `pnpm install` works from root
 - `pnpm build` builds all packages
 - `pnpm dev` starts all dev servers
@@ -36,6 +39,7 @@ Set up the Turborepo monorepo structure with all workspaces.
 ---
 
 #### Task 1.1.2: Set Up Frontend App (apps/web)
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.1.1
@@ -44,6 +48,7 @@ Set up the Turborepo monorepo structure with all workspaces.
 Initialize React + Vite + TypeScript frontend application.
 
 **Subtasks:**
+
 - [ ] Create Vite project with React + TypeScript template
 - [ ] Configure Tailwind CSS
 - [ ] Set up Zustand stores (empty shells)
@@ -54,6 +59,7 @@ Initialize React + Vite + TypeScript frontend application.
 - [ ] Configure environment variables
 
 **Acceptance Criteria:**
+
 - `pnpm dev` starts frontend on localhost:5173
 - TypeScript strict mode passes
 - Tailwind classes work
@@ -62,6 +68,7 @@ Initialize React + Vite + TypeScript frontend application.
 ---
 
 #### Task 1.1.3: Set Up Backend App (apps/api)
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.1.1
@@ -70,6 +77,7 @@ Initialize React + Vite + TypeScript frontend application.
 Initialize Fastify + TypeScript backend application.
 
 **Subtasks:**
+
 - [ ] Create Fastify project with TypeScript
 - [ ] Configure Zod validation
 - [ ] Set up JWT authentication plugin
@@ -81,6 +89,7 @@ Initialize Fastify + TypeScript backend application.
 - [ ] Configure environment variables
 
 **Acceptance Criteria:**
+
 - `pnpm dev` starts API on localhost:3001
 - `/health` endpoint returns 200
 - TypeScript strict mode passes
@@ -88,6 +97,7 @@ Initialize Fastify + TypeScript backend application.
 ---
 
 #### Task 1.1.4: Set Up Contracts Package (packages/contracts)
+
 **Priority:** P0  
 **Estimate:** 2 hours  
 **Dependencies:** 1.1.1
@@ -96,6 +106,7 @@ Initialize Fastify + TypeScript backend application.
 Initialize Foundry project for smart contracts.
 
 **Subtasks:**
+
 - [ ] Initialize Foundry project
 - [ ] Configure foundry.toml
 - [ ] Add OpenZeppelin dependencies
@@ -104,6 +115,7 @@ Initialize Foundry project for smart contracts.
 - [ ] Create deployment script shells
 
 **Acceptance Criteria:**
+
 - `forge build` succeeds
 - `forge test` runs (empty tests pass)
 - OpenZeppelin imports work
@@ -111,6 +123,7 @@ Initialize Foundry project for smart contracts.
 ---
 
 #### Task 1.1.5: Set Up SDK Package (packages/sdk)
+
 **Priority:** P1  
 **Estimate:** 2 hours  
 **Dependencies:** 1.1.1
@@ -119,6 +132,7 @@ Initialize Foundry project for smart contracts.
 Create shared TypeScript SDK for types and utilities.
 
 **Subtasks:**
+
 - [ ] Initialize TypeScript package
 - [ ] Create types directory
 - [ ] Create utils directory
@@ -126,6 +140,7 @@ Create shared TypeScript SDK for types and utilities.
 - [ ] Configure exports
 
 **Acceptance Criteria:**
+
 - Package builds successfully
 - Types can be imported from apps/web and apps/api
 
@@ -134,6 +149,7 @@ Create shared TypeScript SDK for types and utilities.
 ### 1.2 Smart Contracts - Tokens
 
 #### Task 1.2.1: Implement VSCToken.sol
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.1.4
@@ -142,6 +158,7 @@ Create shared TypeScript SDK for types and utilities.
 Implement the primary ERC-20 token with minting, burning, and pausable functionality.
 
 **Subtasks:**
+
 - [ ] Create VSCToken contract inheriting ERC20, Pausable, Ownable2Step
 - [ ] Implement MAX_SUPPLY constant (100B)
 - [ ] Implement authorizedMinters mapping
@@ -153,6 +170,7 @@ Implement the primary ERC-20 token with minting, burning, and pausable functiona
 - [ ] Add events
 
 **Acceptance Criteria:**
+
 - All functions work as specified
 - 100% test coverage
 - Gas optimized (< 100k gas for mint)
@@ -160,6 +178,7 @@ Implement the primary ERC-20 token with minting, burning, and pausable functiona
 ---
 
 #### Task 1.2.2: Write VSCToken Tests
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.2.1
@@ -168,6 +187,7 @@ Implement the primary ERC-20 token with minting, burning, and pausable functiona
 Comprehensive test suite for VSCToken.
 
 **Subtasks:**
+
 - [ ] Test initial state
 - [ ] Test minting (success and failure cases)
 - [ ] Test burning
@@ -178,6 +198,7 @@ Comprehensive test suite for VSCToken.
 - [ ] Fuzz test mint amounts
 
 **Acceptance Criteria:**
+
 - 100% line coverage
 - 100% branch coverage
 - All edge cases covered
@@ -185,6 +206,7 @@ Comprehensive test suite for VSCToken.
 ---
 
 #### Task 1.2.3: Implement GearToken.sol
+
 **Priority:** P0  
 **Estimate:** 3 hours  
 **Dependencies:** 1.1.4
@@ -193,6 +215,7 @@ Comprehensive test suite for VSCToken.
 Implement the template for gear tokens (deployed 6 times).
 
 **Subtasks:**
+
 - [ ] Create GearToken contract inheriting ERC20, Pausable, Ownable2Step
 - [ ] Implement bondingCurve address storage
 - [ ] Implement mint() function (bonding curve only)
@@ -202,6 +225,7 @@ Implement the template for gear tokens (deployed 6 times).
 - [ ] Add events
 
 **Acceptance Criteria:**
+
 - Only bonding curve can mint/burn
 - Pausable works correctly
 - 100% test coverage
@@ -209,6 +233,7 @@ Implement the template for gear tokens (deployed 6 times).
 ---
 
 #### Task 1.2.4: Write GearToken Tests
+
 **Priority:** P0  
 **Estimate:** 3 hours  
 **Dependencies:** 1.2.3
@@ -217,6 +242,7 @@ Implement the template for gear tokens (deployed 6 times).
 Test suite for GearToken.
 
 **Subtasks:**
+
 - [ ] Test initial state
 - [ ] Test minting from bonding curve
 - [ ] Test minting from non-bonding-curve fails
@@ -224,6 +250,7 @@ Test suite for GearToken.
 - [ ] Test pause/unpause
 
 **Acceptance Criteria:**
+
 - 100% coverage
 - Access control verified
 
@@ -232,6 +259,7 @@ Test suite for GearToken.
 ### 1.3 Smart Contracts - Bonding Curve
 
 #### Task 1.3.1: Implement BondingCurve.sol
+
 **Priority:** P0  
 **Estimate:** 8 hours  
 **Dependencies:** 1.2.1, 1.2.3
@@ -240,6 +268,7 @@ Test suite for GearToken.
 Implement polynomial bonding curve AMM.
 
 **Subtasks:**
+
 - [ ] Create BondingCurve contract with Pausable, Ownable2Step, ReentrancyGuard
 - [ ] Implement curve formula: Price = BasePrice + (Slope × Supply²)
 - [ ] Implement buy() function with fee calculation
@@ -254,6 +283,7 @@ Implement polynomial bonding curve AMM.
 - [ ] Add custom errors and events
 
 **Acceptance Criteria:**
+
 - Buy/sell works correctly
 - Fees calculated and distributed properly
 - Slippage protection works
@@ -263,6 +293,7 @@ Implement polynomial bonding curve AMM.
 ---
 
 #### Task 1.3.2: Write BondingCurve Tests
+
 **Priority:** P0  
 **Estimate:** 6 hours  
 **Dependencies:** 1.3.1
@@ -271,6 +302,7 @@ Implement polynomial bonding curve AMM.
 Comprehensive test suite for BondingCurve.
 
 **Subtasks:**
+
 - [ ] Test buy with various amounts
 - [ ] Test sell with various amounts
 - [ ] Test price calculation accuracy
@@ -282,6 +314,7 @@ Comprehensive test suite for BondingCurve.
 - [ ] Invariant test: always collateralized
 
 **Acceptance Criteria:**
+
 - 100% coverage
 - Economic invariants verified
 - No profit from buy-then-sell (due to fees)
@@ -289,6 +322,7 @@ Comprehensive test suite for BondingCurve.
 ---
 
 #### Task 1.3.3: Create Deployment Script for Tokens & Curves
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.2.1, 1.2.3, 1.3.1
@@ -297,6 +331,7 @@ Comprehensive test suite for BondingCurve.
 Create Foundry deployment script for all tokens and bonding curves.
 
 **Subtasks:**
+
 - [ ] Create Deploy.s.sol with ordered deployment
 - [ ] Deploy VSCToken
 - [ ] Deploy 6 GearTokens
@@ -307,6 +342,7 @@ Create Foundry deployment script for all tokens and bonding curves.
 - [ ] Test on Anvil
 
 **Acceptance Criteria:**
+
 - Script deploys all contracts in correct order
 - Permissions configured correctly
 - Works on Anvil and Base Sepolia
@@ -316,6 +352,7 @@ Create Foundry deployment script for all tokens and bonding curves.
 ### 1.4 Basic Frontend
 
 #### Task 1.4.1: Implement Wallet Connection
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.1.2
@@ -324,6 +361,7 @@ Create Foundry deployment script for all tokens and bonding curves.
 Implement Farcaster wallet connection using Mini App SDK.
 
 **Subtasks:**
+
 - [ ] Create ConnectButton component
 - [ ] Implement initMiniApp() function
 - [ ] Implement connectWallet() with SIWF
@@ -333,6 +371,7 @@ Implement Farcaster wallet connection using Mini App SDK.
 - [ ] Display connected address
 
 **Acceptance Criteria:**
+
 - Users can connect wallet via Farcaster
 - Connection persists across page refresh
 - Error states handled gracefully
@@ -340,6 +379,7 @@ Implement Farcaster wallet connection using Mini App SDK.
 ---
 
 #### Task 1.4.2: Implement Token Balance Display
+
 **Priority:** P1  
 **Estimate:** 4 hours  
 **Dependencies:** 1.4.1, 1.3.3
@@ -348,6 +388,7 @@ Implement Farcaster wallet connection using Mini App SDK.
 Display $VSC and gear token balances.
 
 **Subtasks:**
+
 - [ ] Create TokenBalance component
 - [ ] Create useVSCToken hook
 - [ ] Create useGearTokens hook
@@ -356,6 +397,7 @@ Display $VSC and gear token balances.
 - [ ] Handle loading/error states
 
 **Acceptance Criteria:**
+
 - Balances display correctly
 - Balances update on chain changes
 - Loading states shown
@@ -369,6 +411,7 @@ Display $VSC and gear token balances.
 ### 2.1 Core Engine
 
 #### Task 2.1.1: Set Up PixiJS Application
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.1.2
@@ -377,6 +420,7 @@ Display $VSC and gear token balances.
 Initialize PixiJS v8 application with game canvas.
 
 **Subtasks:**
+
 - [ ] Create GameCanvas React component
 - [ ] Initialize PixiJS Application
 - [ ] Configure WebGL renderer
@@ -386,6 +430,7 @@ Initialize PixiJS v8 application with game canvas.
 - [ ] Integrate with React lifecycle
 
 **Acceptance Criteria:**
+
 - Canvas renders in browser
 - Responsive to window resize
 - Consistent 60 FPS
@@ -393,6 +438,7 @@ Initialize PixiJS v8 application with game canvas.
 ---
 
 #### Task 2.1.2: Implement Input System
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.1.1
@@ -401,6 +447,7 @@ Initialize PixiJS v8 application with game canvas.
 Handle touch and keyboard input for player movement.
 
 **Subtasks:**
+
 - [ ] Create InputSystem class
 - [ ] Implement touch/pointer event handlers
 - [ ] Implement virtual joystick (100px dead zone)
@@ -410,6 +457,7 @@ Handle touch and keyboard input for player movement.
 - [ ] Test on mobile and desktop
 
 **Acceptance Criteria:**
+
 - Touch controls work on mobile
 - Keyboard controls work on desktop
 - Movement is smooth and responsive
@@ -417,6 +465,7 @@ Handle touch and keyboard input for player movement.
 ---
 
 #### Task 2.1.3: Implement Scene Manager
+
 **Priority:** P0  
 **Estimate:** 3 hours  
 **Dependencies:** 2.1.1
@@ -425,6 +474,7 @@ Handle touch and keyboard input for player movement.
 Manage game scenes (menu, game, results).
 
 **Subtasks:**
+
 - [ ] Create Scene base class
 - [ ] Create SceneManager
 - [ ] Implement scene transitions
@@ -433,6 +483,7 @@ Manage game scenes (menu, game, results).
 - [ ] Create ResultScene shell
 
 **Acceptance Criteria:**
+
 - Can switch between scenes
 - Scenes clean up properly
 - Transitions are smooth
@@ -442,6 +493,7 @@ Manage game scenes (menu, game, results).
 ### 2.2 Player & Movement
 
 #### Task 2.2.1: Implement Player Entity
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.1.2
@@ -450,6 +502,7 @@ Manage game scenes (menu, game, results).
 Create player entity with movement and stats.
 
 **Subtasks:**
+
 - [ ] Create Player class with sprite
 - [ ] Implement position and velocity
 - [ ] Implement movement based on input
@@ -459,6 +512,7 @@ Create player entity with movement and stats.
 - [ ] Handle screen boundaries
 
 **Acceptance Criteria:**
+
 - Player moves based on input
 - Player has health that can decrease
 - Player sprite renders and animates
@@ -466,6 +520,7 @@ Create player entity with movement and stats.
 ---
 
 #### Task 2.2.2: Implement Camera/Viewport
+
 **Priority:** P1  
 **Estimate:** 3 hours  
 **Dependencies:** 2.2.1
@@ -474,12 +529,14 @@ Create player entity with movement and stats.
 Camera that follows player in infinite arena.
 
 **Subtasks:**
+
 - [ ] Create Camera class
 - [ ] Implement smooth follow
 - [ ] Implement viewport culling
 - [ ] Update all entity positions relative to camera
 
 **Acceptance Criteria:**
+
 - Camera follows player smoothly
 - Only visible entities are rendered
 
@@ -488,6 +545,7 @@ Camera that follows player in infinite arena.
 ### 2.3 Enemies
 
 #### Task 2.3.1: Implement Enemy Base Class
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.1.1
@@ -496,6 +554,7 @@ Camera that follows player in infinite arena.
 Base class for all enemy types.
 
 **Subtasks:**
+
 - [ ] Create Enemy class with sprite
 - [ ] Implement health system
 - [ ] Implement damage dealing on contact
@@ -504,6 +563,7 @@ Base class for all enemy types.
 - [ ] Create enemy pool for performance
 
 **Acceptance Criteria:**
+
 - Enemies move toward player
 - Enemies damage player on contact
 - Enemies drop XP on death
@@ -511,6 +571,7 @@ Base class for all enemy types.
 ---
 
 #### Task 2.3.2: Implement Enemy Spawning System
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.3.1
@@ -519,6 +580,7 @@ Base class for all enemy types.
 Spawn enemies based on time/difficulty.
 
 **Subtasks:**
+
 - [ ] Create SpawningSystem class
 - [ ] Implement spawn timer
 - [ ] Implement difficulty scaling (linear)
@@ -527,6 +589,7 @@ Spawn enemies based on time/difficulty.
 - [ ] Implement enemy variety by time
 
 **Acceptance Criteria:**
+
 - Enemies spawn at regular intervals
 - Spawn rate increases over time
 - Enemies spawn from off-screen
@@ -536,6 +599,7 @@ Spawn enemies based on time/difficulty.
 ### 2.4 Combat
 
 #### Task 2.4.1: Implement Weapon System
+
 **Priority:** P0  
 **Estimate:** 6 hours  
 **Dependencies:** 2.2.1
@@ -544,6 +608,7 @@ Spawn enemies based on time/difficulty.
 Auto-attacking weapon system.
 
 **Subtasks:**
+
 - [ ] Create Weapon base class
 - [ ] Implement auto-attack timer
 - [ ] Implement projectile creation
@@ -553,6 +618,7 @@ Auto-attacking weapon system.
 - [ ] Implement weapon slot system (max 6)
 
 **Acceptance Criteria:**
+
 - Weapons fire automatically
 - Projectiles move and render
 - Weapons can be leveled up
@@ -560,6 +626,7 @@ Auto-attacking weapon system.
 ---
 
 #### Task 2.4.2: Implement Collision System
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.4.1, 2.3.1
@@ -568,6 +635,7 @@ Auto-attacking weapon system.
 Detect collisions between entities.
 
 **Subtasks:**
+
 - [ ] Create CollisionSystem class
 - [ ] Implement spatial hashing for performance
 - [ ] Detect projectile-enemy collisions
@@ -576,6 +644,7 @@ Detect collisions between entities.
 - [ ] Apply damage on collision
 
 **Acceptance Criteria:**
+
 - Collisions detected accurately
 - Performance stays at 60 FPS with 200+ entities
 - Damage applied correctly
@@ -583,6 +652,7 @@ Detect collisions between entities.
 ---
 
 #### Task 2.4.3: Implement Pickup System
+
 **Priority:** P0  
 **Estimate:** 3 hours  
 **Dependencies:** 2.4.2
@@ -591,6 +661,7 @@ Detect collisions between entities.
 XP gems and other pickups.
 
 **Subtasks:**
+
 - [ ] Create Pickup base class
 - [ ] Create XP gem pickup
 - [ ] Implement magnet range (attract to player)
@@ -598,6 +669,7 @@ XP gems and other pickups.
 - [ ] Create pickup pool for performance
 
 **Acceptance Criteria:**
+
 - XP gems drop from enemies
 - Gems attracted to player within range
 - XP added to player on collection
@@ -607,6 +679,7 @@ XP gems and other pickups.
 ### 2.5 Leveling
 
 #### Task 2.5.1: Implement Level-Up System
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.4.3
@@ -615,6 +688,7 @@ XP gems and other pickups.
 Level up when XP threshold reached.
 
 **Subtasks:**
+
 - [ ] Track XP and level in game state
 - [ ] Calculate XP thresholds per level
 - [ ] Trigger level-up event
@@ -623,6 +697,7 @@ Level up when XP threshold reached.
 - [ ] Apply selected upgrade
 
 **Acceptance Criteria:**
+
 - Level up triggers at correct XP
 - Game pauses during selection
 - Selected upgrade applied correctly
@@ -630,6 +705,7 @@ Level up when XP threshold reached.
 ---
 
 #### Task 2.5.2: Implement Level-Up UI
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.5.1
@@ -638,6 +714,7 @@ Level up when XP threshold reached.
 UI for selecting level-up upgrades.
 
 **Subtasks:**
+
 - [ ] Create LevelUpModal component
 - [ ] Display 3 upgrade choices
 - [ ] Show upgrade descriptions
@@ -645,6 +722,7 @@ UI for selecting level-up upgrades.
 - [ ] Close modal and resume game
 
 **Acceptance Criteria:**
+
 - Modal appears on level up
 - Choices are clearly displayed
 - Selection works on touch and click
@@ -654,6 +732,7 @@ UI for selecting level-up upgrades.
 ### 2.6 HUD & UI
 
 #### Task 2.6.1: Implement Game HUD
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 2.2.1
@@ -662,6 +741,7 @@ UI for selecting level-up upgrades.
 Heads-up display during gameplay.
 
 **Subtasks:**
+
 - [ ] Create HUD component
 - [ ] Display health bar
 - [ ] Display XP bar
@@ -671,6 +751,7 @@ Heads-up display during gameplay.
 - [ ] Position HUD correctly on mobile/desktop
 
 **Acceptance Criteria:**
+
 - All stats displayed clearly
 - Updates in real-time
 - Doesn't obstruct gameplay
@@ -678,6 +759,7 @@ Heads-up display during gameplay.
 ---
 
 #### Task 2.6.2: Implement Pause Menu
+
 **Priority:** P1  
 **Estimate:** 2 hours  
 **Dependencies:** 2.1.3
@@ -686,6 +768,7 @@ Heads-up display during gameplay.
 Pause menu with resume and quit options.
 
 **Subtasks:**
+
 - [ ] Create PauseMenu component
 - [ ] Pause game on ESC/button
 - [ ] Display pause overlay
@@ -693,6 +776,7 @@ Pause menu with resume and quit options.
 - [ ] Resume on click outside
 
 **Acceptance Criteria:**
+
 - Game pauses correctly
 - Can resume or quit
 - Game state preserved
@@ -700,6 +784,7 @@ Pause menu with resume and quit options.
 ---
 
 #### Task 2.6.3: Implement Game Over Screen
+
 **Priority:** P0  
 **Estimate:** 3 hours  
 **Dependencies:** 2.1.3
@@ -708,6 +793,7 @@ Pause menu with resume and quit options.
 Show results when player dies.
 
 **Subtasks:**
+
 - [ ] Create GameOverScreen component
 - [ ] Display survival time
 - [ ] Display enemies killed
@@ -717,6 +803,7 @@ Show results when player dies.
 - [ ] Share to Farcaster button
 
 **Acceptance Criteria:**
+
 - Shows all relevant stats
 - Can start new game
 - Can share results
@@ -730,6 +817,7 @@ Show results when player dies.
 ### 3.1 Staking Contracts
 
 #### Task 3.1.1: Implement GearStaking.sol
+
 **Priority:** P0  
 **Estimate:** 6 hours  
 **Dependencies:** 1.2.3, 1.3.1
@@ -738,6 +826,7 @@ Show results when player dies.
 Gear token staking with power calculation.
 
 **Subtasks:**
+
 - [ ] Create GearStaking contract with Pausable, Ownable2Step
 - [ ] Implement 6 gear slots
 - [ ] Implement stake() function with 5% fee
@@ -748,6 +837,7 @@ Gear token staking with power calculation.
 - [ ] Add events and errors
 
 **Acceptance Criteria:**
+
 - Staking works for all 6 slots
 - Power calculated correctly
 - 5% fee taken on stake
@@ -756,6 +846,7 @@ Gear token staking with power calculation.
 ---
 
 #### Task 3.1.2: Write GearStaking Tests
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 3.1.1
@@ -764,6 +855,7 @@ Gear token staking with power calculation.
 Test suite for GearStaking.
 
 **Subtasks:**
+
 - [ ] Test staking to each slot
 - [ ] Test unstaking
 - [ ] Test fee calculation
@@ -773,12 +865,14 @@ Test suite for GearStaking.
 - [ ] Fuzz test amounts
 
 **Acceptance Criteria:**
+
 - 100% coverage
 - Economic formulas verified
 
 ---
 
 #### Task 3.1.3: Implement MaintenancePool.sol
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 3.1.1
@@ -787,6 +881,7 @@ Test suite for GearStaking.
 Maintenance pool with decay mechanics.
 
 **Subtasks:**
+
 - [ ] Create MaintenancePool contract
 - [ ] Implement deposit() function
 - [ ] Implement withdraw() function
@@ -796,6 +891,7 @@ Maintenance pool with decay mechanics.
 - [ ] Link to GearStaking for bonus
 
 **Acceptance Criteria:**
+
 - Deposits work correctly
 - Decay applies over time
 - Bonus status calculated correctly
@@ -804,6 +900,7 @@ Maintenance pool with decay mechanics.
 ---
 
 #### Task 3.1.4: Write MaintenancePool Tests
+
 **Priority:** P0  
 **Estimate:** 3 hours  
 **Dependencies:** 3.1.3
@@ -812,6 +909,7 @@ Maintenance pool with decay mechanics.
 Test suite for MaintenancePool.
 
 **Subtasks:**
+
 - [ ] Test deposits
 - [ ] Test withdrawals
 - [ ] Test decay over time (warp)
@@ -819,6 +917,7 @@ Test suite for MaintenancePool.
 - [ ] Test bonus activation/deactivation
 
 **Acceptance Criteria:**
+
 - 100% coverage
 - Decay math verified
 
@@ -827,6 +926,7 @@ Test suite for MaintenancePool.
 ### 3.2 Staking UI
 
 #### Task 3.2.1: Implement Gear Panel
+
 **Priority:** P0  
 **Estimate:** 6 hours  
 **Dependencies:** 3.1.1, 1.4.2
@@ -835,6 +935,7 @@ Test suite for MaintenancePool.
 UI for viewing and managing gear staking.
 
 **Subtasks:**
+
 - [ ] Create GearPanel component
 - [ ] Create GearSlot component for each slot
 - [ ] Display staked amounts
@@ -846,6 +947,7 @@ UI for viewing and managing gear staking.
 - [ ] Show transaction status
 
 **Acceptance Criteria:**
+
 - Can view all gear slots
 - Can stake/unstake from UI
 - Transactions work correctly
@@ -853,6 +955,7 @@ UI for viewing and managing gear staking.
 ---
 
 #### Task 3.2.2: Implement Maintenance Bar
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 3.1.3, 1.4.2
@@ -861,6 +964,7 @@ UI for viewing and managing gear staking.
 UI for maintenance pool status.
 
 **Subtasks:**
+
 - [ ] Create MaintenanceBar component
 - [ ] Display current pool balance
 - [ ] Display threshold
@@ -870,6 +974,7 @@ UI for maintenance pool status.
 - [ ] Implement deposit transaction
 
 **Acceptance Criteria:**
+
 - Shows maintenance status clearly
 - Can refill from UI
 - Visual indication of bonus status
@@ -879,6 +984,7 @@ UI for maintenance pool status.
 ### 3.3 Rewards System
 
 #### Task 3.3.1: Implement RewardDistributor.sol
+
 **Priority:** P0  
 **Estimate:** 6 hours  
 **Dependencies:** 1.2.1
@@ -887,6 +993,7 @@ UI for maintenance pool status.
 Backend-authorized reward claims.
 
 **Subtasks:**
+
 - [ ] Create RewardDistributor contract
 - [ ] Implement authorized signer storage
 - [ ] Implement claim() with signature verification
@@ -896,6 +1003,7 @@ Backend-authorized reward claims.
 - [ ] Add events and errors
 
 **Acceptance Criteria:**
+
 - Only valid signatures accepted
 - Nonces prevent replay
 - Daily caps enforced
@@ -904,6 +1012,7 @@ Backend-authorized reward claims.
 ---
 
 #### Task 3.3.2: Write RewardDistributor Tests
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 3.3.1
@@ -912,6 +1021,7 @@ Backend-authorized reward claims.
 Test suite for RewardDistributor.
 
 **Subtasks:**
+
 - [ ] Test valid claims
 - [ ] Test invalid signature rejection
 - [ ] Test nonce replay rejection
@@ -920,6 +1030,7 @@ Test suite for RewardDistributor.
 - [ ] Test cooldown enforcement
 
 **Acceptance Criteria:**
+
 - 100% coverage
 - All security checks verified
 
@@ -932,6 +1043,7 @@ Test suite for RewardDistributor.
 ### 4.1 Database
 
 #### Task 4.1.1: Create Database Schema
+
 **Priority:** P0  
 **Estimate:** 3 hours  
 **Dependencies:** 1.1.3
@@ -940,6 +1052,7 @@ Test suite for RewardDistributor.
 Set up PostgreSQL schema in Supabase.
 
 **Subtasks:**
+
 - [ ] Create players table
 - [ ] Create game_sessions table
 - [ ] Create session_heartbeats table
@@ -952,6 +1065,7 @@ Set up PostgreSQL schema in Supabase.
 - [ ] Add triggers
 
 **Acceptance Criteria:**
+
 - All tables created
 - Indexes optimize queries
 - Foreign keys enforced
@@ -959,6 +1073,7 @@ Set up PostgreSQL schema in Supabase.
 ---
 
 #### Task 4.1.2: Implement Database Queries
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 4.1.1
@@ -967,6 +1082,7 @@ Set up PostgreSQL schema in Supabase.
 Create typed database query functions.
 
 **Subtasks:**
+
 - [ ] Player CRUD operations
 - [ ] Session CRUD operations
 - [ ] Heartbeat operations
@@ -975,6 +1091,7 @@ Create typed database query functions.
 - [ ] Nonce tracking
 
 **Acceptance Criteria:**
+
 - All queries work correctly
 - Type-safe with Zod validation
 - Efficient query patterns
@@ -984,6 +1101,7 @@ Create typed database query functions.
 ### 4.2 API Routes
 
 #### Task 4.2.1: Implement Auth Routes
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 1.1.3
@@ -992,6 +1110,7 @@ Create typed database query functions.
 Authentication endpoints.
 
 **Subtasks:**
+
 - [ ] POST /api/auth/verify - Farcaster SIWF
 - [ ] POST /api/auth/refresh - Token refresh
 - [ ] POST /api/auth/logout - End session
@@ -999,6 +1118,7 @@ Authentication endpoints.
 - [ ] Test all endpoints
 
 **Acceptance Criteria:**
+
 - Can authenticate with Farcaster
 - JWT tokens work correctly
 - Refresh flow works
@@ -1006,6 +1126,7 @@ Authentication endpoints.
 ---
 
 #### Task 4.2.2: Implement Game Routes
+
 **Priority:** P0  
 **Estimate:** 6 hours  
 **Dependencies:** 4.1.2, 4.2.1
@@ -1014,6 +1135,7 @@ Authentication endpoints.
 Game session management endpoints.
 
 **Subtasks:**
+
 - [ ] POST /api/game/session/start
 - [ ] POST /api/game/session/end
 - [ ] POST /api/game/session/heartbeat
@@ -1024,6 +1146,7 @@ Game session management endpoints.
 - [ ] Test all endpoints
 
 **Acceptance Criteria:**
+
 - Sessions track correctly
 - Rewards calculated accurately
 - Anti-fraud catches obvious cheats
@@ -1031,6 +1154,7 @@ Game session management endpoints.
 ---
 
 #### Task 4.2.3: Implement Reward Routes
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 4.2.2
@@ -1039,6 +1163,7 @@ Game session management endpoints.
 Reward claiming endpoints.
 
 **Subtasks:**
+
 - [ ] GET /api/rewards/pending
 - [ ] POST /api/rewards/claim
 - [ ] GET /api/rewards/history
@@ -1046,6 +1171,7 @@ Reward claiming endpoints.
 - [ ] Test all endpoints
 
 **Acceptance Criteria:**
+
 - Can view pending rewards
 - Can mark as claimed
 - History accurate
@@ -1055,6 +1181,7 @@ Reward claiming endpoints.
 ### 4.3 Frontend Integration
 
 #### Task 4.3.1: Integrate Session Management
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 4.2.2, 2.6.3
@@ -1063,6 +1190,7 @@ Reward claiming endpoints.
 Connect game to backend sessions.
 
 **Subtasks:**
+
 - [ ] Call session/start on game start
 - [ ] Send heartbeats during gameplay
 - [ ] Call session/end on game over
@@ -1070,6 +1198,7 @@ Connect game to backend sessions.
 - [ ] Handle errors gracefully
 
 **Acceptance Criteria:**
+
 - Sessions created/ended correctly
 - Heartbeats sent regularly
 - Rewards displayed
@@ -1077,6 +1206,7 @@ Connect game to backend sessions.
 ---
 
 #### Task 4.3.2: Implement Reward Claiming UI
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 4.2.3, 3.3.1
@@ -1085,6 +1215,7 @@ Connect game to backend sessions.
 UI to claim earned rewards.
 
 **Subtasks:**
+
 - [ ] Create ClaimRewards component
 - [ ] Display pending rewards
 - [ ] Implement claim transaction
@@ -1092,6 +1223,7 @@ UI to claim earned rewards.
 - [ ] Update balances after claim
 
 **Acceptance Criteria:**
+
 - Can see pending rewards
 - Can claim via contract
 - Balances update
@@ -1105,6 +1237,7 @@ UI to claim earned rewards.
 ### 5.1 NFT Contracts
 
 #### Task 5.1.1: Implement GlobalUpgradeNFT.sol
+
 **Priority:** P1  
 **Estimate:** 4 hours  
 **Dependencies:** 1.2.1
@@ -1113,6 +1246,7 @@ UI to claim earned rewards.
 ERC-1155 permanent upgrade NFTs.
 
 **Subtasks:**
+
 - [ ] Create contract with ERC1155, Pausable
 - [ ] Implement 7 upgrade types
 - [ ] Implement progressive cost formula
@@ -1121,6 +1255,7 @@ ERC-1155 permanent upgrade NFTs.
 - [ ] Test all functionality
 
 **Acceptance Criteria:**
+
 - Can mint upgrades
 - Cost increases correctly
 - Max per type enforced
@@ -1128,6 +1263,7 @@ ERC-1155 permanent upgrade NFTs.
 ---
 
 #### Task 5.1.2: Implement EarlyAdopterNFT.sol
+
 **Priority:** P1  
 **Estimate:** 3 hours  
 **Dependencies:** 1.1.4
@@ -1136,6 +1272,7 @@ ERC-1155 permanent upgrade NFTs.
 ERC-721 early adopter NFTs.
 
 **Subtasks:**
+
 - [ ] Create contract with ERC721, Pausable
 - [ ] Implement max supply (1,000)
 - [ ] Implement signature-based minting
@@ -1143,6 +1280,7 @@ ERC-721 early adopter NFTs.
 - [ ] Test all functionality
 
 **Acceptance Criteria:**
+
 - Can mint with valid signature
 - One per FID enforced
 - Max supply enforced
@@ -1152,6 +1290,7 @@ ERC-721 early adopter NFTs.
 ### 5.2 NFT UI
 
 #### Task 5.2.1: Implement Upgrade Shop
+
 **Priority:** P1  
 **Estimate:** 4 hours  
 **Dependencies:** 5.1.1
@@ -1160,6 +1299,7 @@ ERC-721 early adopter NFTs.
 UI to purchase permanent upgrades.
 
 **Subtasks:**
+
 - [ ] Create UpgradeShop component
 - [ ] Display all upgrade types
 - [ ] Display owned count
@@ -1167,6 +1307,7 @@ UI to purchase permanent upgrades.
 - [ ] Implement purchase transaction
 
 **Acceptance Criteria:**
+
 - Can view all upgrades
 - Can purchase upgrades
 - Costs display correctly
@@ -1176,6 +1317,7 @@ UI to purchase permanent upgrades.
 ### 5.3 Leaderboards
 
 #### Task 5.3.1: Implement Leaderboard UI
+
 **Priority:** P1  
 **Estimate:** 4 hours  
 **Dependencies:** 4.2.2
@@ -1184,6 +1326,7 @@ UI to purchase permanent upgrades.
 Display player leaderboards.
 
 **Subtasks:**
+
 - [ ] Create Leaderboard component
 - [ ] Fetch leaderboard data
 - [ ] Display daily/weekly/all-time tabs
@@ -1191,6 +1334,7 @@ Display player leaderboards.
 - [ ] Show rank, name, score
 
 **Acceptance Criteria:**
+
 - Leaderboards load correctly
 - Can switch between periods
 - Current player highlighted
@@ -1200,6 +1344,7 @@ Display player leaderboards.
 ### 5.4 Farcaster Integration
 
 #### Task 5.4.1: Implement Share Feature
+
 **Priority:** P1  
 **Estimate:** 2 hours  
 **Dependencies:** 2.6.3
@@ -1208,12 +1353,14 @@ Display player leaderboards.
 Share game results to Farcaster.
 
 **Subtasks:**
+
 - [ ] Create share button in GameOverScreen
 - [ ] Format share text with stats
 - [ ] Call SDK composeCast
 - [ ] Handle success/error
 
 **Acceptance Criteria:**
+
 - Can share results
 - Cast includes relevant stats
 - Errors handled gracefully
@@ -1221,6 +1368,7 @@ Share game results to Farcaster.
 ---
 
 #### Task 5.4.2: Implement Notifications
+
 **Priority:** P2  
 **Estimate:** 4 hours  
 **Dependencies:** 4.2.2
@@ -1229,6 +1377,7 @@ Share game results to Farcaster.
 Send Farcaster notifications.
 
 **Subtasks:**
+
 - [ ] Request notification permission
 - [ ] Store notification tokens
 - [ ] Send leaderboard notifications
@@ -1236,6 +1385,7 @@ Send Farcaster notifications.
 - [ ] Create notification job queue
 
 **Acceptance Criteria:**
+
 - Can request permission
 - Notifications delivered
 - Appropriate notification types
@@ -1245,6 +1395,7 @@ Send Farcaster notifications.
 ### 5.5 Testing & QA
 
 #### Task 5.5.1: Integration Testing
+
 **Priority:** P0  
 **Estimate:** 8 hours  
 **Dependencies:** All Phase 4
@@ -1253,6 +1404,7 @@ Send Farcaster notifications.
 Full integration test suite.
 
 **Subtasks:**
+
 - [ ] Contract integration tests
 - [ ] API integration tests
 - [ ] Frontend E2E tests
@@ -1261,6 +1413,7 @@ Full integration test suite.
 - [ ] Performance testing
 
 **Acceptance Criteria:**
+
 - All flows work end-to-end
 - No critical bugs
 - Performance acceptable
@@ -1274,6 +1427,7 @@ Full integration test suite.
 ### 6.1 Testnet Deployment
 
 #### Task 6.1.1: Deploy to Base Sepolia
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** All Phase 5
@@ -1282,6 +1436,7 @@ Full integration test suite.
 Deploy contracts to testnet.
 
 **Subtasks:**
+
 - [ ] Deploy all contracts
 - [ ] Verify on BaseScan
 - [ ] Configure permissions
@@ -1291,6 +1446,7 @@ Deploy contracts to testnet.
 - [ ] Test full flow on testnet
 
 **Acceptance Criteria:**
+
 - All contracts deployed and verified
 - Frontend works with testnet
 - Full flow functional
@@ -1298,6 +1454,7 @@ Deploy contracts to testnet.
 ---
 
 #### Task 6.1.2: Testnet QA
+
 **Priority:** P0  
 **Estimate:** 8 hours  
 **Dependencies:** 6.1.1
@@ -1306,6 +1463,7 @@ Deploy contracts to testnet.
 Quality assurance on testnet.
 
 **Subtasks:**
+
 - [ ] Test all user flows
 - [ ] Test edge cases
 - [ ] Test on mobile devices
@@ -1314,6 +1472,7 @@ Quality assurance on testnet.
 - [ ] Performance optimization
 
 **Acceptance Criteria:**
+
 - All flows work correctly
 - Mobile experience good
 - Performance acceptable
@@ -1323,6 +1482,7 @@ Quality assurance on testnet.
 ### 6.2 Mainnet Deployment
 
 #### Task 6.2.1: Pre-Deployment Checklist
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 6.1.2
@@ -1331,6 +1491,7 @@ Quality assurance on testnet.
 Verify readiness for mainnet.
 
 **Subtasks:**
+
 - [ ] Security review complete
 - [ ] All tests passing
 - [ ] Treasury multisig configured
@@ -1340,12 +1501,14 @@ Verify readiness for mainnet.
 - [ ] Backup procedures documented
 
 **Acceptance Criteria:**
+
 - All checklist items complete
 - Team sign-off received
 
 ---
 
 #### Task 6.2.2: Deploy to Base Mainnet
+
 **Priority:** P0  
 **Estimate:** 4 hours  
 **Dependencies:** 6.2.1
@@ -1354,6 +1517,7 @@ Verify readiness for mainnet.
 Deploy contracts to mainnet.
 
 **Subtasks:**
+
 - [ ] Deploy all contracts
 - [ ] Verify on BaseScan
 - [ ] Configure permissions
@@ -1364,6 +1528,7 @@ Deploy contracts to mainnet.
 - [ ] Deploy backend (production)
 
 **Acceptance Criteria:**
+
 - All contracts deployed and verified
 - Initial allocations correct
 - Bonding curves seeded
@@ -1372,6 +1537,7 @@ Deploy contracts to mainnet.
 ---
 
 #### Task 6.2.3: Post-Launch Monitoring
+
 **Priority:** P0  
 **Estimate:** Ongoing  
 **Dependencies:** 6.2.2
@@ -1380,6 +1546,7 @@ Deploy contracts to mainnet.
 Monitor system after launch.
 
 **Subtasks:**
+
 - [ ] Monitor contract events
 - [ ] Monitor API health
 - [ ] Monitor error rates
@@ -1387,6 +1554,7 @@ Monitor system after launch.
 - [ ] Community support
 
 **Acceptance Criteria:**
+
 - System stable
 - Issues addressed promptly
 - Community supported
@@ -1398,18 +1566,19 @@ Monitor system after launch.
 ## Summary
 
 ### Total Tasks: 65+
+
 ### Estimated Hours: ~250 hours
 
 ### Phase Breakdown
 
-| Phase | Focus | Duration | Critical Path |
-|-------|-------|----------|---------------|
-| 1 | Infrastructure | 2 weeks | Monorepo, Tokens, Curves |
-| 2 | Game Engine | 2 weeks | PixiJS, Combat, Leveling |
-| 3 | Meta-Progression | 2 weeks | Staking, Maintenance |
-| 4 | Backend | 2 weeks | API, Sessions, Rewards |
-| 5 | Polish | 2 weeks | NFTs, Leaderboards, Testing |
-| 6 | Deployment | 2 weeks | Testnet, Mainnet, Launch |
+| Phase | Focus            | Duration | Critical Path               |
+| ----- | ---------------- | -------- | --------------------------- |
+| 1     | Infrastructure   | 2 weeks  | Monorepo, Tokens, Curves    |
+| 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    |
+| 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        |
+| 4     | Backend          | 2 weeks  | API, Sessions, Rewards      |
+| 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing |
+| 6     | Deployment       | 2 weeks  | Testnet, Mainnet, Launch    |
 
 ### Key Milestones
 

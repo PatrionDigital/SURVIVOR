@@ -304,10 +304,7 @@ const gameRoutes: FastifyPluginAsync = async (fastify) => {
       const heartbeats = await getSessionHeartbeats(sessionId);
 
       // Validate session (anti-fraud)
-      const validation = validateSession(
-        { ...session, ...results },
-        heartbeats,
-      );
+      const validation = validateSession({ ...session, ...results }, heartbeats);
       if (!validation.isValid) {
         return reply.status(400).send({ error: validation.reason });
       }
@@ -328,10 +325,7 @@ const gameRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Apply diminishing returns
       const dailyClaimed = await getDailyClaimed(playerId);
-      const adjustedRewards = applyDiminishingReturns(
-        dailyClaimed,
-        finalRewards,
-      );
+      const adjustedRewards = applyDiminishingReturns(dailyClaimed, finalRewards);
 
       // Generate claim signature
       const nonce = await getNextNonce(playerId);
@@ -392,11 +386,7 @@ const gameRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Verify session
       const session = await getSession(sessionId);
-      if (
-        !session ||
-        session.player_id !== playerId ||
-        session.status !== "active"
-      ) {
+      if (!session || session.player_id !== playerId || session.status !== "active") {
         return reply.status(400).send({ error: "Invalid session" });
       }
 
@@ -546,9 +536,7 @@ export function calculateRewards(results: GameResults): RewardBreakdown {
 
   // Time bonus: Extra 0.5 $VSC per second after 5 minutes
   const timeBonus =
-    results.survivalTime > 300
-      ? BigInt(results.survivalTime - 300) * BigInt(5e17)
-      : 0n;
+    results.survivalTime > 300 ? BigInt(results.survivalTime - 300) * BigInt(5e17) : 0n;
 
   // Kill bonus: 0.01 $VSC per enemy
   const killBonus = BigInt(results.enemiesKilled) * BigInt(1e16);
@@ -603,13 +591,7 @@ interface ClaimData {
 export async function signRewardClaim(data: ClaimData): Promise<string> {
   const message = encodePacked(
     ["address", "uint256", "uint8", "uint256", "uint256"],
-    [
-      data.player,
-      data.amount,
-      data.rewardType,
-      BigInt(data.nonce),
-      BigInt(data.expiry),
-    ],
+    [data.player, data.amount, data.rewardType, BigInt(data.nonce), BigInt(data.expiry)]
   );
 
   const hash = keccak256(message);
@@ -649,10 +631,7 @@ interface Heartbeat {
   enemiesAlive: number;
 }
 
-export function validateSession(
-  session: GameSession,
-  heartbeats: Heartbeat[],
-): SessionValidation {
+export function validateSession(session: GameSession, heartbeats: Heartbeat[]): SessionValidation {
   // 1. Check heartbeat consistency
   const expectedHeartbeats = Math.floor(session.survivalTime / 5); // Every 5 seconds
   if (heartbeats.length < expectedHeartbeats * 0.8) {
@@ -671,10 +650,7 @@ export function validateSession(
     min: session.enemiesKilled * 5,
     max: session.enemiesKilled * 15,
   };
-  if (
-    session.xpCollected < expectedXpRange.min ||
-    session.xpCollected > expectedXpRange.max
-  ) {
+  if (session.xpCollected < expectedXpRange.min || session.xpCollected > expectedXpRange.max) {
     return { isValid: false, reason: "XP inconsistency" };
   }
 
@@ -702,8 +678,7 @@ export function validateSession(
     // 1 hour max
     return {
       isValid: true,
-      adjustedRewards: calculateRewards({ ...session, survivalTime: 3600 })
-        .total,
+      adjustedRewards: calculateRewards({ ...session, survivalTime: 3600 }).total,
     };
   }
 
@@ -724,10 +699,7 @@ function calculateMovementVariance(heartbeats: Heartbeat[]): number {
 }
 
 // Diminishing returns for extended play
-export function applyDiminishingReturns(
-  dailyClaimed: bigint,
-  newReward: bigint,
-): bigint {
+export function applyDiminishingReturns(dailyClaimed: bigint, newReward: bigint): bigint {
   const DAILY_CAP = BigInt(10000e18); // 10,000 $VSC daily cap
   const SOFT_CAP = BigInt(5000e18); // 50% reduction after 5,000
 
@@ -767,7 +739,7 @@ export async function scheduleLeaderboardUpdates() {
     {},
     {
       repeat: { cron: "0 0 * * *" },
-    },
+    }
   );
 
   // Weekly leaderboard on Monday midnight UTC
@@ -776,7 +748,7 @@ export async function scheduleLeaderboardUpdates() {
     {},
     {
       repeat: { cron: "0 0 * * 1" },
-    },
+    }
   );
 }
 
@@ -790,19 +762,11 @@ const leaderboardWorker = new Worker(
     let periodStart: Date;
 
     if (period === "daily") {
-      periodStart = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - 1,
-      );
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
     } else {
       const dayOfWeek = now.getDay();
       const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      periodStart = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - daysToSubtract - 7,
-      );
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysToSubtract - 7);
     }
 
     // Aggregate scores for the period
@@ -818,7 +782,7 @@ const leaderboardWorker = new Worker(
       await sendLeaderboardNotification(entry.playerId, entry.rank, period);
     }
   },
-  { connection: redis },
+  { connection: redis }
 );
 
 export { leaderboardQueue, leaderboardWorker };
@@ -840,7 +804,7 @@ export async function scheduleDecayJob() {
     {},
     {
       repeat: { cron: "0 * * * *" }, // Every hour
-    },
+    }
   );
 }
 
@@ -854,9 +818,7 @@ const decayWorker = new Worker(
     const activePools = await getActiveMaintenancePools();
     const totalDecay = await calculateTotalDecay(activePools);
 
-    console.log(
-      `Hourly decay: ${totalDecay} $VSC across ${activePools.length} pools`,
-    );
+    console.log(`Hourly decay: ${totalDecay} $VSC across ${activePools.length} pools`);
 
     // Send warnings to players below threshold
     for (const pool of activePools) {
@@ -865,7 +827,7 @@ const decayWorker = new Worker(
       }
     }
   },
-  { connection: redis },
+  { connection: redis }
 );
 
 export { decayQueue, decayWorker };
@@ -882,10 +844,7 @@ import fp from "fastify-plugin";
 
 declare module "fastify" {
   interface FastifyInstance {
-    authenticate: (
-      request: FastifyRequest,
-      reply: FastifyReply,
-    ) => Promise<void>;
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 }
 
@@ -905,16 +864,13 @@ declare module "@fastify/jwt" {
 }
 
 export default fp(async (fastify) => {
-  fastify.decorate(
-    "authenticate",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        await request.jwtVerify();
-      } catch (err) {
-        reply.status(401).send({ error: "Unauthorized" });
-      }
-    },
-  );
+  fastify.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.status(401).send({ error: "Unauthorized" });
+    }
+  });
 });
 ```
 
