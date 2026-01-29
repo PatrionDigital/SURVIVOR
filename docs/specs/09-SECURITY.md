@@ -218,20 +218,13 @@ fastify.post('/session/end', {
 // ALWAYS use parameterized queries
 
 // ✅ CORRECT: Parameterized query
-const player = await db.query("SELECT * FROM players WHERE address = $1", [
-  address,
-]);
+const player = await db.query("SELECT * FROM players WHERE address = $1", [address]);
 
 // ❌ WRONG: String interpolation
-const player = await db.query(
-  `SELECT * FROM players WHERE address = '${address}'`,
-);
+const player = await db.query(`SELECT * FROM players WHERE address = '${address}'`);
 
 // ✅ CORRECT: Using query builder
-const player = await db
-  .selectFrom("players")
-  .where("address", "=", address)
-  .executeTakeFirst();
+const player = await db.selectFrom("players").where("address", "=", address).executeTakeFirst();
 ```
 
 ### JWT Security
@@ -360,7 +353,7 @@ export default defineConfig({
               "img-src 'self' data: https:",
               "connect-src 'self' https://*.base.org wss://*.farcaster.xyz",
               "frame-ancestors 'self' https://*.farcaster.xyz",
-            ].join("; "),
+            ].join("; ")
           );
           next();
         });
@@ -446,11 +439,7 @@ async function verifySignature(request, reply) {
     return reply.status(401).send({ error: "Request expired" });
   }
 
-  const expectedSignature = signRequest(
-    request.body,
-    timestamp,
-    process.env.API_SECRET,
-  );
+  const expectedSignature = signRequest(request.body, timestamp, process.env.API_SECRET);
 
   if (signature !== expectedSignature) {
     return reply.status(401).send({ error: "Invalid signature" });
@@ -466,17 +455,10 @@ const corsConfig = {
   origin: [
     "https://farcastersurvivors.game",
     "https://www.farcastersurvivors.game",
-    ...(process.env.NODE_ENV === "development"
-      ? ["http://localhost:5173"]
-      : []),
+    ...(process.env.NODE_ENV === "development" ? ["http://localhost:5173"] : []),
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Signature",
-    "X-Timestamp",
-  ],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Signature", "X-Timestamp"],
   credentials: true,
 };
 ```

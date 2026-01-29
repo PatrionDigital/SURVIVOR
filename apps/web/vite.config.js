@@ -2,29 +2,29 @@ import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 export default defineConfig({
-    plugins: [react()],
-    resolve: {
-        alias: {
-            "@": path.resolve(__dirname, "./src"),
-            "@components": path.resolve(__dirname, "./src/components"),
-            "@game": path.resolve(__dirname, "./src/game"),
-            "@hooks": path.resolve(__dirname, "./src/hooks"),
-            "@stores": path.resolve(__dirname, "./src/stores"),
-            "@lib": path.resolve(__dirname, "./src/lib"),
-            "@types": path.resolve(__dirname, "./src/types"),
-        },
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "@components": path.resolve(__dirname, "./src/components"),
+      "@game": path.resolve(__dirname, "./src/game"),
+      "@hooks": path.resolve(__dirname, "./src/hooks"),
+      "@stores": path.resolve(__dirname, "./src/stores"),
+      "@lib": path.resolve(__dirname, "./src/lib"),
+      "@types": path.resolve(__dirname, "./src/types"),
     },
-    server: {
-        port: 5173,
-        proxy: {
-            "/api": {
-                target: "http://localhost:3001",
-                changeOrigin: true,
-            },
-        },
+  },
+  server: {
+    port: 5173,
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
     },
-    build: {
-        outDir: "dist",
-        sourcemap: true,
-    },
+  },
+  build: {
+    outDir: "dist",
+    sourcemap: true,
+  },
 });

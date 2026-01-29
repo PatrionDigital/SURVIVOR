@@ -36,11 +36,4 @@ export interface PlayerGear {
 
 export type GearSlot = keyof PlayerGear;
 
-export const GEAR_SLOTS: GearSlot[] = [
-  "weapon",
-  "armor",
-  "power",
-  "gloves",
-  "amulet",
-  "boots",
-];
+export const GEAR_SLOTS: GearSlot[] = ["weapon", "armor", "power", "gloves", "amulet", "boots"];

@@ -4,7 +4,7 @@
 
 Farcaster Survivors
 
-*A Bullet Heaven Game on Base*
+_A Bullet Heaven Game on Base_
 
 Version 2.2 \| January 2026
 
@@ -19,20 +19,20 @@ governance systems.
 
 **1.1 Key Highlights**
 
--   Self-deployed on Base with custom bonding curves
+- Self-deployed on Base with custom bonding curves
 
--   Gameplay-driven emissions via RewardDistributor contract
+- Gameplay-driven emissions via RewardDistributor contract
 
--   Six gear tokens with bonding curves paired to \$VSC
+- Six gear tokens with bonding curves paired to \$VSC
 
--   60/40 Treasury/Burn fee split (governance-adjustable)
+- 60/40 Treasury/Burn fee split (governance-adjustable)
 
--   Futarchy governance activated 6 months post-launch
+- Futarchy governance activated 6 months post-launch
 
--   Bootstrapped by developer with no external investors or outside
-    influences
+- Bootstrapped by developer with no external investors or outside
+  influences
 
--   Testnet soft-launch on Base Sepolia followed by mainnet TGE
+- Testnet soft-launch on Base Sepolia followed by mainnet TGE
 
 **2. Token Ecosystem**
 
@@ -42,53 +42,57 @@ polynomial bonding curves, keeping fees internal to the ecosystem.
 
 **2.1 \$VSC Token Specifications**
 
-  -------------------------- --------------------------------------------
-  **Property**               **Value**
+---
 
-  **Token Name**             Vampire Survivor Clone
+**Property** **Value**
 
-  **Symbol**                 \$VSC
+**Token Name** Vampire Survivor Clone
 
-  **Network**                Base (Ethereum L2)
+**Symbol** \$VSC
 
-  **Token Standard**         ERC-20
+**Network** Base (Ethereum L2)
 
-  **Max Supply**             100,000,000,000 (100 Billion)
+**Token Standard** ERC-20
 
-  **Decimals**               18
+**Max Supply** 100,000,000,000 (100 Billion)
 
-  **Minting**                Gameplay rewards via RewardDistributor
-                             contract
+**Decimals** 18
 
-  **Burning**                40% of all trading fees
-  -------------------------- --------------------------------------------
+**Minting** Gameplay rewards via RewardDistributor
+contract
+
+**Burning** 40% of all trading fees
+
+---
 
 **2.2 Gear Tokens**
 
 Six gear tokens enable the meta-progression staking system. Each token
 corresponds to a gear slot and trades against \$VSC via bonding curves.
 
-  -------------- ---------------- -------------------- --------------------
-  **Token**      **Gear Slot**    **Stat Bonus**       **Trading**
+---
 
-  **\$WEAPON**   Weapon Core      +% Base Damage       Bonding curve vs
-                                                       \$VSC
+**Token** **Gear Slot** **Stat Bonus** **Trading**
 
-  **\$ARMOR**    Armor Plate      +% Damage Reduction  Bonding curve vs
-                                                       \$VSC
+**\$WEAPON** Weapon Core +% Base Damage Bonding curve vs
+\$VSC
 
-  **\$POWER**    Power Belt       +% Area of Effect    Bonding curve vs
-                                                       \$VSC
+**\$ARMOR** Armor Plate +% Damage Reduction Bonding curve vs
+\$VSC
 
-  **\$GLOVES**   Combat Gloves    +% Attack Speed      Bonding curve vs
-                                                       \$VSC
+**\$POWER** Power Belt +% Area of Effect Bonding curve vs
+\$VSC
 
-  **\$AMULET**   Amulet           +% XP Gain           Bonding curve vs
-                                                       \$VSC
+**\$GLOVES** Combat Gloves +% Attack Speed Bonding curve vs
+\$VSC
 
-  **\$BOOTS**    Swift Boots      +% Movement Speed    Bonding curve vs
-                                                       \$VSC
-  -------------- ---------------- -------------------- --------------------
+**\$AMULET** Amulet +% XP Gain Bonding curve vs
+\$VSC
+
+**\$BOOTS** Swift Boots +% Movement Speed Bonding curve vs
+\$VSC
+
+---
 
 Gear tokens have uncapped supply (bonding curve minted), 18 decimals,
 and use the same polynomial curve formula as \$VSC trading pairs.
@@ -101,21 +105,23 @@ gameplay activity.
 
 **3.1 Initial Allocation**
 
-  --------------------- ---------------- ---------------- -------------------
-  **Category**          **Allocation**   **Tokens**       **Vesting**
+---
 
-  **Gameplay            42%              42B              RewardDistributor
-  Emissions**                                             
+**Category** **Allocation** **Tokens** **Vesting**
 
-  **Team & Advisors**   24%              24B              8mo cliff, 24mo
-                                                          vest
+**Gameplay 42% 42B RewardDistributor
+Emissions**
 
-  **Treasury**          24%              24B              DAO-controlled
+**Team & Advisors** 24% 24B 8mo cliff, 24mo
+vest
 
-  **Liquidity**         6%               6B               Protocol-owned
+**Treasury** 24% 24B DAO-controlled
 
-  **Prelaunch Airdrop** 4%               4B               Instant at TGE
-  --------------------- ---------------- ---------------- -------------------
+**Liquidity** 6% 6B Protocol-owned
+
+**Prelaunch Airdrop** 4% 4B Instant at TGE
+
+---
 
 **3.2 Allocation Rationale**
 
@@ -155,54 +161,58 @@ maintenance systems.
 
 **4.1 Token Sources (Minting)**
 
-  ---------------------- ------------------------------------------------
-  **Source**             **Description**
+---
 
-  **Gameplay Rewards**   Earned from surviving, defeating enemies, and
-                         completing runs
+**Source** **Description**
 
-  **Daily Login Bonus**  Escalating rewards for consecutive daily logins
+**Gameplay Rewards** Earned from surviving, defeating enemies, and
+completing runs
 
-  **Achievements**       One-time rewards for completing milestones
+**Daily Login Bonus** Escalating rewards for consecutive daily logins
 
-  **Social Actions**     Rewards for casts, referrals, and friend
-                         challenges
-  ---------------------- ------------------------------------------------
+**Achievements** One-time rewards for completing milestones
+
+**Social Actions** Rewards for casts, referrals, and friend
+challenges
+
+---
 
 **4.2 Token Sinks (Burning/Spending)**
 
-  ---------------------- ------------------------------------------------
-  **Sink**               **Description**
+---
 
-  **Gear Maintenance**   Refill maintenance pool to retain +50% power
-                         bonus
+**Sink** **Description**
 
-  **Global Upgrade       Mint ERC-1155 permanent stat upgrades
-  NFTs**                 (progressive cost)
+**Gear Maintenance** Refill maintenance pool to retain +50% power
+bonus
 
-  **Trading Fees**       40% of all bonding curve fees are burned
+**Global Upgrade Mint ERC-1155 permanent stat upgrades
+NFTs** (progressive cost)
 
-  **Premium Cosmetics**  Visual customizations and skins
+**Trading Fees** 40% of all bonding curve fees are burned
 
-  **Tournament Entry**   Fees for competitive events with prize pools
-  ---------------------- ------------------------------------------------
+**Premium Cosmetics** Visual customizations and skins
+
+**Tournament Entry** Fees for competitive events with prize pools
+
+---
 
 **4.3 Gear Maintenance System**
 
 The maintenance mechanic creates ongoing \$VSC utility:
 
--   Base Power (Permanent): Always active based on staked gear token
-    amount
+- Base Power (Permanent): Always active based on staked gear token
+  amount
 
--   Maintenance Bonus: +50% additional power when maintenance pool is
-    full
+- Maintenance Bonus: +50% additional power when maintenance pool is
+  full
 
--   Decay Rate: 1% of maintenance pool per week
+- Decay Rate: 1% of maintenance pool per week
 
--   Refill Cost: Spend \$VSC to refill maintenance pool
+- Refill Cost: Spend \$VSC to refill maintenance pool
 
--   Power Floor: 50% minimum ensures returning players retain baseline
-    strength
+- Power Floor: 50% minimum ensures returning players retain baseline
+  strength
 
 **5. Bonding Curve Economics**
 
@@ -220,37 +230,41 @@ have meaningful price impact.
 
 **5.2 Curve Parameters**
 
-  ---------------------- ------------------ -----------------------------
-  **Parameter**          **Value**          **Notes**
+---
 
-  **Curve Type**         Polynomial         Price = Base + Slope ×
-                         (quadratic)        Supply²
+**Parameter** **Value** **Notes**
 
-  **Base Price**         0.0001 \$VSC       Starting price per token
+**Curve Type** Polynomial Price = Base + Slope ×
+(quadratic) Supply²
 
-  **Slope**              0.000001           Price acceleration factor
+**Base Price** 0.0001 \$VSC Starting price per token
 
-  **Reserve Ratio**      100%               Fully collateralized
+**Slope** 0.000001 Price acceleration factor
 
-  **Buy Fee**            2%                 Applied on purchases
+**Reserve Ratio** 100% Fully collateralized
 
-  **Sell Fee**           3%                 Applied on sales
+**Buy Fee** 2% Applied on purchases
 
-  **Gear Upgrade Fee**   5%                 Applied on staking actions
-  ---------------------- ------------------ -----------------------------
+**Sell Fee** 3% Applied on sales
+
+**Gear Upgrade Fee** 5% Applied on staking actions
+
+---
 
 **5.3 Fee Distribution**
 
 All fees are split between treasury and burn:
 
-  -------------------------- --------------------- -----------------------
-  **Destination**            **Default Split**     **Purpose**
+---
 
-  **Treasury**               60%                   Operations &
-                                                   development
+**Destination** **Default Split** **Purpose**
 
-  **Burn**                   40%                   Deflationary pressure
-  -------------------------- --------------------- -----------------------
+**Treasury** 60% Operations &
+development
+
+**Burn** 40% Deflationary pressure
+
+---
 
 The 60/40 split is the default but can be adjusted by futarchy
 governance once activated.
@@ -296,24 +310,26 @@ consensus are executed, enforcing caution in governance decisions.
 
 **6.2 Governable Parameters**
 
-  ---------------------- ------------------- -------------------------------
-  **Parameter**          **Current**         **Evaluation Metric**
+---
 
-  **Treasury/Burn        60% / 40%           30-day token velocity +
-  Split**                                    treasury runway
+**Parameter** **Current** **Evaluation Metric**
 
-  **Buy Fee Rate**       2%                  Daily trading volume
+**Treasury/Burn 60% / 40% 30-day token velocity +
+Split** treasury runway
 
-  **Sell Fee Rate**      3%                  Net token holder growth
+**Buy Fee Rate** 2% Daily trading volume
 
-  **Maintenance Decay**  1% / week           Weekly active players
+**Sell Fee Rate** 3% Net token holder growth
 
-  **Reward Emission      Variable            7-day new player retention
-  Rate**                                     
+**Maintenance Decay** 1% / week Weekly active players
 
-  **Gear Tier            1/100/1K/10K/100K   Median gear power distribution
-  Thresholds**                               
-  ---------------------- ------------------- -------------------------------
+**Reward Emission Variable 7-day new player retention
+Rate**
+
+**Gear Tier 1/100/1K/10K/100K Median gear power distribution
+Thresholds**
+
+---
 
 **7. Vesting & Distribution**
 
@@ -322,19 +338,21 @@ consensus are executed, enforcing caution in governance decisions.
 All vesting managed through Hedgey Finance on Base, preserving
 governance rights for locked tokens.
 
-  ---------------- ----------- ------------- ------------- ---------------
-  **Category**     **Cliff**   **Vest        **TGE         **Interval**
-                               Period**      Unlock**      
+---
 
-  **Team**         8 mo        24 mo         0%            Monthly linear
+**Category** **Cliff** **Vest **TGE **Interval**
+Period** Unlock**
 
-  **Advisors**     8 mo        24 mo         0%            Monthly linear
+**Team** 8 mo 24 mo 0% Monthly linear
 
-  **Gameplay       None        Ongoing       N/A           Per-activity
-  Emissions**                                              
+**Advisors** 8 mo 24 mo 0% Monthly linear
 
-  **Airdrop**      None        None          100%          Instant claim
-  ---------------- ----------- ------------- ------------- ---------------
+**Gameplay None Ongoing N/A Per-activity
+Emissions**
+
+**Airdrop** None None 100% Instant claim
+
+---
 
 **7.2 Prelaunch Program**
 
@@ -348,18 +366,20 @@ early access to features, and guaranteed airdrop tier.
 
 **Airdrop Eligibility**
 
-  ------------------------------ --------------- -------------------------
-  **Criteria**                   **Weight**      **Cap**
+---
 
-  **Farcaster Power User Badge** 2x              Required baseline
+**Criteria** **Weight** **Cap**
 
-  **Early Adopter NFT Holder**   3x              Top tier allocation
+**Farcaster Power User Badge** 2x Required baseline
 
-  **Base Network Activity (\>10  1.5x            Verified on-chain
-  txns)**                                        
+**Early Adopter NFT Holder** 3x Top tier allocation
 
-  **Prelaunch Engagement**       1.25x           Cast interactions
-  ------------------------------ --------------- -------------------------
+**Base Network Activity (\>10 1.5x Verified on-chain
+txns)**
+
+**Prelaunch Engagement** 1.25x Cast interactions
+
+---
 
 Airdrop uses Merkle tree distribution with 90-day claim window.
 Unclaimed tokens return to gameplay emissions pool.
@@ -370,62 +390,64 @@ Unclaimed tokens return to gameplay emissions pool.
 
 **Phase 0: Testnet Soft-Launch**
 
--   Deploy all contracts on Base Sepolia testnet
+- Deploy all contracts on Base Sepolia testnet
 
--   Public gameplay testing with test tokens
+- Public gameplay testing with test tokens
 
--   Early Adopter NFT distribution begins
+- Early Adopter NFT distribution begins
 
--   **Note: Gameplay progression and token earnings do NOT carry over to
-    mainnet**
+- **Note: Gameplay progression and token earnings do NOT carry over to
+  mainnet**
 
 **Phase 1: Prelaunch (1 Week)**
 
--   Airdrop registration and eligibility verification
+- Airdrop registration and eligibility verification
 
--   Final testnet feedback collection
+- Final testnet feedback collection
 
 **Phase 2: TGE (Mainnet Launch)**
 
--   Deploy \$VSC and gear token contracts on Base mainnet
+- Deploy \$VSC and gear token contracts on Base mainnet
 
--   Initialize bonding curves with seed liquidity
+- Initialize bonding curves with seed liquidity
 
--   Airdrop claim opens (4B \$VSC)
+- Airdrop claim opens (4B \$VSC)
 
--   Hedgey vesting contracts for team allocation
+- Hedgey vesting contracts for team allocation
 
 **Phase 3: Game Launch**
 
--   Farcaster Survivors public launch on mainnet
+- Farcaster Survivors public launch on mainnet
 
--   RewardDistributor activated for gameplay emissions
+- RewardDistributor activated for gameplay emissions
 
 **Phase 4: Governance Activation (+6 Months)**
 
--   Futarchy prediction market contracts deployed
+- Futarchy prediction market contracts deployed
 
--   Community governance begins for parameter adjustments
+- Community governance begins for parameter adjustments
 
 **8.2 Anti-Gaming Measures**
 
 To protect token emissions from exploitation:
 
-  -------------------------- --------------------------------------------
-  **Measure**                **Purpose**
+---
 
-  **Session Verification**   Server validates gameplay patterns to detect
-                             bots
+**Measure** **Purpose**
 
-  **Diminishing Returns**    Reward rate decreases after extended play
-                             sessions
+**Session Verification** Server validates gameplay patterns to detect
+bots
 
-  **Cooldown Periods**       Mandatory breaks between high-reward
-                             activities
+**Diminishing Returns** Reward rate decreases after extended play
+sessions
 
-  **Behavioral Analysis**    ML-based detection of automated play
-                             patterns
-  -------------------------- --------------------------------------------
+**Cooldown Periods** Mandatory breaks between high-reward
+activities
+
+**Behavioral Analysis** ML-based detection of automated play
+patterns
+
+---
 
 **9. Smart Contract Architecture**
 
@@ -434,53 +456,57 @@ To protect token emissions from exploitation:
 All contracts implement OpenZeppelin Pausable for emergency response
 capabilities.
 
-  --------------------------- --------------------------------------------
-  **Contract**                **Purpose**
+---
 
-  **VSCToken.sol**            Primary ERC-20 with mint/burn controls,
-                              pausable
+**Contract** **Purpose**
 
-  **GearToken.sol**           Template for 6 gear tokens (ERC-20),
-                              pausable
+**VSCToken.sol** Primary ERC-20 with mint/burn controls,
+pausable
 
-  **BondingCurve.sol**        Polynomial AMM with fee handling, pausable
+**GearToken.sol** Template for 6 gear tokens (ERC-20),
+pausable
 
-  **GearStaking.sol**         Manages gear slot staking and power
-                              calculation, pausable
+**BondingCurve.sol** Polynomial AMM with fee handling, pausable
 
-  **MaintenancePool.sol**     Handles decay and refill logic, pausable
+**GearStaking.sol** Manages gear slot staking and power
+calculation, pausable
 
-  **GlobalUpgradeNFT.sol**    ERC-1155 for permanent stat upgrades,
-                              pausable
+**MaintenancePool.sol** Handles decay and refill logic, pausable
 
-  **RewardDistributor.sol**   Manages gameplay reward emissions, pausable
+**GlobalUpgradeNFT.sol** ERC-1155 for permanent stat upgrades,
+pausable
 
-  **FutarchyMarket.sol**      Binary prediction market with TWAP
-                              settlement
+**RewardDistributor.sol** Manages gameplay reward emissions, pausable
 
-  **EarlyAdopterNFT.sol**     ERC-721 transferable NFT for early
-                              supporters
-  --------------------------- --------------------------------------------
+**FutarchyMarket.sol** Binary prediction market with TWAP
+settlement
+
+**EarlyAdopterNFT.sol** ERC-721 transferable NFT for early
+supporters
+
+---
 
 **9.2 Development Timeline**
 
-  ----------------- ------------------------------ ----------------------
-  **Phase**         **Milestone**                  **Target**
+---
 
-  **Development**   Smart contract completion      Q1 2026
+**Phase** **Milestone** **Target**
 
-  **Testnet**       Base Sepolia soft-launch       Q1 2026
+**Development** Smart contract completion Q1 2026
 
-  **Prelaunch**     1-week community building      Q2 2026
+**Testnet** Base Sepolia soft-launch Q1 2026
 
-  **TGE**           Base mainnet deployment +      Q2 2026
-                    airdrop                        
+**Prelaunch** 1-week community building Q2 2026
 
-  **Game Launch**   Public release with gameplay   Q2 2026
-                    emissions                      
+**TGE** Base mainnet deployment + Q2 2026
+airdrop
 
-  **Governance**    Futarchy activation            Q4 2026
-  ----------------- ------------------------------ ----------------------
+**Game Launch** Public release with gameplay Q2 2026
+emissions
+
+**Governance** Futarchy activation Q4 2026
+
+---
 
 **10. Risk Factors**
 
@@ -614,10 +640,10 @@ Such modifications may be made without prior notice.
 
 **Contact**
 
--   Farcaster: \@farcastersurvivors
+- Farcaster: \@farcastersurvivors
 
--   Website: farcastersurvivors.game
+- Website: farcastersurvivors.game
 
-*By acquiring, holding, or using \$VSC tokens, you acknowledge that you
+_By acquiring, holding, or using \$VSC tokens, you acknowledge that you
 have read, understood, and agree to be bound by the terms of this
-disclaimer.*
+disclaimer._

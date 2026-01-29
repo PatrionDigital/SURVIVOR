@@ -53,10 +53,8 @@ export const usePlayerStore = create<PlayerStore>((set) => ({
   ...initialState,
   connect: (address, fid) => set({ address, fid, isConnected: true }),
   disconnect: () => set({ address: null, fid: null, isConnected: false }),
-  setStats: (newStats) =>
-    set((state) => ({ stats: { ...state.stats, ...newStats } })),
-  addXp: (amount) =>
-    set((state) => ({ xp: state.xp + amount * state.stats.xpMultiplier })),
+  setStats: (newStats) => set((state) => ({ stats: { ...state.stats, ...newStats } })),
+  addXp: (amount) => set((state) => ({ xp: state.xp + amount * state.stats.xpMultiplier })),
   setXpThreshold: (threshold) => set({ currentXpThreshold: threshold }),
   takeDamage: (amount) =>
     set((state) => ({

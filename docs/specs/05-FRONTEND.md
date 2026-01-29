@@ -204,8 +204,7 @@ class InputSystem {
       return;
     }
 
-    const normalizedDistance =
-      Math.min(distance, this.MAX_DISTANCE) / this.MAX_DISTANCE;
+    const normalizedDistance = Math.min(distance, this.MAX_DISTANCE) / this.MAX_DISTANCE;
     const angle = Math.atan2(dy, dx);
 
     this.state.moveX = Math.cos(angle) * normalizedDistance;
@@ -411,19 +410,14 @@ export const usePlayerStore = create<PlayerStore>()(
         if (!address) return;
 
         // Fetch all balances from contracts
-        const [
-          vscBalance,
-          gearBalances,
-          stakedGear,
-          maintenancePool,
-          totalPower,
-        ] = await Promise.all([
-          getVSCBalance(address),
-          getAllGearBalances(address),
-          getAllStakedAmounts(address),
-          getMaintenancePool(address),
-          getTotalGearPower(address),
-        ]);
+        const [vscBalance, gearBalances, stakedGear, maintenancePool, totalPower] =
+          await Promise.all([
+            getVSCBalance(address),
+            getAllGearBalances(address),
+            getAllStakedAmounts(address),
+            getMaintenancePool(address),
+            getTotalGearPower(address),
+          ]);
 
         set({
           vscBalance,
@@ -454,8 +448,8 @@ export const usePlayerStore = create<PlayerStore>()(
     {
       name: "player-storage",
       partialize: (state) => ({ address: state.address, fid: state.fid }),
-    },
-  ),
+    }
+  )
 );
 ```
 
@@ -560,14 +554,10 @@ export const ADDRESSES = {
   vscToken: import.meta.env.VITE_VSC_TOKEN_ADDRESS as `0x${string}`,
   gearStaking: import.meta.env.VITE_GEAR_STAKING_ADDRESS as `0x${string}`,
   bondingCurve: import.meta.env.VITE_BONDING_CURVE_ADDRESS as `0x${string}`,
-  maintenancePool: import.meta.env
-    .VITE_MAINTENANCE_POOL_ADDRESS as `0x${string}`,
-  rewardDistributor: import.meta.env
-    .VITE_REWARD_DISTRIBUTOR_ADDRESS as `0x${string}`,
-  globalUpgradeNFT: import.meta.env
-    .VITE_GLOBAL_UPGRADE_NFT_ADDRESS as `0x${string}`,
-  earlyAdopterNFT: import.meta.env
-    .VITE_EARLY_ADOPTER_NFT_ADDRESS as `0x${string}`,
+  maintenancePool: import.meta.env.VITE_MAINTENANCE_POOL_ADDRESS as `0x${string}`,
+  rewardDistributor: import.meta.env.VITE_REWARD_DISTRIBUTOR_ADDRESS as `0x${string}`,
+  globalUpgradeNFT: import.meta.env.VITE_GLOBAL_UPGRADE_NFT_ADDRESS as `0x${string}`,
+  earlyAdopterNFT: import.meta.env.VITE_EARLY_ADOPTER_NFT_ADDRESS as `0x${string}`,
 };
 ```
 
@@ -590,8 +580,7 @@ export function useVSCToken() {
     enabled: !!address,
   });
 
-  const { writeContractAsync: approve, isPending: isApproving } =
-    useWriteContract();
+  const { writeContractAsync: approve, isPending: isApproving } = useWriteContract();
 
   const approveSpender = async (spender: `0x${string}`, amount: bigint) => {
     return approve({
@@ -634,10 +623,8 @@ export function useGearStaking() {
     enabled: !!address,
   });
 
-  const { writeContractAsync: stakeAsync, isPending: isStaking } =
-    useWriteContract();
-  const { writeContractAsync: unstakeAsync, isPending: isUnstaking } =
-    useWriteContract();
+  const { writeContractAsync: stakeAsync, isPending: isStaking } = useWriteContract();
+  const { writeContractAsync: unstakeAsync, isPending: isUnstaking } = useWriteContract();
 
   const stake = async (slot: number, amount: bigint) => {
     // 1. Approve gear token

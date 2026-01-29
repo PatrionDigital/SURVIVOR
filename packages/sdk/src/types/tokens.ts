@@ -27,8 +27,7 @@ export const GEAR_TOKEN_SYMBOLS = {
   boots: "BOOTS",
 } as const;
 
-export type GearTokenSymbol =
-  (typeof GEAR_TOKEN_SYMBOLS)[keyof typeof GEAR_TOKEN_SYMBOLS];
+export type GearTokenSymbol = (typeof GEAR_TOKEN_SYMBOLS)[keyof typeof GEAR_TOKEN_SYMBOLS];
 
 export interface BondingCurvePriceQuote {
   tokenAmount: bigint;
