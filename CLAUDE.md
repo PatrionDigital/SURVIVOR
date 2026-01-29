@@ -11,32 +11,26 @@ Farcaster Survivors is a crypto-native bullet heaven game built as a Farcaster M
 ## Mandatory Workflow (ALWAYS FOLLOW)
 
 **Before writing any code:**
+
 1. Never work on `main` branch - create a feature branch first (`git checkout -b feature/...`)
 2. Check Context7 MCP for up-to-date library documentation
 3. For smart contracts, always check OpenZeppelin docs for latest patterns and security practices
 
-**Development process:**
-4. Use Test-Driven Development - write tests BEFORE implementation code
-5. Run all local tests before committing - all must pass
-6. Fix all linter errors before committing - zero tolerance
+**Development process:** 4. Use Test-Driven Development - write tests BEFORE implementation code 5. Run all local tests before committing - all must pass 6. Fix all linter errors before committing - zero tolerance
 
-**Committing and versioning:**
-7. Bump version using semantic versioning (`npm version patch|minor|major`) on every update
-8. Commit only when tests pass and linter is clean
+**Committing and versioning:** 7. Bump version using semantic versioning (`npm version patch|minor|major`) on every update 8. Commit only when tests pass and linter is clean
 
-**Pull requests and deployment:**
-9. Never merge a PR until all GitHub CI actions pass
-10. For Vercel deployments, preview builds for the branch must pass checks before merging
+**Pull requests and deployment:** 9. Never merge a PR until all GitHub CI actions pass 10. For Vercel deployments, preview builds for the branch must pass checks before merging
 
 ## Tech Stack
 
-| Layer     | Technology                                    |
-| --------- | --------------------------------------------- |
-| Frontend  | React 18 + Vite + PixiJS v8 + TypeScript      |
-| Backend   | Fastify + PostgreSQL (Supabase) + Redis       |
-| Contracts | Solidity ^0.8.24 + Foundry                    |
-| Web3      | wagmi v2 + viem                               |
-| Chain     | Base L2 (mainnet) / Base Sepolia (testnet)    |
+| Layer     | Technology                                 |
+| --------- | ------------------------------------------ |
+| Frontend  | React 18 + Vite + PixiJS v8 + TypeScript   |
+| Backend   | Fastify + PostgreSQL (Supabase) + Redis    |
+| Contracts | Solidity ^0.8.24 + Foundry                 |
+| Web3      | wagmi v2 + viem                            |
+| Chain     | Base L2 (mainnet) / Base Sepolia (testnet) |
 
 ## Commands
 
@@ -91,18 +85,21 @@ docs/
 ## Architecture
 
 ### Frontend (apps/web/)
+
 - **Game Engine:** PixiJS v8 with ECS-like architecture (Entity Manager, Systems Manager, Scene Manager)
 - **State:** Zustand stores (`gameStore`, `playerStore`, `sessionStore`)
 - **Web3:** wagmi v2 hooks for contract interactions
 - **Components:** `components/game/` (gameplay), `components/meta/` (staking/upgrades), `components/wallet/` (Web3)
 
 ### Backend (apps/api/)
+
 - **Routes:** `/api/auth`, `/api/game`, `/api/rewards`, `/api/player`, `/api/farcaster`
 - **Services:** `rewardCalculator`, `rewardSigner`, `antiFraud`, `sessionManager`
 - **Jobs:** BullMQ workers for leaderboard updates, maintenance decay monitoring
 - **Database:** PostgreSQL with tables for `players`, `game_sessions`, `session_heartbeats`, `daily_rewards`, `achievements`
 
 ### Smart Contracts (packages/contracts/)
+
 - **Tokens:** `VSCToken` (ERC-20, 100B max), `GearToken` (ERC-20, 6 instances for gear types)
 - **Trading:** `BondingCurve` (polynomial AMM for VSC<->ETH and GEAR<->VSC)
 - **Staking:** `GearStaking` (stake gear tokens for stat bonuses), `MaintenancePool` (weekly decay mechanics)
@@ -111,16 +108,16 @@ docs/
 
 ## Naming Conventions
 
-| Type                | Convention        | Example             |
-| ------------------- | ----------------- | ------------------- |
-| TypeScript files    | camelCase.ts      | `gameEngine.ts`     |
-| React components    | PascalCase.tsx    | `GearSlot.tsx`      |
-| Solidity contracts  | PascalCase.sol    | `BondingCurve.sol`  |
-| Test files          | *.test.ts/*.t.sol | `rewards.test.ts`   |
-| Directories         | kebab-case        | `game-engine/`      |
-| React hooks         | useCamelCase      | `useGearStaking`    |
-| Database tables     | snake_case        | `player_sessions`   |
-| API routes          | kebab-case        | `/api/game-session` |
+| Type               | Convention        | Example             |
+| ------------------ | ----------------- | ------------------- |
+| TypeScript files   | camelCase.ts      | `gameEngine.ts`     |
+| React components   | PascalCase.tsx    | `GearSlot.tsx`      |
+| Solidity contracts | PascalCase.sol    | `BondingCurve.sol`  |
+| Test files         | _.test.ts/_.t.sol | `rewards.test.ts`   |
+| Directories        | kebab-case        | `game-engine/`      |
+| React hooks        | useCamelCase      | `useGearStaking`    |
+| Database tables    | snake_case        | `player_sessions`   |
+| API routes         | kebab-case        | `/api/game-session` |
 
 ## Smart Contract Requirements
 
@@ -133,21 +130,22 @@ docs/
 
 ## Token Economics Reference
 
-| Token   | Purpose             | Supply                  |
-| ------- | ------------------- | ----------------------- |
-| $VSC    | Primary currency    | 100B max                |
-| $WEAPON | Gear - damage       | Uncapped (bonding curve)|
-| $ARMOR  | Gear - defense      | Uncapped (bonding curve)|
-| $POWER  | Gear - AoE          | Uncapped (bonding curve)|
-| $GLOVES | Gear - attack speed | Uncapped (bonding curve)|
-| $AMULET | Gear - XP gain      | Uncapped (bonding curve)|
-| $BOOTS  | Gear - move speed   | Uncapped (bonding curve)|
+| Token   | Purpose             | Supply                   |
+| ------- | ------------------- | ------------------------ |
+| $VSC    | Primary currency    | 100B max                 |
+| $WEAPON | Gear - damage       | Uncapped (bonding curve) |
+| $ARMOR  | Gear - defense      | Uncapped (bonding curve) |
+| $POWER  | Gear - AoE          | Uncapped (bonding curve) |
+| $GLOVES | Gear - attack speed | Uncapped (bonding curve) |
+| $AMULET | Gear - XP gain      | Uncapped (bonding curve) |
+| $BOOTS  | Gear - move speed   | Uncapped (bonding curve) |
 
 Fee structure: Buy 2% (60% treasury / 40% burn), Sell 3% (60% treasury / 40% burn), Stake 5% (treasury)
 
 ## Key Specifications
 
 For detailed specifications, refer to:
+
 - **Gameplay mechanics:** `docs/GDD.md`
 - **Token economics:** `docs/WHITEPAPER.md`
 - **Contract interfaces:** `docs/specs/04-SMART_CONTRACTS.md`
