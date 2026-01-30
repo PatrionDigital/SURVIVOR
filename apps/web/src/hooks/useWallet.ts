@@ -22,10 +22,6 @@ export interface UseWalletReturn {
   isInMiniApp: boolean;
   isMiniAppReady: boolean;
 
-  // SIWF (browser auth)
-  siwfUrl: string | null;
-  isSiwfPolling: boolean;
-
   // Actions
   connect: () => void;
   disconnect: () => void;
@@ -54,11 +50,9 @@ export function useWallet(): UseWalletReturn {
   } | null>(null);
 
   // SIWF hook for browser authentication
+  // Note: SignInButton from auth-kit handles the QR code UI
   const {
-    signIn: siwfSignIn,
     signOut: siwfSignOut,
-    url: siwfUrl,
-    isPolling: isSiwfPolling,
     isSuccess: isSiwfSuccess,
     error: siwfError,
   } = useSignIn({
@@ -111,19 +105,13 @@ export function useWallet(): UseWalletReturn {
     }
   }, [isConnected, address, isInMiniApp, context?.user?.fid, siwfUser?.fid, storeConnect, storeDisconnect]);
 
-  // Connect function
-  // In Mini App: use wagmi connect
-  // In browser: trigger SIWF flow
+  // Connect function (only used for Mini App context)
+  // In browser context, auth-kit's SignInButton handles the SIWF flow
   const connect = useCallback(() => {
-    if (isInMiniApp) {
-      if (miniAppConnector && !wagmiIsConnected && !isPending) {
-        wagmiConnect({ connector: miniAppConnector });
-      }
-    } else {
-      // Trigger SIWF flow in browser
-      siwfSignIn();
+    if (isInMiniApp && miniAppConnector && !wagmiIsConnected && !isPending) {
+      wagmiConnect({ connector: miniAppConnector });
     }
-  }, [isInMiniApp, miniAppConnector, wagmiIsConnected, isPending, wagmiConnect, siwfSignIn]);
+  }, [isInMiniApp, miniAppConnector, wagmiIsConnected, isPending, wagmiConnect]);
 
   // Disconnect function
   const disconnect = useCallback(() => {
@@ -139,7 +127,7 @@ export function useWallet(): UseWalletReturn {
   // Determine connection state
   const getConnectionState = (): ConnectionState => {
     if (connectError || siwfError) return "error";
-    if (isConnecting || isPending || isSiwfPolling) return "connecting";
+    if (isConnecting || isPending) return "connecting";
     if (isConnected) return "connected";
     return "disconnected";
   };
@@ -178,7 +166,7 @@ export function useWallet(): UseWalletReturn {
   return {
     address,
     isConnected,
-    isConnecting: isConnecting || isPending || isSiwfPolling,
+    isConnecting: isConnecting || isPending,
     connectionState: getConnectionState(),
     error: connectError ?? siwfError ?? null,
 
@@ -188,10 +176,6 @@ export function useWallet(): UseWalletReturn {
     pfpUrl: userProfile.pfpUrl,
     isInMiniApp,
     isMiniAppReady,
-
-    // SIWF specific (for QR code display in browser)
-    siwfUrl: isInMiniApp ? null : siwfUrl ?? null,
-    isSiwfPolling,
 
     connect,
     disconnect,
