@@ -26,6 +26,7 @@ contract ERC20BondingCurve is Ownable2Step, Pausable, ReentrancyGuard {
     uint256 public constant BASE_PRICE = 1e18; // 1 VSC per token at zero supply
     uint256 public constant SLOPE = 1e14; // Scaled for VSC decimals
     uint256 public constant BPS_DENOMINATOR = 10_000;
+    address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
     // ============ Immutables ============
     IERC20 public immutable baseToken; // VSC token
@@ -38,7 +39,6 @@ contract ERC20BondingCurve is Ownable2Step, Pausable, ReentrancyGuard {
     uint256 public burnSplitBps = 4000; // 40%
 
     address public treasury;
-    address public burnAddress;
 
     // ============ Events ============
     event TokensBought(
@@ -47,7 +47,7 @@ contract ERC20BondingCurve is Ownable2Step, Pausable, ReentrancyGuard {
     event TokensSold(
         address indexed seller, uint256 tokenAmount, uint256 baseReceived, uint256 fee
     );
-    event FeeRecipientsUpdated(address indexed treasury, address indexed burnAddress);
+    event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
     event FeeSplitUpdated(uint256 treasuryBps, uint256 burnBps);
 
     // ============ Errors ============
@@ -63,25 +63,18 @@ contract ERC20BondingCurve is Ownable2Step, Pausable, ReentrancyGuard {
      * @param _baseToken Address of the base token (VSC)
      * @param _token Address of the token to trade (Gear)
      * @param _treasury Address to receive treasury fees
-     * @param _burnAddress Address to receive burn fees
      * @param _owner Initial owner address
      */
-    constructor(
-        address _baseToken,
-        address _token,
-        address _treasury,
-        address _burnAddress,
-        address _owner
-    ) Ownable(_owner) {
+    constructor(address _baseToken, address _token, address _treasury, address _owner)
+        Ownable(_owner)
+    {
         if (_baseToken == address(0)) revert ZeroAddress();
         if (_token == address(0)) revert ZeroAddress();
         if (_treasury == address(0)) revert ZeroAddress();
-        if (_burnAddress == address(0)) revert ZeroAddress();
 
         baseToken = IERC20(_baseToken);
         token = IMintableBurnable(_token);
         treasury = _treasury;
-        burnAddress = _burnAddress;
     }
 
     // ============ External Functions ============
@@ -218,18 +211,16 @@ contract ERC20BondingCurve is Ownable2Step, Pausable, ReentrancyGuard {
     // ============ Admin Functions ============
 
     /**
-     * @notice Set fee recipient addresses
+     * @notice Set treasury address
      * @param _treasury New treasury address
-     * @param _burnAddress New burn address
      */
-    function setFeeRecipients(address _treasury, address _burnAddress) external onlyOwner {
+    function setTreasury(address _treasury) external onlyOwner {
         if (_treasury == address(0)) revert ZeroAddress();
-        if (_burnAddress == address(0)) revert ZeroAddress();
 
+        address oldTreasury = treasury;
         treasury = _treasury;
-        burnAddress = _burnAddress;
 
-        emit FeeRecipientsUpdated(_treasury, _burnAddress);
+        emit TreasuryUpdated(oldTreasury, _treasury);
     }
 
     /**
@@ -345,6 +336,6 @@ contract ERC20BondingCurve is Ownable2Step, Pausable, ReentrancyGuard {
 
         if (treasuryShare > 0) baseToken.safeTransfer(treasury, treasuryShare);
 
-        if (burnShare > 0) baseToken.safeTransfer(burnAddress, burnShare);
+        if (burnShare > 0) baseToken.safeTransfer(BURN_ADDRESS, burnShare);
     }
 }

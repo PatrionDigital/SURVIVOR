@@ -13,10 +13,12 @@ contract ERC20BondingCurveTest is Test {
 
     address public owner;
     address public treasury;
-    address public burnAddress;
     address public buyer;
     address public seller;
     address public attacker;
+
+    // Constant burn address matching contract
+    address constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
     // Constants matching the contract
     uint256 constant BASE_PRICE = 1e18; // 1 VSC (18 decimals)
@@ -33,13 +35,12 @@ contract ERC20BondingCurveTest is Test {
     event TokensSold(
         address indexed seller, uint256 tokenAmount, uint256 baseReceived, uint256 fee
     );
-    event FeeRecipientsUpdated(address indexed treasury, address indexed burnAddress);
+    event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
     event FeeSplitUpdated(uint256 treasuryBps, uint256 burnBps);
 
     function setUp() public {
         owner = makeAddr("owner");
         treasury = makeAddr("treasury");
-        burnAddress = makeAddr("burn");
         buyer = makeAddr("buyer");
         seller = makeAddr("seller");
         attacker = makeAddr("attacker");
@@ -54,9 +55,7 @@ contract ERC20BondingCurveTest is Test {
         gearToken = new GearToken("Weapon Core", "WEAPON", owner);
 
         // Deploy ERC20 bonding curve
-        curve = new ERC20BondingCurve(
-            address(vscToken), address(gearToken), treasury, burnAddress, owner
-        );
+        curve = new ERC20BondingCurve(address(vscToken), address(gearToken), treasury, owner);
 
         // Set bonding curve as minter on gear token
         gearToken.setBondingCurve(address(curve));
@@ -75,7 +74,7 @@ contract ERC20BondingCurveTest is Test {
         assertEq(address(curve.baseToken()), address(vscToken));
         assertEq(address(curve.token()), address(gearToken));
         assertEq(curve.treasury(), treasury);
-        assertEq(curve.burnAddress(), burnAddress);
+        assertEq(curve.BURN_ADDRESS(), BURN_ADDRESS);
         assertEq(curve.owner(), owner);
         assertEq(curve.buyFeeBps(), BUY_FEE_BPS);
         assertEq(curve.sellFeeBps(), SELL_FEE_BPS);
@@ -93,22 +92,17 @@ contract ERC20BondingCurveTest is Test {
 
     function test_Constructor_RevertIfBaseTokenZero() public {
         vm.expectRevert(ERC20BondingCurve.ZeroAddress.selector);
-        new ERC20BondingCurve(address(0), address(gearToken), treasury, burnAddress, owner);
+        new ERC20BondingCurve(address(0), address(gearToken), treasury, owner);
     }
 
     function test_Constructor_RevertIfTokenZero() public {
         vm.expectRevert(ERC20BondingCurve.ZeroAddress.selector);
-        new ERC20BondingCurve(address(vscToken), address(0), treasury, burnAddress, owner);
+        new ERC20BondingCurve(address(vscToken), address(0), treasury, owner);
     }
 
     function test_Constructor_RevertIfTreasuryZero() public {
         vm.expectRevert(ERC20BondingCurve.ZeroAddress.selector);
-        new ERC20BondingCurve(address(vscToken), address(gearToken), address(0), burnAddress, owner);
-    }
-
-    function test_Constructor_RevertIfBurnAddressZero() public {
-        vm.expectRevert(ERC20BondingCurve.ZeroAddress.selector);
-        new ERC20BondingCurve(address(vscToken), address(gearToken), treasury, address(0), owner);
+        new ERC20BondingCurve(address(vscToken), address(gearToken), address(0), owner);
     }
 
     // ============ Buy Tests ============
@@ -152,7 +146,7 @@ contract ERC20BondingCurveTest is Test {
         uint256 burnShare = fee - treasuryShare;
 
         uint256 treasuryBefore = vscToken.balanceOf(treasury);
-        uint256 burnBefore = vscToken.balanceOf(burnAddress);
+        uint256 burnBefore = vscToken.balanceOf(BURN_ADDRESS);
 
         vm.startPrank(buyer);
         vscToken.approve(address(curve), vscAmount);
@@ -160,7 +154,7 @@ contract ERC20BondingCurveTest is Test {
         vm.stopPrank();
 
         assertEq(vscToken.balanceOf(treasury), treasuryBefore + treasuryShare);
-        assertEq(vscToken.balanceOf(burnAddress), burnBefore + burnShare);
+        assertEq(vscToken.balanceOf(BURN_ADDRESS), burnBefore + burnShare);
     }
 
     function test_Buy_RevertIfZeroAmount() public {
@@ -248,7 +242,7 @@ contract ERC20BondingCurveTest is Test {
         uint256 tokensBought = curve.buy(vscAmount, 0);
 
         uint256 treasuryBefore = vscToken.balanceOf(treasury);
-        uint256 burnBefore = vscToken.balanceOf(burnAddress);
+        uint256 burnBefore = vscToken.balanceOf(BURN_ADDRESS);
 
         // Sell tokens
         (, uint256 fee) = curve.calculateSellReturn(tokensBought);
@@ -259,7 +253,7 @@ contract ERC20BondingCurveTest is Test {
         vm.stopPrank();
 
         assertEq(vscToken.balanceOf(treasury), treasuryBefore + treasuryShare);
-        assertEq(vscToken.balanceOf(burnAddress), burnBefore + burnShare);
+        assertEq(vscToken.balanceOf(BURN_ADDRESS), burnBefore + burnShare);
     }
 
     function test_Sell_RevertIfZeroAmount() public {
@@ -328,29 +322,27 @@ contract ERC20BondingCurveTest is Test {
 
     // ============ Admin Functions Tests ============
 
-    function test_SetFeeRecipients() public {
+    function test_SetTreasury() public {
         address newTreasury = makeAddr("newTreasury");
-        address newBurn = makeAddr("newBurn");
 
         vm.prank(owner);
         vm.expectEmit(true, true, false, false);
-        emit FeeRecipientsUpdated(newTreasury, newBurn);
-        curve.setFeeRecipients(newTreasury, newBurn);
+        emit TreasuryUpdated(treasury, newTreasury);
+        curve.setTreasury(newTreasury);
 
         assertEq(curve.treasury(), newTreasury);
-        assertEq(curve.burnAddress(), newBurn);
     }
 
-    function test_SetFeeRecipients_RevertIfNotOwner() public {
+    function test_SetTreasury_RevertIfNotOwner() public {
         vm.prank(attacker);
         vm.expectRevert();
-        curve.setFeeRecipients(attacker, attacker);
+        curve.setTreasury(attacker);
     }
 
-    function test_SetFeeRecipients_RevertIfZeroTreasury() public {
+    function test_SetTreasury_RevertIfZeroAddress() public {
         vm.prank(owner);
         vm.expectRevert(ERC20BondingCurve.ZeroAddress.selector);
-        curve.setFeeRecipients(address(0), burnAddress);
+        curve.setTreasury(address(0));
     }
 
     function test_SetFeeSplit() public {

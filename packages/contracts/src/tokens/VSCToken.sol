@@ -75,6 +75,16 @@ contract VSCToken is ERC20, ERC20Burnable, ERC20Permit, Ownable2Step, Pausable {
     }
 
     /**
+     * @notice Burn tokens from an address (minter only)
+     * @dev Used by BondingCurve for sell operations
+     * @param from Address to burn from
+     * @param amount Amount to burn
+     */
+    function burn(address from, uint256 amount) external onlyMinter whenNotPaused {
+        _burn(from, amount);
+    }
+
+    /**
      * @notice Pause token transfers
      */
     function pause() external onlyOwner {
