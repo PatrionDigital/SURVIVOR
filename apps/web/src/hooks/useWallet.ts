@@ -44,12 +44,12 @@ export function useWallet(): UseWalletReturn {
   // Get the Farcaster Mini App connector
   const miniAppConnector = connectors[0];
 
-  // Auto-connect when mini app is ready and not already connected
+  // Auto-connect when in mini app context and ready
   useEffect(() => {
-    if (isMiniAppReady && miniAppConnector && !isConnected && !isPending) {
+    if (isInMiniApp && isMiniAppReady && miniAppConnector && !isConnected && !isPending) {
       wagmiConnect({ connector: miniAppConnector });
     }
-  }, [isMiniAppReady, miniAppConnector, isConnected, isPending, wagmiConnect]);
+  }, [isInMiniApp, isMiniAppReady, miniAppConnector, isConnected, isPending, wagmiConnect]);
 
   // Sync connection state with playerStore
   useEffect(() => {
