@@ -344,17 +344,16 @@ Create Foundry deployment script for all tokens and bonding curves.
 - [x] Deploy VSCToken
 - [x] Deploy 6 GearTokens
 - [x] Deploy VSC-ETH BondingCurve
-- [ ] Deploy 6 Gear-VSC BondingCurves (pending: requires ERC20-based curve)
+- [x] Deploy 6 Gear-VSC BondingCurves (ERC20BondingCurve.sol)
 - [x] Configure permissions
 - [x] Log all addresses
 - [x] Test on Anvil
 
 **Acceptance Criteria:**
 
-- ✅ Script deploys all contracts in correct order
-- ✅ Permissions configured correctly (VSC BondingCurve added as VSCToken minter)
-- ✅ Works on Anvil (tested successfully)
-- Note: Gear-VSC BondingCurves pending (requires ERC20-based bonding curve implementation)
+- ✅ Script deploys all contracts in correct order (14 contracts total)
+- ✅ Permissions configured correctly (VSC BondingCurve as minter, Gear curves set)
+- ✅ Works on Anvil (tested successfully with all 14 contracts)
 
 ---
 
