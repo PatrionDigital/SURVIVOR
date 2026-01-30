@@ -1,3 +1,4 @@
+import { SignInButton } from "@farcaster/auth-kit";
 import { useWallet } from "@/hooks";
 
 interface ConnectButtonProps {
@@ -6,13 +7,22 @@ interface ConnectButtonProps {
 
 /**
  * Button to display wallet connection status
- * Auto-connects in Mini App context, shows manual connect for web fallback
+ * - In Mini App context: auto-connects to Farcaster
+ * - In browser context: uses SignInButton from auth-kit for SIWF flow
  */
 export function ConnectButton({ className = "" }: ConnectButtonProps) {
-  const { isConnected, isConnecting, shortAddress, connect, connectionState } = useWallet();
+  const {
+    isConnected,
+    isConnecting,
+    shortAddress,
+    username,
+    connect,
+    connectionState,
+    isInMiniApp,
+  } = useWallet();
 
-  // Loading state
-  if (isConnecting) {
+  // Loading state (for Mini App)
+  if (isConnecting && isInMiniApp) {
     return (
       <button
         disabled
@@ -23,13 +33,13 @@ export function ConnectButton({ className = "" }: ConnectButtonProps) {
     );
   }
 
-  // Connected state - show short address
-  if (isConnected && shortAddress) {
+  // Connected state - show username or short address
+  if (isConnected && (shortAddress || username)) {
     return (
       <div
-        className={`bg-green-600/20 border border-green-500/50 text-green-400 text-sm py-2 px-4 rounded ${className}`}
+        className={`bg-green-600/20 border border-green-500/50 text-green-400 text-sm py-2 px-4 rounded flex items-center gap-2 ${className}`}
       >
-        {shortAddress}
+        {username ? `@${username}` : shortAddress}
       </div>
     );
   }
@@ -46,13 +56,18 @@ export function ConnectButton({ className = "" }: ConnectButtonProps) {
     );
   }
 
-  // Disconnected state - show connect button
-  return (
-    <button
-      onClick={connect}
-      className={`bg-primary-600 hover:bg-primary-500 text-white text-sm py-2 px-4 rounded transition-colors ${className}`}
-    >
-      Connect
-    </button>
-  );
+  // In Mini App context - show custom connect button
+  if (isInMiniApp) {
+    return (
+      <button
+        onClick={connect}
+        className={`bg-primary-600 hover:bg-primary-500 text-white text-sm py-2 px-4 rounded transition-colors ${className}`}
+      >
+        Connect
+      </button>
+    );
+  }
+
+  // In browser context - use auth-kit's SignInButton for SIWF
+  return <SignInButton />;
 }
