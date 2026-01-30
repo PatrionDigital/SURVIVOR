@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
+import { Script, console } from "forge-std/Script.sol";
 
 /**
  * @title DeployRewards
@@ -28,7 +28,7 @@ contract DeployRewards is Script {
     // Contract addresses
     address public rewardDistributor;
 
-    function setUp() public {}
+    function setUp() public { }
 
     function run() public {
         // Load configuration

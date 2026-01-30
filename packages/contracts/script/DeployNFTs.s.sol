@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
+import { Script, console } from "forge-std/Script.sol";
 
 /**
  * @title DeployNFTs
@@ -28,7 +28,7 @@ contract DeployNFTs is Script {
     address public globalUpgradeNFT;
     address public earlyAdopterNFT;
 
-    function setUp() public {}
+    function setUp() public { }
 
     function run() public {
         // Load configuration

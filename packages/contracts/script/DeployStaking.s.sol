@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
+import { Script, console } from "forge-std/Script.sol";
 
 /**
  * @title DeployStaking
@@ -27,7 +27,7 @@ contract DeployStaking is Script {
     address public gearStaking;
     address public maintenancePool;
 
-    function setUp() public {}
+    function setUp() public { }
 
     function run() public {
         // Load configuration

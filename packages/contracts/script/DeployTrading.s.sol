@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
+import { Script, console } from "forge-std/Script.sol";
 
 /**
  * @title DeployTrading
@@ -22,7 +22,7 @@ contract DeployTrading is Script {
     // Contract addresses
     address public bondingCurve;
 
-    function setUp() public {}
+    function setUp() public { }
 
     function run() public {
         // Load configuration
