@@ -392,29 +392,31 @@ Implement Farcaster wallet connection using Mini App SDK and Sign In With Farcas
 
 ---
 
-#### Task 1.4.2: Implement Token Balance Display
+#### Task 1.4.2: Implement Token Balance Display ✅
 
-**Priority:** P1  
-**Estimate:** 4 hours  
+**Priority:** P1
+**Estimate:** 4 hours
 **Dependencies:** 1.4.1, 1.3.3
+**Status:** COMPLETE
 
 **Description:**
 Display $VSC and gear token balances.
 
 **Subtasks:**
 
-- [ ] Create TokenBalance component
-- [ ] Create useVSCToken hook
-- [ ] Create useGearTokens hook
-- [ ] Display formatted balances
-- [ ] Auto-refresh on new blocks
-- [ ] Handle loading/error states
+- [x] Create TokenBalance component (TokenBalance.tsx, SingleTokenBalance)
+- [x] Create useVSCToken hook (reads balance, formats with SDK utility)
+- [x] Create useGearTokens hook (multicall for all 6 gear tokens)
+- [x] Display formatted balances (uses formatTokenAmount from SDK)
+- [x] Auto-refresh on new blocks (useBlockNumber with watch)
+- [x] Handle loading/error states (skeleton loading, error handling)
+- [x] Add ABIs to SDK package (erc20Abi, vscTokenAbi, gearTokenAbi)
 
 **Acceptance Criteria:**
 
-- Balances display correctly
-- Balances update on chain changes
-- Loading states shown
+- ✅ Balances display correctly (formatted with commas and decimals)
+- ✅ Balances update on chain changes (block number watch)
+- ✅ Loading states shown (skeleton animation)
 
 ---
 
