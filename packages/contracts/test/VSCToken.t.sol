@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Test, console} from "forge-std/Test.sol";
-import {VSCToken} from "../src/tokens/VSCToken.sol";
+import { Test, console } from "forge-std/Test.sol";
+import { VSCToken } from "../src/tokens/VSCToken.sol";
 
 contract VSCTokenTest is Test {
     VSCToken public token;
