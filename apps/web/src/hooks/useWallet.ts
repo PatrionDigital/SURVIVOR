@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { useProfile, useSignIn } from "@farcaster/auth-kit";
+import { useSiwfAuth } from "@/lib/siwfAuth";
 import { usePlayerStore } from "@/stores/playerStore";
 import { useMiniApp } from "./useMiniApp";
 
@@ -35,16 +35,17 @@ export interface UseWalletReturn {
  * and Sign In With Farcaster (SIWF) for browser-based authentication.
  *
  * - In Mini App context: auto-connects wallet via farcasterMiniApp connector
- * - In browser context: uses SIWF for authentication (persisted by auth-kit)
+ * - In browser context: uses SIWF for authentication (persisted via localStorage)
  */
 export function useWallet(): UseWalletReturn {
   const { context, isReady: isMiniAppReady, isInMiniApp } = useMiniApp();
 
-  // Auth-kit profile hook - persists across page refresh
-  const { isAuthenticated, profile } = useProfile();
-
-  // SIWF hook for sign out functionality
-  const { signOut: siwfSignOut, error: siwfError } = useSignIn({});
+  // SIWF auth with localStorage persistence
+  const {
+    user: siwfUser,
+    isAuthenticated: siwfAuthenticated,
+    signOut: siwfSignOut,
+  } = useSiwfAuth();
 
   // wagmi hooks
   const { address: wagmiAddress, isConnected: wagmiIsConnected, isConnecting } = useAccount();
@@ -59,9 +60,9 @@ export function useWallet(): UseWalletReturn {
 
   // Determine effective connection state
   // In Mini App: use wagmi connection
-  // In browser: use auth-kit's isAuthenticated (persisted)
-  const isConnected = isInMiniApp ? wagmiIsConnected : isAuthenticated;
-  const address = isInMiniApp ? wagmiAddress : (profile?.custody as `0x${string}` | undefined);
+  // In browser: use SIWF auth (persisted via localStorage)
+  const isConnected = isInMiniApp ? wagmiIsConnected : siwfAuthenticated;
+  const address = isInMiniApp ? wagmiAddress : (siwfUser?.custody ?? undefined);
 
   // Auto-connect when in mini app context and ready
   useEffect(() => {
@@ -73,7 +74,7 @@ export function useWallet(): UseWalletReturn {
   // Sync connection state with playerStore
   useEffect(() => {
     if (isConnected && address) {
-      const userFid = isInMiniApp ? (context?.user?.fid ?? null) : (profile?.fid ?? null);
+      const userFid = isInMiniApp ? (context?.user?.fid ?? null) : (siwfUser?.fid ?? null);
       storeConnect(address, userFid ?? 0);
     } else if (!isConnected) {
       storeDisconnect();
@@ -83,7 +84,7 @@ export function useWallet(): UseWalletReturn {
     address,
     isInMiniApp,
     context?.user?.fid,
-    profile?.fid,
+    siwfUser?.fid,
     storeConnect,
     storeDisconnect,
   ]);
@@ -108,13 +109,13 @@ export function useWallet(): UseWalletReturn {
 
   // Determine connection state
   const getConnectionState = (): ConnectionState => {
-    if (connectError || siwfError) return "error";
+    if (connectError) return "error";
     if (isConnecting || isPending) return "connecting";
     if (isConnected) return "connected";
     return "disconnected";
   };
 
-  // Get user profile data from Mini App context or auth-kit profile
+  // Get user profile data from Mini App context or SIWF user
   const getUserProfile = () => {
     if (isInMiniApp && context?.user) {
       return {
@@ -124,12 +125,12 @@ export function useWallet(): UseWalletReturn {
         pfpUrl: context.user.pfpUrl ?? null,
       };
     }
-    if (profile) {
+    if (siwfUser) {
       return {
-        fid: profile.fid ?? null,
-        username: profile.username ?? null,
-        displayName: profile.displayName ?? null,
-        pfpUrl: profile.pfpUrl ?? null,
+        fid: siwfUser.fid,
+        username: siwfUser.username,
+        displayName: siwfUser.displayName,
+        pfpUrl: siwfUser.pfpUrl,
       };
     }
     return {
@@ -150,7 +151,7 @@ export function useWallet(): UseWalletReturn {
     isConnected,
     isConnecting: isConnecting || isPending,
     connectionState: getConnectionState(),
-    error: connectError ?? siwfError ?? null,
+    error: connectError ?? null,
 
     fid: userProfile.fid,
     username: userProfile.username,
