@@ -17,7 +17,7 @@ interface GameStore extends GameState {
   incrementScore: (amount: number) => void;
   incrementLevel: () => void;
   setEnemiesKilled: (count: number) => void;
-  setSurvivalTime: (time: number) => void;
+  setSurvivalTime: (time: number | ((prev: number) => number)) => void;
   reset: () => void;
 }
 
@@ -39,6 +39,9 @@ export const useGameStore = create<GameStore>((set) => ({
   incrementScore: (amount) => set((state) => ({ score: state.score + amount })),
   incrementLevel: () => set((state) => ({ level: state.level + 1 })),
   setEnemiesKilled: (count) => set({ enemiesKilled: count }),
-  setSurvivalTime: (time) => set({ survivalTime: time }),
+  setSurvivalTime: (time) =>
+    set((state) => ({
+      survivalTime: typeof time === "function" ? time(state.survivalTime) : time,
+    })),
   reset: () => set(initialState),
 }));
