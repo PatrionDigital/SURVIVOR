@@ -74,7 +74,7 @@ Initialize React + Vite + TypeScript frontend application.
 **Priority:** P0
 **Estimate:** 4 hours
 **Dependencies:** 1.1.1
-**Status:** COMPLETE (scaffolding done, some subtasks pending)
+**Status:** COMPLETE
 
 **Description:**
 Initialize Fastify + TypeScript backend application.
@@ -82,13 +82,13 @@ Initialize Fastify + TypeScript backend application.
 **Subtasks:**
 
 - [x] Create Fastify project with TypeScript
-- [ ] Configure Zod validation
-- [ ] Set up JWT authentication plugin
+- [x] Configure Zod validation
+- [x] Set up JWT authentication plugin
 - [x] Configure CORS
 - [x] Add rate limiting plugin
-- [ ] Create route structure (empty shells)
-- [ ] Set up Supabase client
-- [ ] Set up Redis/Upstash client
+- [x] Create route structure (empty shells)
+- [x] Set up Supabase client
+- [x] Set up Redis/Upstash client
 - [x] Configure environment variables
 
 **Acceptance Criteria:**
