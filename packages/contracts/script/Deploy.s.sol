@@ -5,6 +5,7 @@ import { Script, console } from "forge-std/Script.sol";
 import { VSCToken } from "../src/tokens/VSCToken.sol";
 import { GearToken } from "../src/tokens/GearToken.sol";
 import { BondingCurve } from "../src/bonding/BondingCurve.sol";
+import { ERC20BondingCurve } from "../src/bonding/ERC20BondingCurve.sol";
 
 /**
  * @title Deploy
@@ -15,9 +16,8 @@ import { BondingCurve } from "../src/bonding/BondingCurve.sol";
  * 1. VSCToken (primary currency)
  * 2. GearTokens (6 gear types: WEAPON, ARMOR, POWER, GLOVES, AMULET, BOOTS)
  * 3. VSC-ETH BondingCurve (trading AMM for VSC)
- * 4. Configure permissions
- *
- * Note: Gear-VSC BondingCurves require ERC20-based bonding curve (future task)
+ * 4. Gear-VSC BondingCurves (6 trading AMMs for each gear type)
+ * 5. Configure permissions
  *
  * Usage:
  *   forge script script/Deploy.s.sol --rpc-url <RPC_URL> --broadcast --verify
@@ -41,6 +41,9 @@ contract Deploy is Script {
 
     // Gear token array for iteration
     GearToken[6] public gearTokens;
+
+    // Gear-VSC bonding curves
+    ERC20BondingCurve[6] public gearBondingCurves;
 
     // Gear token metadata
     string[6] public gearNames =
@@ -88,16 +91,27 @@ contract Deploy is Script {
         vscBondingCurve = new BondingCurve(address(vscToken), treasury, burnAddress, deployer);
         console.log("   VSC-ETH BondingCurve deployed at:", address(vscBondingCurve));
 
-        // 4. Configure permissions
-        console.log("4. Configuring permissions...");
+        // 4. Deploy Gear-VSC BondingCurves
+        console.log("4. Deploying Gear-VSC BondingCurves...");
+        for (uint256 i = 0; i < 6; i++) {
+            gearBondingCurves[i] = new ERC20BondingCurve(
+                address(vscToken), address(gearTokens[i]), treasury, burnAddress, deployer
+            );
+            console.log("   ", gearSymbols[i], "-VSC curve at:", address(gearBondingCurves[i]));
+        }
+
+        // 5. Configure permissions
+        console.log("5. Configuring permissions...");
 
         // Add VSC BondingCurve as minter for VSCToken
         vscToken.addMinter(address(vscBondingCurve));
         console.log("   Added VSC BondingCurve as VSCToken minter");
 
-        // Note: Gear-VSC BondingCurves not yet implemented
-        // When implemented, each GearToken's setBondingCurve would be called here
-        console.log("   Note: Gear-VSC BondingCurves pending (requires ERC20-based curve)");
+        // Set bonding curve for each GearToken
+        for (uint256 i = 0; i < 6; i++) {
+            gearTokens[i].setBondingCurve(address(gearBondingCurves[i]));
+            console.log("   Set bonding curve for", gearSymbols[i]);
+        }
 
         vm.stopBroadcast();
 
@@ -120,6 +134,12 @@ contract Deploy is Script {
         console.log("");
         console.log("Trading:");
         console.log("  VSC-ETH BondingCurve:", address(vscBondingCurve));
+        console.log("  WEAPON-VSC Curve:", address(gearBondingCurves[0]));
+        console.log("  ARMOR-VSC Curve:", address(gearBondingCurves[1]));
+        console.log("  POWER-VSC Curve:", address(gearBondingCurves[2]));
+        console.log("  GLOVES-VSC Curve:", address(gearBondingCurves[3]));
+        console.log("  AMULET-VSC Curve:", address(gearBondingCurves[4]));
+        console.log("  BOOTS-VSC Curve:", address(gearBondingCurves[5]));
         console.log("");
         console.log("=== Deployment Complete ===");
     }
