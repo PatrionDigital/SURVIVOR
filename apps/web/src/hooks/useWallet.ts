@@ -73,14 +73,20 @@ export function useWallet(): UseWalletReturn {
   // Sync connection state with playerStore
   useEffect(() => {
     if (isConnected && address) {
-      const userFid = isInMiniApp
-        ? (context?.user?.fid ?? null)
-        : (profile?.fid ?? null);
+      const userFid = isInMiniApp ? (context?.user?.fid ?? null) : (profile?.fid ?? null);
       storeConnect(address, userFid ?? 0);
     } else if (!isConnected) {
       storeDisconnect();
     }
-  }, [isConnected, address, isInMiniApp, context?.user?.fid, profile?.fid, storeConnect, storeDisconnect]);
+  }, [
+    isConnected,
+    address,
+    isInMiniApp,
+    context?.user?.fid,
+    profile?.fid,
+    storeConnect,
+    storeDisconnect,
+  ]);
 
   // Connect function (only used for Mini App context)
   // In browser context, auth-kit's SignInButton handles the SIWF flow
