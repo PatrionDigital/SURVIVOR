@@ -359,30 +359,32 @@ Create Foundry deployment script for all tokens and bonding curves.
 
 ### 1.4 Basic Frontend
 
-#### Task 1.4.1: Implement Wallet Connection
+#### Task 1.4.1: Implement Wallet Connection ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 1.1.2
+**Status:** COMPLETE
 
 **Description:**
 Implement Farcaster wallet connection using Mini App SDK.
 
 **Subtasks:**
 
-- [ ] Create ConnectButton component
-- [ ] Implement initMiniApp() function
-- [ ] Implement connectWallet() with SIWF
-- [ ] Create useWallet hook
-- [ ] Handle connection states (connecting, connected, error)
-- [ ] Store connection in Zustand
-- [ ] Display connected address
+- [x] Create useMiniApp hook (initializes SDK, calls sdk.actions.ready())
+- [x] Create useWallet hook (auto-connect in Mini App context)
+- [x] Configure wagmi with farcasterMiniApp connector
+- [x] Auto-connect wallet on app load when in Mini App context
+- [x] Handle connection states (connecting, connected, error)
+- [x] Store connection in Zustand (playerStore sync)
+- [x] Create ConnectButton component to display connection status
 
 **Acceptance Criteria:**
 
-- Users can connect wallet via Farcaster
-- Connection persists across page refresh
-- Error states handled gracefully
+- ✅ Wallet auto-connects in Farcaster Mini App context
+- ✅ Manual connect button available for web fallback
+- ✅ Error states handled gracefully
+- ✅ Connected address displayed in header
 
 ---
 
