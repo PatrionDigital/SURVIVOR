@@ -57,7 +57,7 @@ Initialize React + Vite + TypeScript frontend application.
 - [x] Configure wagmi + viem for Web3
 - [x] Add Farcaster Mini App SDK
 - [x] Create base component structure
-- [ ] Set up routing (if needed)
+- [x] Set up routing (react-router-dom)
 - [x] Configure environment variables
 
 **Acceptance Criteria:**
