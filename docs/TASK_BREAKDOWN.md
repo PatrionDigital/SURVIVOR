@@ -116,7 +116,7 @@ Initialize Foundry project for smart contracts.
 - [x] Add OpenZeppelin dependencies
 - [x] Create contract directory structure
 - [x] Set up remappings.txt
-- [ ] Create deployment script shells
+- [x] Create deployment script shells
 
 **Acceptance Criteria:**
 
