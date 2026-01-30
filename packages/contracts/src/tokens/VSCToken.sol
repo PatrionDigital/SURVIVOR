@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step.sol";
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { ERC20Burnable } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import { Ownable2Step, Ownable } from "@openzeppelin/contracts/access/Ownable2Step.sol";
+import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title VSCToken
@@ -35,7 +35,11 @@ contract VSCToken is ERC20, ERC20Burnable, ERC20Permit, Ownable2Step, Pausable {
     }
 
     // ============ Constructor ============
-    constructor(address initialOwner) ERC20("Survivor Coin", "VSC") ERC20Permit("Survivor Coin") Ownable(initialOwner) {
+    constructor(address initialOwner)
+        ERC20("Survivor Coin", "VSC")
+        ERC20Permit("Survivor Coin")
+        Ownable(initialOwner)
+    {
         if (initialOwner == address(0)) revert ZeroAddress();
     }
 
