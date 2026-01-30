@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { ConnectButton } from "@/components/wallet";
 
 const NAV_ITEMS = [
   { path: "/", label: "Home" },
@@ -37,10 +38,8 @@ export function Layout() {
             ))}
           </nav>
 
-          {/* Wallet button placeholder */}
-          <button className="bg-primary-600 hover:bg-primary-500 text-white text-sm py-2 px-4 rounded transition-colors">
-            Connect
-          </button>
+          {/* Wallet connection button */}
+          <ConnectButton />
         </div>
 
         {/* Mobile navigation */}
