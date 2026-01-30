@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
+import { Script, console } from "forge-std/Script.sol";
 
 /**
  * @title Deploy
@@ -39,7 +39,7 @@ contract Deploy is Script {
     address public amuletToken;
     address public bootsToken;
 
-    function setUp() public {}
+    function setUp() public { }
 
     function run() public {
         // Load configuration from environment

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
-import {VSCToken} from "../src/tokens/VSCToken.sol";
+import { Script, console } from "forge-std/Script.sol";
+import { VSCToken } from "../src/tokens/VSCToken.sol";
 
 /**
  * @title DeployTokens
@@ -33,7 +33,7 @@ contract DeployTokens is Script {
     // GearToken public amuletToken;
     // GearToken public bootsToken;
 
-    function setUp() public {}
+    function setUp() public { }
 
     function run() public {
         address treasury = vm.envAddress("TREASURY_ADDRESS");
