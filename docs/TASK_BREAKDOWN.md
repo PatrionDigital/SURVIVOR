@@ -367,7 +367,7 @@ Create Foundry deployment script for all tokens and bonding curves.
 **Status:** COMPLETE
 
 **Description:**
-Implement Farcaster wallet connection using Mini App SDK.
+Implement Farcaster wallet connection using Mini App SDK and Sign In With Farcaster (SIWF) for browser authentication.
 
 **Subtasks:**
 
@@ -378,13 +378,17 @@ Implement Farcaster wallet connection using Mini App SDK.
 - [x] Handle connection states (connecting, connected, error)
 - [x] Store connection in Zustand (playerStore sync)
 - [x] Create ConnectButton component to display connection status
+- [x] Implement SIWF (Sign In With Farcaster) for browser authentication
+- [x] Create SiwfAuthProvider with localStorage session persistence
+- [x] Integrate @farcaster/auth-kit SignInButton for QR code flow
 
 **Acceptance Criteria:**
 
 - ✅ Wallet auto-connects in Farcaster Mini App context
-- ✅ Manual connect button available for web fallback
+- ✅ SIWF QR code flow works in browser context
+- ✅ Session persists across page refresh (localStorage)
 - ✅ Error states handled gracefully
-- ✅ Connected address displayed in header
+- ✅ Connected username/address displayed in header
 
 ---
 
