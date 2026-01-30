@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { useSignIn } from "@farcaster/auth-kit";
+import { useProfile, useSignIn } from "@farcaster/auth-kit";
 import { usePlayerStore } from "@/stores/playerStore";
 import { useMiniApp } from "./useMiniApp";
 
@@ -30,75 +30,21 @@ export interface UseWalletReturn {
   shortAddress: string | null;
 }
 
-const SIWF_STORAGE_KEY = "farcaster_survivors_siwf_user";
-
-// Helper to safely access localStorage
-const getStoredSiwfUser = () => {
-  if (typeof window === "undefined") return null;
-  try {
-    const stored = localStorage.getItem(SIWF_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored) as {
-        fid: number;
-        username: string;
-        displayName: string;
-        pfpUrl: string;
-        custody: `0x${string}`;
-      };
-    }
-  } catch {
-    // Invalid stored data, clear it
-    localStorage.removeItem(SIWF_STORAGE_KEY);
-  }
-  return null;
-};
-
 /**
  * Hook for wallet connection that integrates wagmi with Farcaster Mini App SDK
  * and Sign In With Farcaster (SIWF) for browser-based authentication.
  *
  * - In Mini App context: auto-connects wallet via farcasterMiniApp connector
- * - In browser context: uses SIWF for authentication (QR code flow)
+ * - In browser context: uses SIWF for authentication (persisted by auth-kit)
  */
 export function useWallet(): UseWalletReturn {
   const { context, isReady: isMiniAppReady, isInMiniApp } = useMiniApp();
 
-  // SIWF state for browser authentication - initialize from localStorage
-  const [siwfUser, setSiwfUser] = useState<{
-    fid: number;
-    username: string;
-    displayName: string;
-    pfpUrl: string;
-    custody: `0x${string}`;
-  } | null>(() => getStoredSiwfUser());
+  // Auth-kit profile hook - persists across page refresh
+  const { isAuthenticated, profile } = useProfile();
 
-  // Persist SIWF user to localStorage when it changes
-  useEffect(() => {
-    if (siwfUser) {
-      localStorage.setItem(SIWF_STORAGE_KEY, JSON.stringify(siwfUser));
-    }
-  }, [siwfUser]);
-
-  // SIWF hook for browser authentication
-  // Note: SignInButton from auth-kit handles the QR code UI
-  const {
-    signOut: siwfSignOut,
-    isSuccess: isSiwfSuccess,
-    error: siwfError,
-  } = useSignIn({
-    onSuccess: ({ fid, username, displayName, pfpUrl, custody }) => {
-      if (fid !== undefined) {
-        const userData = {
-          fid,
-          username: username ?? "",
-          displayName: displayName ?? "",
-          pfpUrl: pfpUrl ?? "",
-          custody: custody as `0x${string}`,
-        };
-        setSiwfUser(userData);
-      }
-    },
-  });
+  // SIWF hook for sign out functionality
+  const { signOut: siwfSignOut, error: siwfError } = useSignIn({});
 
   // wagmi hooks
   const { address: wagmiAddress, isConnected: wagmiIsConnected, isConnecting } = useAccount();
@@ -113,9 +59,9 @@ export function useWallet(): UseWalletReturn {
 
   // Determine effective connection state
   // In Mini App: use wagmi connection
-  // In browser: use SIWF authentication (check both success state and stored user)
-  const isConnected = isInMiniApp ? wagmiIsConnected : (isSiwfSuccess || siwfUser !== null);
-  const address = isInMiniApp ? wagmiAddress : siwfUser?.custody;
+  // In browser: use auth-kit's isAuthenticated (persisted)
+  const isConnected = isInMiniApp ? wagmiIsConnected : isAuthenticated;
+  const address = isInMiniApp ? wagmiAddress : (profile?.custody as `0x${string}` | undefined);
 
   // Auto-connect when in mini app context and ready
   useEffect(() => {
@@ -129,12 +75,12 @@ export function useWallet(): UseWalletReturn {
     if (isConnected && address) {
       const userFid = isInMiniApp
         ? (context?.user?.fid ?? null)
-        : (siwfUser?.fid ?? null);
+        : (profile?.fid ?? null);
       storeConnect(address, userFid ?? 0);
     } else if (!isConnected) {
       storeDisconnect();
     }
-  }, [isConnected, address, isInMiniApp, context?.user?.fid, siwfUser?.fid, storeConnect, storeDisconnect]);
+  }, [isConnected, address, isInMiniApp, context?.user?.fid, profile?.fid, storeConnect, storeDisconnect]);
 
   // Connect function (only used for Mini App context)
   // In browser context, auth-kit's SignInButton handles the SIWF flow
@@ -150,9 +96,6 @@ export function useWallet(): UseWalletReturn {
       wagmiDisconnect();
     } else {
       siwfSignOut();
-      setSiwfUser(null);
-      // Clear persisted session
-      localStorage.removeItem(SIWF_STORAGE_KEY);
     }
     storeDisconnect();
   }, [isInMiniApp, wagmiDisconnect, siwfSignOut, storeDisconnect]);
@@ -165,7 +108,7 @@ export function useWallet(): UseWalletReturn {
     return "disconnected";
   };
 
-  // Get user profile data from Mini App context or SIWF
+  // Get user profile data from Mini App context or auth-kit profile
   const getUserProfile = () => {
     if (isInMiniApp && context?.user) {
       return {
@@ -175,12 +118,12 @@ export function useWallet(): UseWalletReturn {
         pfpUrl: context.user.pfpUrl ?? null,
       };
     }
-    if (siwfUser) {
+    if (profile) {
       return {
-        fid: siwfUser.fid,
-        username: siwfUser.username || null,
-        displayName: siwfUser.displayName || null,
-        pfpUrl: siwfUser.pfpUrl || null,
+        fid: profile.fid ?? null,
+        username: profile.username ?? null,
+        displayName: profile.displayName ?? null,
+        pfpUrl: profile.pfpUrl ?? null,
       };
     }
     return {
