@@ -30,6 +30,29 @@ export interface UseWalletReturn {
   shortAddress: string | null;
 }
 
+const SIWF_STORAGE_KEY = "farcaster_survivors_siwf_user";
+
+// Helper to safely access localStorage
+const getStoredSiwfUser = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = localStorage.getItem(SIWF_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored) as {
+        fid: number;
+        username: string;
+        displayName: string;
+        pfpUrl: string;
+        custody: `0x${string}`;
+      };
+    }
+  } catch {
+    // Invalid stored data, clear it
+    localStorage.removeItem(SIWF_STORAGE_KEY);
+  }
+  return null;
+};
+
 /**
  * Hook for wallet connection that integrates wagmi with Farcaster Mini App SDK
  * and Sign In With Farcaster (SIWF) for browser-based authentication.
@@ -40,14 +63,21 @@ export interface UseWalletReturn {
 export function useWallet(): UseWalletReturn {
   const { context, isReady: isMiniAppReady, isInMiniApp } = useMiniApp();
 
-  // SIWF state for browser authentication
+  // SIWF state for browser authentication - initialize from localStorage
   const [siwfUser, setSiwfUser] = useState<{
     fid: number;
     username: string;
     displayName: string;
     pfpUrl: string;
     custody: `0x${string}`;
-  } | null>(null);
+  } | null>(() => getStoredSiwfUser());
+
+  // Persist SIWF user to localStorage when it changes
+  useEffect(() => {
+    if (siwfUser) {
+      localStorage.setItem(SIWF_STORAGE_KEY, JSON.stringify(siwfUser));
+    }
+  }, [siwfUser]);
 
   // SIWF hook for browser authentication
   // Note: SignInButton from auth-kit handles the QR code UI
@@ -58,13 +88,14 @@ export function useWallet(): UseWalletReturn {
   } = useSignIn({
     onSuccess: ({ fid, username, displayName, pfpUrl, custody }) => {
       if (fid !== undefined) {
-        setSiwfUser({
+        const userData = {
           fid,
           username: username ?? "",
           displayName: displayName ?? "",
           pfpUrl: pfpUrl ?? "",
           custody: custody as `0x${string}`,
-        });
+        };
+        setSiwfUser(userData);
       }
     },
   });
@@ -82,8 +113,8 @@ export function useWallet(): UseWalletReturn {
 
   // Determine effective connection state
   // In Mini App: use wagmi connection
-  // In browser: use SIWF authentication
-  const isConnected = isInMiniApp ? wagmiIsConnected : (isSiwfSuccess && siwfUser !== null);
+  // In browser: use SIWF authentication (check both success state and stored user)
+  const isConnected = isInMiniApp ? wagmiIsConnected : (isSiwfSuccess || siwfUser !== null);
   const address = isInMiniApp ? wagmiAddress : siwfUser?.custody;
 
   // Auto-connect when in mini app context and ready
@@ -120,6 +151,8 @@ export function useWallet(): UseWalletReturn {
     } else {
       siwfSignOut();
       setSiwfUser(null);
+      // Clear persisted session
+      localStorage.removeItem(SIWF_STORAGE_KEY);
     }
     storeDisconnect();
   }, [isInMiniApp, wagmiDisconnect, siwfSignOut, storeDisconnect]);
