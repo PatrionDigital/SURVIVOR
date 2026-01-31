@@ -426,57 +426,63 @@ Display $VSC and gear token balances.
 
 ### 2.1 Core Engine
 
-#### Task 2.1.1: Set Up PixiJS Application
+#### Task 2.1.1: Set Up PixiJS Application ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 1.1.2
+**Status:** COMPLETE
 
 **Description:**
 Initialize PixiJS v8 application with game canvas.
 
 **Subtasks:**
 
-- [ ] Create GameCanvas React component
-- [ ] Initialize PixiJS Application
-- [ ] Configure WebGL renderer
-- [ ] Handle canvas resize
-- [ ] Set up asset loader
-- [ ] Create game loop (60 FPS)
-- [ ] Integrate with React lifecycle
+- [x] Create GameCanvas React component
+- [x] Initialize PixiJS Application
+- [x] Configure WebGL renderer
+- [x] Handle canvas resize
+- [x] Set up asset loader
+- [x] Create game loop (60 FPS)
+- [x] Integrate with React lifecycle
 
 **Acceptance Criteria:**
 
-- Canvas renders in browser
-- Responsive to window resize
-- Consistent 60 FPS
+- ✅ Canvas renders in browser
+- ✅ Responsive to window resize
+- ✅ Consistent 60 FPS
 
 ---
 
-#### Task 2.1.2: Implement Input System
+#### Task 2.1.2: Implement Input System ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 2.1.1
+**Status:** COMPLETE
 
 **Description:**
 Handle touch and keyboard input for player movement.
 
 **Subtasks:**
 
-- [ ] Create InputSystem class
-- [ ] Implement touch/pointer event handlers
-- [ ] Implement virtual joystick (100px dead zone)
-- [ ] Implement keyboard input (WASD, arrows)
-- [ ] Normalize input to -1 to 1 range
-- [ ] Export movement vector
-- [ ] Test on mobile and desktop
+- [x] Create InputSystem class
+- [x] Implement touch/pointer event handlers
+- [x] Implement virtual joystick (20px dead zone, 60px max)
+- [x] Implement keyboard input (WASD, arrows)
+- [x] Normalize input to -1 to 1 range
+- [x] Export movement vector
+- [x] Add toggleable joystick visibility (localStorage persisted)
+- [x] Add player position persistence across navigation
+- [x] Add pause on navigate away with AFK auto-end timeout
+- [x] Test on mobile and desktop (33 tests)
 
 **Acceptance Criteria:**
 
-- Touch controls work on mobile
-- Keyboard controls work on desktop
-- Movement is smooth and responsive
+- ✅ Touch controls work on mobile
+- ✅ Keyboard controls work on desktop
+- ✅ Movement is smooth and responsive
+- ✅ Player position persists across tab navigation
 
 ---
 
