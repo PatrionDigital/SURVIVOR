@@ -1,24 +1,32 @@
 import { Link } from "react-router-dom";
 import { useCallback } from "react";
-import { GameCanvas, GameEngine } from "../game";
+import { GameCanvas, GameEngine, InputSystem, InputState } from "../game";
 import { useGameStore } from "../stores/gameStore";
 
 export function GamePage() {
   const { isPlaying, isPaused, pauseGame, setSurvivalTime } = useGameStore();
 
-  // Track survival time during gameplay
+  // Track survival time during gameplay and log input for debugging
   const handleUpdate = useCallback(
-    (deltaMs: number) => {
+    (deltaMs: number, input: InputState) => {
       if (isPlaying && !isPaused) {
         setSurvivalTime((prev: number) => prev + deltaMs / 1000);
+
+        // Debug: log movement when non-zero
+        if (input.movement.x !== 0 || input.movement.y !== 0) {
+          console.log(
+            `Movement: x=${input.movement.x.toFixed(2)}, y=${input.movement.y.toFixed(2)}`
+          );
+        }
       }
     },
     [isPlaying, isPaused, setSurvivalTime]
   );
 
   // Called when engine is ready
-  const handleEngineReady = useCallback((engine: GameEngine) => {
+  const handleEngineReady = useCallback((engine: GameEngine, input: InputSystem) => {
     console.log("Game engine ready:", engine.width, "x", engine.height);
+    console.log("Input system attached:", input.isAttached);
   }, []);
 
   return (

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useCallback } from "react";
 import { GameEngine } from "./GameEngine";
+import { InputSystem, InputState } from "./InputSystem";
 import { useGameStore } from "../stores/gameStore";
 
 export interface GameCanvasProps {
   /** Called when engine is initialized */
-  onReady?: (engine: GameEngine) => void;
-  /** Called each frame with delta time in ms */
-  onUpdate?: (deltaMs: number) => void;
+  onReady?: (engine: GameEngine, input: InputSystem) => void;
+  /** Called each frame with delta time in ms and input state */
+  onUpdate?: (deltaMs: number, input: InputState) => void;
   /** CSS class name for the container */
   className?: string;
   /** Background color (hex) */
@@ -38,6 +39,7 @@ export function GameCanvas({
 }: GameCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
+  const inputRef = useRef<InputSystem | null>(null);
 
   // Game store state
   const { isPlaying, isPaused, startGame, resumeGame, endGame } = useGameStore();
@@ -65,7 +67,9 @@ export function GameCanvas({
     let resizeObserver: ResizeObserver | null = null;
 
     const engine = new GameEngine();
+    const input = new InputSystem();
     engineRef.current = engine;
+    inputRef.current = input;
 
     const initEngine = async () => {
       try {
@@ -74,6 +78,7 @@ export function GameCanvas({
         // Check if we were cancelled during async init (React Strict Mode)
         if (isCancelled) {
           engine.destroy();
+          input.destroy();
           return;
         }
 
@@ -81,14 +86,19 @@ export function GameCanvas({
         resizeObserver = new ResizeObserver(handleResize);
         resizeObserver.observe(container);
 
-        // Register update callback
+        // Attach input system to container
+        input.attach(container);
+
+        // Register update callback with input state
         if (onUpdate) {
-          engine.onUpdate(onUpdate);
+          engine.onUpdate((deltaMs) => {
+            onUpdate(deltaMs, input.getState());
+          });
         }
 
         // Notify ready
         if (onReady) {
-          onReady(engine);
+          onReady(engine, input);
         }
       } catch (error) {
         // Ignore errors if cancelled (expected during Strict Mode cleanup)
@@ -103,14 +113,17 @@ export function GameCanvas({
     return () => {
       isCancelled = true;
       resizeObserver?.disconnect();
+      input.destroy();
       engine.destroy();
       engineRef.current = null;
+      inputRef.current = null;
     };
   }, [backgroundColor, handleResize, onReady, onUpdate]);
 
-  // Sync game state with engine
+  // Sync game state with engine and input
   useEffect(() => {
     const engine = engineRef.current;
+    const input = inputRef.current;
     if (!engine || !engine.isInitialized) return;
 
     if (isPlaying && !isPaused) {
@@ -119,14 +132,20 @@ export function GameCanvas({
       } else if (engine.isPaused) {
         engine.resume();
       }
+      // Enable input when playing
+      input?.enable();
     } else if (isPlaying && isPaused) {
       if (engine.isRunning) {
         engine.pause();
       }
+      // Disable input when paused
+      input?.disable();
     } else if (!isPlaying) {
       if (engine.isRunning || engine.isPaused) {
         engine.stop();
       }
+      // Disable input when not playing
+      input?.disable();
     }
   }, [isPlaying, isPaused]);
 
