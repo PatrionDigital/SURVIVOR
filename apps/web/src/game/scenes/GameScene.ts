@@ -22,8 +22,16 @@ import {
  * - Pickups
  * - HUD elements
  */
+// Grid settings for background
+const GRID_SIZE = 64; // Size of each grid cell in pixels
+const GRID_COLOR_PRIMARY = 0x1a1a2e; // Dark blue-purple
+const GRID_COLOR_SECONDARY = 0x16213e; // Slightly lighter
+const GRID_LINE_COLOR = 0x0f3460; // Grid lines
+
 export class GameScene extends Scene {
   private gameContainer: Container | null = null;
+  private backgroundContainer: Container | null = null;
+  private backgroundGraphics: Graphics | null = null;
   private inputSystem: InputSystem | null = null;
 
   // ECS
@@ -42,6 +50,7 @@ export class GameScene extends Scene {
   }
 
   protected onEnter(): void {
+    this.createBackground();
     this.createGameContainer();
     this.createWorld();
     this.createCamera();
@@ -54,9 +63,16 @@ export class GameScene extends Scene {
       this.playerEntity.sprite.graphics.destroy();
     }
 
+    // Clean up background
+    if (this.backgroundGraphics) {
+      this.backgroundGraphics.destroy();
+    }
+
     // Clean up scene content
     this.container.removeChildren();
     this.gameContainer = null;
+    this.backgroundContainer = null;
+    this.backgroundGraphics = null;
     this.world = null;
     this.playerEntity = null;
     this.camera = null;
@@ -82,7 +98,10 @@ export class GameScene extends Scene {
     // 3. Invincibility effects
     invincibilitySystem(this.world, deltaMs);
 
-    // 4. Render with camera offset
+    // 4. Update background to follow camera
+    this.updateBackground();
+
+    // 5. Render with camera offset
     renderSystem(this.world, this.camera, this.width, this.height);
   }
 
@@ -167,6 +186,71 @@ export class GameScene extends Scene {
     });
 
     return true;
+  }
+
+  private createBackground(): void {
+    this.backgroundContainer = new Container();
+    this.container.addChild(this.backgroundContainer);
+
+    this.backgroundGraphics = new Graphics();
+    this.backgroundContainer.addChild(this.backgroundGraphics);
+  }
+
+  private updateBackground(): void {
+    if (!this.backgroundGraphics || !this.camera) return;
+
+    const g = this.backgroundGraphics;
+    g.clear();
+
+    // Calculate visible area with padding for smooth scrolling
+    const padding = GRID_SIZE * 2;
+    const startX = Math.floor((this.camera.x - this.width / 2 - padding) / GRID_SIZE) * GRID_SIZE;
+    const startY = Math.floor((this.camera.y - this.height / 2 - padding) / GRID_SIZE) * GRID_SIZE;
+    const endX = this.camera.x + this.width / 2 + padding;
+    const endY = this.camera.y + this.height / 2 + padding;
+
+    // Camera offset for world-to-screen conversion
+    const offsetX = this.width / 2 - this.camera.x;
+    const offsetY = this.height / 2 - this.camera.y;
+
+    // Draw checkerboard pattern
+    for (let worldX = startX; worldX < endX; worldX += GRID_SIZE) {
+      for (let worldY = startY; worldY < endY; worldY += GRID_SIZE) {
+        // Checkerboard pattern based on grid position
+        const gridX = Math.floor(worldX / GRID_SIZE);
+        const gridY = Math.floor(worldY / GRID_SIZE);
+        const isEven = (gridX + gridY) % 2 === 0;
+
+        const screenX = worldX + offsetX;
+        const screenY = worldY + offsetY;
+
+        // Fill cell
+        g.rect(screenX, screenY, GRID_SIZE, GRID_SIZE);
+        g.fill({ color: isEven ? GRID_COLOR_PRIMARY : GRID_COLOR_SECONDARY });
+
+        // Draw grid lines
+        g.rect(screenX, screenY, GRID_SIZE, GRID_SIZE);
+        g.stroke({ width: 1, color: GRID_LINE_COLOR, alpha: 0.5 });
+      }
+    }
+
+    // Draw origin marker (cross at 0,0)
+    const originScreenX = 0 + offsetX;
+    const originScreenY = 0 + offsetY;
+
+    // Only draw if origin is visible
+    if (
+      originScreenX > -50 &&
+      originScreenX < this.width + 50 &&
+      originScreenY > -50 &&
+      originScreenY < this.height + 50
+    ) {
+      g.moveTo(originScreenX - 30, originScreenY);
+      g.lineTo(originScreenX + 30, originScreenY);
+      g.moveTo(originScreenX, originScreenY - 30);
+      g.lineTo(originScreenX, originScreenY + 30);
+      g.stroke({ width: 2, color: 0xff6b6b, alpha: 0.8 });
+    }
   }
 
   private createGameContainer(): void {
