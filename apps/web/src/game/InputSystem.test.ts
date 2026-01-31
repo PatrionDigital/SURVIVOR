@@ -536,7 +536,7 @@ describe("InputSystem", () => {
     it("should maintain correct magnitude during movement", () => {
       const origin = { x: 400, y: 300 };
       const deadZone = 20;
-      const maxDistance = 150;
+      const maxDistance = 60;
 
       container.dispatchEvent(
         new PointerEvent("pointerdown", {
