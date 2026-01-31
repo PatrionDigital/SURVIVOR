@@ -191,7 +191,7 @@ describe("InputSystem", () => {
       expect(inputSystem.getState().movement.y).toBe(0);
     });
 
-    it("should ignore movement within dead zone (100px)", () => {
+    it("should ignore movement within dead zone (20px)", () => {
       container.dispatchEvent(
         new PointerEvent("pointerdown", {
           clientX: 400,
@@ -200,10 +200,10 @@ describe("InputSystem", () => {
         })
       );
 
-      // Move 50px to the right (within 100px dead zone)
+      // Move 10px to the right (within 20px dead zone)
       container.dispatchEvent(
         new PointerEvent("pointermove", {
-          clientX: 450,
+          clientX: 410,
           clientY: 300,
           pointerId: 1,
         })
@@ -223,10 +223,10 @@ describe("InputSystem", () => {
         })
       );
 
-      // Move 150px to the right (50px beyond 100px dead zone)
+      // Move 100px to the right (80px beyond 20px dead zone)
       container.dispatchEvent(
         new PointerEvent("pointermove", {
-          clientX: 550,
+          clientX: 500,
           clientY: 300,
           pointerId: 1,
         })

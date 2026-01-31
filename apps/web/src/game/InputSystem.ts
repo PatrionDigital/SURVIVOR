@@ -78,7 +78,7 @@ export class InputSystem {
   };
 
   // Dead zone for virtual joystick (in pixels)
-  private readonly DEAD_ZONE = 100;
+  private readonly DEAD_ZONE = 20;
 
   // Max distance for full input (in pixels beyond dead zone)
   private readonly MAX_DISTANCE = 150;
@@ -117,6 +117,14 @@ export class InputSystem {
 
   get isEnabled(): boolean {
     return this._isEnabled;
+  }
+
+  get touchOrigin(): Vector2 {
+    return { ...this.touchState.origin };
+  }
+
+  get touchCurrent(): Vector2 {
+    return { ...this.touchState.current };
   }
 
   // ============ Public Methods ============

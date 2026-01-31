@@ -1,32 +1,130 @@
 import { Link } from "react-router-dom";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
+import { Graphics } from "pixi.js";
 import { GameCanvas, GameEngine, InputSystem, InputState } from "../game";
 import { useGameStore } from "../stores/gameStore";
 
 export function GamePage() {
-  const { isPlaying, isPaused, pauseGame, setSurvivalTime } = useGameStore();
+  const { isPlaying, pauseGame, setSurvivalTime } = useGameStore();
+  const playerRef = useRef<Graphics | null>(null);
+  const engineRef = useRef<GameEngine | null>(null);
+  const joystickBaseRef = useRef<Graphics | null>(null);
+  const joystickKnobRef = useRef<Graphics | null>(null);
+  const inputRef = useRef<InputSystem | null>(null);
 
-  // Track survival time during gameplay and log input for debugging
+  // Player movement speed (pixels per second)
+  const PLAYER_SPEED = 200;
+
+  // Joystick visual settings
+  const JOYSTICK_BASE_RADIUS = 60;
+  const JOYSTICK_KNOB_RADIUS = 25;
+
+  // Track survival time and move player based on input
+  // Note: This callback is only called when the game loop is running
   const handleUpdate = useCallback(
     (deltaMs: number, input: InputState) => {
-      if (isPlaying && !isPaused) {
-        setSurvivalTime((prev: number) => prev + deltaMs / 1000);
+      setSurvivalTime((prev: number) => prev + deltaMs / 1000);
 
-        // Debug: log movement when non-zero
-        if (input.movement.x !== 0 || input.movement.y !== 0) {
-          console.log(
-            `Movement: x=${input.movement.x.toFixed(2)}, y=${input.movement.y.toFixed(2)}`
-          );
+      // Move player based on input
+      const player = playerRef.current;
+      const engine = engineRef.current;
+      if (player && engine) {
+        const deltaSeconds = deltaMs / 1000;
+        const moveX = input.movement.x * PLAYER_SPEED * deltaSeconds;
+        const moveY = input.movement.y * PLAYER_SPEED * deltaSeconds;
+
+        player.x += moveX;
+        player.y += moveY;
+
+        // Keep player within bounds
+        const padding = 20;
+        player.x = Math.max(padding, Math.min(engine.width - padding, player.x));
+        player.y = Math.max(padding, Math.min(engine.height - padding, player.y));
+      }
+
+      // Update joystick visual
+      const joystickBase = joystickBaseRef.current;
+      const joystickKnob = joystickKnobRef.current;
+      const inputSystem = inputRef.current;
+
+      if (joystickBase && joystickKnob && inputSystem) {
+        if (inputSystem.isTouching) {
+          const origin = inputSystem.touchOrigin;
+          const current = inputSystem.touchCurrent;
+
+          // Show joystick at touch origin
+          joystickBase.visible = true;
+          joystickBase.x = origin.x;
+          joystickBase.y = origin.y;
+
+          // Calculate knob position (clamped to base radius)
+          const dx = current.x - origin.x;
+          const dy = current.y - origin.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const maxKnobDistance = JOYSTICK_BASE_RADIUS;
+
+          let knobX = dx;
+          let knobY = dy;
+
+          if (distance > maxKnobDistance) {
+            const scale = maxKnobDistance / distance;
+            knobX = dx * scale;
+            knobY = dy * scale;
+          }
+
+          joystickKnob.visible = true;
+          joystickKnob.x = origin.x + knobX;
+          joystickKnob.y = origin.y + knobY;
+        } else {
+          // Hide joystick when not touching
+          joystickBase.visible = false;
+          joystickKnob.visible = false;
         }
       }
     },
-    [isPlaying, isPaused, setSurvivalTime]
+    [setSurvivalTime]
   );
 
-  // Called when engine is ready
+  // Called when engine is ready - create player sprite and joystick
   const handleEngineReady = useCallback((engine: GameEngine, input: InputSystem) => {
     console.log("Game engine ready:", engine.width, "x", engine.height);
     console.log("Input system attached:", input.isAttached);
+
+    engineRef.current = engine;
+    inputRef.current = input;
+
+    // Create a simple player sprite (circle)
+    const player = new Graphics();
+    player.circle(0, 0, 20);
+    player.fill({ color: 0x00ff88 });
+    player.stroke({ width: 3, color: 0xffffff });
+
+    // Position at center
+    player.x = engine.width / 2;
+    player.y = engine.height / 2;
+
+    // Add to stage
+    engine.stage?.addChild(player);
+    playerRef.current = player;
+
+    // Create joystick base (outer circle)
+    const joystickBase = new Graphics();
+    joystickBase.circle(0, 0, JOYSTICK_BASE_RADIUS);
+    joystickBase.fill({ color: 0xffffff, alpha: 0.2 });
+    joystickBase.stroke({ width: 2, color: 0xffffff, alpha: 0.5 });
+    joystickBase.visible = false;
+    engine.stage?.addChild(joystickBase);
+    joystickBaseRef.current = joystickBase;
+
+    // Create joystick knob (inner circle)
+    const joystickKnob = new Graphics();
+    joystickKnob.circle(0, 0, JOYSTICK_KNOB_RADIUS);
+    joystickKnob.fill({ color: 0xffffff, alpha: 0.6 });
+    joystickKnob.visible = false;
+    engine.stage?.addChild(joystickKnob);
+    joystickKnobRef.current = joystickKnob;
+
+    console.log("Player sprite created at:", player.x, player.y);
   }, []);
 
   return (
