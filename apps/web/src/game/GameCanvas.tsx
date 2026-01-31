@@ -117,8 +117,11 @@ export function GameCanvas({
       engine.destroy();
       engineRef.current = null;
       inputRef.current = null;
+      // Reset game state when canvas unmounts (e.g., navigating away)
+      // This ensures clean state when returning to the game
+      endGame();
     };
-  }, [backgroundColor, handleResize, onReady, onUpdate]);
+  }, [backgroundColor, handleResize, onReady, onUpdate, endGame]);
 
   // Sync game state with engine and input
   useEffect(() => {
