@@ -243,10 +243,7 @@ export class SceneManager {
    * @param options - Transition options
    * @returns Promise that resolves when transition completes
    */
-  async transitionTo(
-    name: string,
-    options: TransitionOptions = {}
-  ): Promise<void> {
+  async transitionTo(name: string, options: TransitionOptions = {}): Promise<void> {
     const { duration = 300 } = options;
 
     // Block if already transitioning
