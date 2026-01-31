@@ -31,7 +31,10 @@ class Camera {
   update(targetX: number, targetY: number, deltaMs: number): void;
 
   // Get viewport bounds for enemy spawning/culling
-  getViewport(screenWidth: number, screenHeight: number): {
+  getViewport(
+    screenWidth: number,
+    screenHeight: number
+  ): {
     left: number;
     right: number;
     top: number;
@@ -45,6 +48,7 @@ class Camera {
 ### Lerp Formula
 
 Uses frame-rate independent smoothing:
+
 ```typescript
 const t = 1 - Math.pow(1 - this.lerpFactor, deltaMs / 16.67);
 this.x += (targetX - this.x) * t;
@@ -80,11 +84,7 @@ export function renderSystem(
 Simplified - removes boundary clamping since arena is infinite:
 
 ```typescript
-export function movementSystem(
-  world: GameWorld,
-  deltaMs: number,
-  input: InputState
-): void {
+export function movementSystem(world: GameWorld, deltaMs: number, input: InputState): void {
   // Update player velocity from input
   // Apply velocity to position
   // NO boundary clamping
@@ -106,11 +106,7 @@ class GameScene extends Scene {
     movementSystem(this.world, deltaMs, input);
 
     // Update camera to follow player
-    this.camera.update(
-      this.playerEntity.position.x,
-      this.playerEntity.position.y,
-      deltaMs
-    );
+    this.camera.update(this.playerEntity.position.x, this.playerEntity.position.y, deltaMs);
 
     invincibilitySystem(this.world, deltaMs);
     renderSystem(this.world, this.camera, this.width, this.height);
@@ -125,6 +121,7 @@ class GameScene extends Scene {
 ## Testing Strategy (TDD)
 
 ### Camera.test.ts
+
 - Instant follow when lerpFactor = 0
 - Smooth interpolation when lerpFactor > 0
 - Frame-rate independent smoothing
@@ -132,15 +129,18 @@ class GameScene extends Scene {
 - setLerpFactor() clamps between 0 and 1
 
 ### RenderSystem.test.ts (updates)
+
 - Entity at camera position renders at screen center
 - Entity offset from camera renders at correct screen position
 - Camera offset applied to all entities
 
 ### MovementSystem.test.ts (updates)
+
 - Remove boundary clamping tests
 - Keep velocity and input handling tests
 
 ### GameScene.test.ts (updates)
+
 - Camera created on enter
 - Camera follows player
 - Camera accessible via getCamera()

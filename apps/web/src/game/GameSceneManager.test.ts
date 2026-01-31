@@ -15,6 +15,8 @@ vi.mock("pixi.js", async () => {
       circle: vi.fn().mockReturnThis(),
       stroke: vi.fn().mockReturnThis(),
       clear: vi.fn().mockReturnThis(),
+      moveTo: vi.fn().mockReturnThis(),
+      lineTo: vi.fn().mockReturnThis(),
       destroy: vi.fn(),
       x: 0,
       y: 0,
