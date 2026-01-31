@@ -150,9 +150,7 @@ export function GamePage() {
           <button
             onClick={toggleVirtualJoystick}
             className={`text-xs px-2 py-1 rounded transition-colors ${
-              showVirtualJoystick
-                ? "bg-primary-600 text-white"
-                : "bg-gray-700 text-gray-400"
+              showVirtualJoystick ? "bg-primary-600 text-white" : "bg-gray-700 text-gray-400"
             }`}
             title="Toggle virtual joystick visibility"
           >

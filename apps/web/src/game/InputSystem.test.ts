@@ -556,9 +556,7 @@ describe("InputSystem", () => {
       );
 
       let state = inputSystem.getState();
-      let magnitude = Math.sqrt(
-        state.movement.x ** 2 + state.movement.y ** 2
-      );
+      let magnitude = Math.sqrt(state.movement.x ** 2 + state.movement.y ** 2);
       expect(magnitude).toBeLessThan(0.2);
       expect(magnitude).toBeGreaterThan(0);
 
