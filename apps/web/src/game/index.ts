@@ -4,3 +4,7 @@ export { GameCanvas } from "./GameCanvas";
 export type { GameCanvasProps } from "./GameCanvas";
 export { InputSystem } from "./InputSystem";
 export type { InputState, Vector2 } from "./InputSystem";
+export { Scene, SceneManager, SceneState } from "./SceneManager";
+export type { TransitionOptions } from "./SceneManager";
+export { MenuScene, GameScene, ResultScene } from "./scenes";
+export type { GameResults } from "./scenes";

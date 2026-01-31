@@ -356,10 +356,13 @@ export class InputSystem {
     // Only track first touch
     if (this.touchState.active) return;
 
+    // Convert to element-relative coordinates
+    const pos = this.getElementRelativePosition(e);
+
     this.touchState.active = true;
     this.touchState.pointerId = e.pointerId;
-    this.touchState.origin = { x: e.clientX, y: e.clientY };
-    this.touchState.current = { x: e.clientX, y: e.clientY };
+    this.touchState.origin = pos;
+    this.touchState.current = pos;
   }
 
   private handlePointerMove(e: PointerEvent): void {
@@ -370,7 +373,23 @@ export class InputSystem {
       return;
     }
 
-    this.touchState.current = { x: e.clientX, y: e.clientY };
+    // Convert to element-relative coordinates
+    this.touchState.current = this.getElementRelativePosition(e);
+  }
+
+  /**
+   * Convert viewport coordinates to element-relative coordinates
+   */
+  private getElementRelativePosition(e: PointerEvent): Vector2 {
+    if (!this.element) {
+      return { x: e.clientX, y: e.clientY };
+    }
+
+    const rect = this.element.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
   }
 
   private handlePointerUp(e: PointerEvent): void {
