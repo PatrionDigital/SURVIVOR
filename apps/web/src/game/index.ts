@@ -8,3 +8,6 @@ export { Scene, SceneManager, SceneState } from "./SceneManager";
 export type { TransitionOptions } from "./SceneManager";
 export { MenuScene, GameScene, ResultScene } from "./scenes";
 export type { GameResults } from "./scenes";
+
+// Re-export SceneManager for direct access
+export type { Scene as SceneType } from "./SceneManager";
