@@ -6,3 +6,6 @@ export type { PlayerState, PlayerStats } from "./playerStore";
 
 export { useSessionStore } from "./sessionStore";
 export type { SessionState } from "./sessionStore";
+
+export { useSettingsStore } from "./settingsStore";
+export type { SettingsState } from "./settingsStore";

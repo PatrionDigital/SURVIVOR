@@ -1,16 +1,28 @@
 import { Link } from "react-router-dom";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Graphics } from "pixi.js";
 import { GameCanvas, GameEngine, InputSystem, InputState } from "../game";
-import { useGameStore } from "../stores/gameStore";
+import { useGameStore, useSettingsStore } from "../stores";
 
 export function GamePage() {
   const { isPlaying, pauseGame, setSurvivalTime } = useGameStore();
+  const { showVirtualJoystick, toggleVirtualJoystick } = useSettingsStore();
   const playerRef = useRef<Graphics | null>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const joystickBaseRef = useRef<Graphics | null>(null);
   const joystickKnobRef = useRef<Graphics | null>(null);
   const inputRef = useRef<InputSystem | null>(null);
+  const showJoystickRef = useRef(showVirtualJoystick);
+
+  // Keep ref in sync with store value
+  useEffect(() => {
+    showJoystickRef.current = showVirtualJoystick;
+    // Hide joystick immediately if setting is turned off
+    if (!showVirtualJoystick) {
+      if (joystickBaseRef.current) joystickBaseRef.current.visible = false;
+      if (joystickKnobRef.current) joystickKnobRef.current.visible = false;
+    }
+  }, [showVirtualJoystick]);
 
   // Player movement speed (pixels per second)
   const PLAYER_SPEED = 200;
@@ -42,13 +54,13 @@ export function GamePage() {
         player.y = Math.max(padding, Math.min(engine.height - padding, player.y));
       }
 
-      // Update joystick visual
+      // Update joystick visual (only if enabled in settings)
       const joystickBase = joystickBaseRef.current;
       const joystickKnob = joystickKnobRef.current;
       const inputSystem = inputRef.current;
 
       if (joystickBase && joystickKnob && inputSystem) {
-        if (inputSystem.isTouching) {
+        if (inputSystem.isTouching && showJoystickRef.current) {
           const origin = inputSystem.touchOrigin;
           const current = inputSystem.touchCurrent;
 
@@ -131,9 +143,22 @@ export function GamePage() {
     <div className="flex flex-col h-[calc(100vh-64px)]">
       {/* Game header */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-800/50">
-        <Link to="/" className="text-gray-400 hover:text-white transition-colors text-sm">
-          ← Back
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/" className="text-gray-400 hover:text-white transition-colors text-sm">
+            ← Back
+          </Link>
+          <button
+            onClick={toggleVirtualJoystick}
+            className={`text-xs px-2 py-1 rounded transition-colors ${
+              showVirtualJoystick
+                ? "bg-primary-600 text-white"
+                : "bg-gray-700 text-gray-400"
+            }`}
+            title="Toggle virtual joystick visibility"
+          >
+            Joystick: {showVirtualJoystick ? "ON" : "OFF"}
+          </button>
+        </div>
         <h1 className="text-lg font-bold text-primary-400">Farcaster Survivors</h1>
         {isPlaying && (
           <button
