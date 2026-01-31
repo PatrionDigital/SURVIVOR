@@ -48,6 +48,13 @@ describe("GameScene", () => {
       expect(player).not.toBeNull();
     });
 
+    it("should create camera on enter", () => {
+      scene.enter();
+
+      const camera = scene.getCamera();
+      expect(camera).not.toBeNull();
+    });
+
     it("should clean up on exit", () => {
       scene.enter();
       scene.exit();
@@ -55,25 +62,33 @@ describe("GameScene", () => {
       const player = scene.getPlayer();
       expect(player).toBeNull();
     });
+
+    it("should clean up camera on exit", () => {
+      scene.enter();
+      scene.exit();
+
+      const camera = scene.getCamera();
+      expect(camera).toBeNull();
+    });
   });
 
   describe("Player Entity", () => {
-    it("should initialize player at screen center", () => {
+    it("should initialize player at origin (world space)", () => {
       scene.resize(800, 600);
       scene.enter();
 
-      const player = scene.getPlayer();
-      expect(player?.x).toBe(400);
-      expect(player?.y).toBe(300);
+      const position = scene.getPlayerPosition();
+      expect(position?.x).toBe(0);
+      expect(position?.y).toBe(0);
     });
 
     it("should set player position via setPlayerPosition", () => {
       scene.enter();
       scene.setPlayerPosition(100, 200);
 
-      const player = scene.getPlayer();
-      expect(player?.x).toBe(100);
-      expect(player?.y).toBe(200);
+      const position = scene.getPlayerPosition();
+      expect(position?.x).toBe(100);
+      expect(position?.y).toBe(200);
     });
 
     it("should get current player position", () => {
@@ -89,6 +104,52 @@ describe("GameScene", () => {
       // Don't call enter - no player created
       const position = scene.getPlayerPosition();
       expect(position).toBeNull();
+    });
+  });
+
+  describe("Camera", () => {
+    it("should initialize camera at player start position", () => {
+      scene.resize(800, 600);
+      scene.enter();
+
+      const camera = scene.getCamera();
+      expect(camera?.x).toBe(0);
+      expect(camera?.y).toBe(0);
+    });
+
+    it("should return null camera when scene not entered", () => {
+      const camera = scene.getCamera();
+      expect(camera).toBeNull();
+    });
+
+    it("should update camera to follow player on update", () => {
+      scene.resize(800, 600);
+      scene.enter();
+
+      // Move player to new position
+      scene.setPlayerPosition(500, 300);
+
+      // Update scene (camera should start following)
+      scene.update(1000); // Large deltaMs for visible lerp movement
+
+      const camera = scene.getCamera();
+      // Camera should have moved toward player (lerp)
+      expect(camera!.x).toBeGreaterThan(0);
+      expect(camera!.y).toBeGreaterThan(0);
+    });
+
+    it("should expose viewport through camera", () => {
+      scene.resize(800, 600);
+      scene.enter();
+
+      const camera = scene.getCamera();
+      const viewport = camera?.getViewport(800, 600);
+
+      expect(viewport).toBeDefined();
+      expect(viewport?.left).toBe(-400);
+      expect(viewport?.right).toBe(400);
+      expect(viewport?.top).toBe(-300);
+      expect(viewport?.bottom).toBe(300);
     });
   });
 
@@ -108,24 +169,24 @@ describe("GameScene", () => {
       scene.resize(1024, 768);
       scene.enter();
 
-      const player = scene.getPlayer();
-      // Player should be centered in new dimensions
-      expect(player?.x).toBe(512);
-      expect(player?.y).toBe(384);
+      // Player starts at origin in world space
+      const position = scene.getPlayerPosition();
+      expect(position?.x).toBe(0);
+      expect(position?.y).toBe(0);
     });
 
-    it("should clamp player position on resize if out of bounds", () => {
+    it("should not clamp player position on resize (infinite arena)", () => {
       scene.resize(800, 600);
       scene.enter();
-      scene.setPlayerPosition(750, 550);
+      scene.setPlayerPosition(5000, 5000);
 
       // Resize to smaller
       scene.resize(400, 300);
 
-      const player = scene.getPlayer();
-      // Should be clamped to new bounds (400 - padding, 300 - padding)
-      expect(player!.x).toBeLessThanOrEqual(380); // 400 - 20 padding
-      expect(player!.y).toBeLessThanOrEqual(280); // 300 - 20 padding
+      // Position should remain unchanged (no clamping in infinite arena)
+      const position = scene.getPlayerPosition();
+      expect(position?.x).toBe(5000);
+      expect(position?.y).toBe(5000);
     });
   });
 
@@ -149,11 +210,11 @@ describe("GameScene", () => {
       // We can't easily mock the input system, so this test verifies no crash
       scene.update(16);
 
-      // Player position should remain valid (either moved or stayed)
-      const player = scene.getPlayer();
-      expect(player).not.toBeNull();
-      expect(typeof player!.x).toBe("number");
-      expect(typeof player!.y).toBe("number");
+      // Player position should remain valid
+      const position = scene.getPlayerPosition();
+      expect(position).not.toBeNull();
+      expect(typeof position!.x).toBe("number");
+      expect(typeof position!.y).toBe("number");
     });
   });
 });

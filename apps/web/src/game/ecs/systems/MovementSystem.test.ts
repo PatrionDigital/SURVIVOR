@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameWorld } from "../World";
-import { movementSystem, PLAYER_SPEED, BOUNDARY_PADDING } from "./MovementSystem";
+import { movementSystem, PLAYER_SPEED } from "./MovementSystem";
 import type { InputState } from "../../InputSystem";
 
 // Helper to create mock input state
@@ -20,9 +20,7 @@ describe("MovementSystem", () => {
       });
 
       const input = createMockInput();
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds); // 1 second
+      movementSystem(world, 1000, input); // 1 second
 
       const [entity] = [...world.with("position")];
       expect(entity.position?.x).toBe(200); // 100 + 100*1
@@ -37,9 +35,7 @@ describe("MovementSystem", () => {
       });
 
       const input = createMockInput();
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 500, input, bounds); // 0.5 seconds
+      movementSystem(world, 500, input); // 0.5 seconds
 
       const [entity] = [...world.with("position")];
       expect(entity.position?.x).toBe(100); // 200 * 0.5
@@ -58,9 +54,7 @@ describe("MovementSystem", () => {
       });
 
       const input = createMockInput();
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds);
+      movementSystem(world, 1000, input);
 
       const entities = [...world.with("position", "velocity")];
       expect(entities[0].position?.x).toBe(10);
@@ -75,9 +69,7 @@ describe("MovementSystem", () => {
       });
 
       const input = createMockInput();
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds);
+      movementSystem(world, 1000, input);
 
       const [entity] = [...world.with("position")];
       expect(entity.position?.x).toBe(50);
@@ -95,9 +87,7 @@ describe("MovementSystem", () => {
       });
 
       const input = createMockInput({ x: 1, y: 0 }); // Moving right
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 16, input, bounds);
+      movementSystem(world, 16, input);
 
       const [player] = [...world.with("playerControlled", "velocity")];
       expect(player.velocity?.vx).toBe(PLAYER_SPEED);
@@ -114,9 +104,7 @@ describe("MovementSystem", () => {
 
       // Diagonal input (normalized would be ~0.707)
       const input = createMockInput({ x: 0.707, y: 0.707 });
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 16, input, bounds);
+      movementSystem(world, 16, input);
 
       const [player] = [...world.with("playerControlled", "velocity")];
       expect(player.velocity?.vx).toBeCloseTo(PLAYER_SPEED * 0.707, 1);
@@ -132,9 +120,7 @@ describe("MovementSystem", () => {
       });
 
       const input = createMockInput({ x: 0, y: 0 }); // No input
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 16, input, bounds);
+      movementSystem(world, 16, input);
 
       const [player] = [...world.with("playerControlled", "velocity")];
       expect(player.velocity?.vx).toBe(0);
@@ -156,9 +142,7 @@ describe("MovementSystem", () => {
       });
 
       const input = createMockInput({ x: 1, y: 0 });
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 16, input, bounds);
+      movementSystem(world, 16, input);
 
       const enemies = [...world.with("velocity")].filter((e) => !e.playerControlled);
       expect(enemies[0].velocity?.vx).toBe(50); // Unchanged
@@ -166,91 +150,55 @@ describe("MovementSystem", () => {
     });
   });
 
-  describe("Screen Boundary Clamping", () => {
-    it("should clamp player to left boundary", () => {
-      const world = createGameWorld();
-      world.add({
-        position: { x: 0, y: 300 },
-        velocity: { vx: -100, vy: 0 },
-        playerControlled: true,
-      });
-
-      const input = createMockInput({ x: -1, y: 0 });
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds);
-
-      const [player] = [...world.with("playerControlled", "position")];
-      expect(player.position?.x).toBe(BOUNDARY_PADDING);
-    });
-
-    it("should clamp player to right boundary", () => {
-      const world = createGameWorld();
-      world.add({
-        position: { x: 800, y: 300 },
-        velocity: { vx: 100, vy: 0 },
-        playerControlled: true,
-      });
-
-      const input = createMockInput({ x: 1, y: 0 });
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds);
-
-      const [player] = [...world.with("playerControlled", "position")];
-      expect(player.position?.x).toBe(800 - BOUNDARY_PADDING);
-    });
-
-    it("should clamp player to top boundary", () => {
-      const world = createGameWorld();
-      world.add({
-        position: { x: 400, y: 0 },
-        velocity: { vx: 0, vy: -100 },
-        playerControlled: true,
-      });
-
-      const input = createMockInput({ x: 0, y: -1 });
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds);
-
-      const [player] = [...world.with("playerControlled", "position")];
-      expect(player.position?.y).toBe(BOUNDARY_PADDING);
-    });
-
-    it("should clamp player to bottom boundary", () => {
-      const world = createGameWorld();
-      world.add({
-        position: { x: 400, y: 600 },
-        velocity: { vx: 0, vy: 100 },
-        playerControlled: true,
-      });
-
-      const input = createMockInput({ x: 0, y: 1 });
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds);
-
-      const [player] = [...world.with("playerControlled", "position")];
-      expect(player.position?.y).toBe(600 - BOUNDARY_PADDING);
-    });
-
-    it("should not clamp non-player entities", () => {
+  describe("Infinite Arena (No Boundaries)", () => {
+    it("should allow player to move to any position", () => {
       const world = createGameWorld();
       world.add({
         position: { x: 0, y: 0 },
-        velocity: { vx: -100, vy: -100 },
-        // Not player controlled
+        velocity: { vx: 0, vy: 0 },
+        playerControlled: true,
+      });
+
+      // Move far in negative direction
+      const input = createMockInput({ x: -1, y: -1 });
+      movementSystem(world, 10000, input); // 10 seconds
+
+      const [player] = [...world.with("playerControlled", "position")];
+      // Should be far negative - no clamping
+      expect(player.position?.x).toBeLessThan(-1000);
+      expect(player.position?.y).toBeLessThan(-1000);
+    });
+
+    it("should allow player to move to very large positive positions", () => {
+      const world = createGameWorld();
+      world.add({
+        position: { x: 0, y: 0 },
+        velocity: { vx: 0, vy: 0 },
+        playerControlled: true,
+      });
+
+      const input = createMockInput({ x: 1, y: 1 });
+      movementSystem(world, 10000, input); // 10 seconds
+
+      const [player] = [...world.with("playerControlled", "position")];
+      // Should be far positive - no clamping
+      expect(player.position?.x).toBeGreaterThan(1000);
+      expect(player.position?.y).toBeGreaterThan(1000);
+    });
+
+    it("should allow non-player entities to move anywhere", () => {
+      const world = createGameWorld();
+      world.add({
+        position: { x: 0, y: 0 },
+        velocity: { vx: -1000, vy: -1000 },
       });
 
       const input = createMockInput();
-      const bounds = { width: 800, height: 600 };
-
-      movementSystem(world, 1000, input, bounds);
+      movementSystem(world, 1000, input);
 
       const [entity] = [...world.with("position", "velocity")];
-      expect(entity.position?.x).toBe(-100); // Not clamped
-      expect(entity.position?.y).toBe(-100);
+      expect(entity.position?.x).toBe(-1000);
+      expect(entity.position?.y).toBe(-1000);
     });
   });
 });

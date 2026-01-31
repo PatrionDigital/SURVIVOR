@@ -1,6 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 import { Scene } from "../SceneManager";
 import { InputSystem, InputState } from "../InputSystem";
+import { Camera } from "../Camera";
 import {
   createGameWorld,
   GameWorld,
@@ -8,7 +9,6 @@ import {
   movementSystem,
   invincibilitySystem,
   renderSystem,
-  BOUNDARY_PADDING,
 } from "../ecs";
 
 /**
@@ -16,6 +16,7 @@ import {
  *
  * Handles:
  * - Player entity (ECS)
+ * - Camera following player
  * - Enemy spawning
  * - Combat systems
  * - Pickups
@@ -29,6 +30,9 @@ export class GameScene extends Scene {
   private world: GameWorld | null = null;
   private playerEntity: Entity | null = null;
 
+  // Camera
+  private camera: Camera | null = null;
+
   // Game dimensions (set on resize)
   private width = 800;
   private height = 600;
@@ -40,6 +44,7 @@ export class GameScene extends Scene {
   protected onEnter(): void {
     this.createGameContainer();
     this.createWorld();
+    this.createCamera();
     this.createPlayer();
   }
 
@@ -54,22 +59,31 @@ export class GameScene extends Scene {
     this.gameContainer = null;
     this.world = null;
     this.playerEntity = null;
+    this.camera = null;
   }
 
   protected onUpdate(deltaMs: number): void {
-    if (!this.world) return;
+    if (!this.world || !this.camera) return;
 
     // Get input state (default to no movement if no input system)
     const input = this.inputSystem?.getState() ?? {
       movement: { x: 0, y: 0 },
-      isMoving: false,
     };
 
     // Run ECS systems in order
-    const bounds = { width: this.width, height: this.height };
-    movementSystem(this.world, deltaMs, input, bounds);
+    // 1. Movement (no bounds - infinite arena)
+    movementSystem(this.world, deltaMs, input);
+
+    // 2. Update camera to follow player
+    if (this.playerEntity?.position) {
+      this.camera.update(this.playerEntity.position.x, this.playerEntity.position.y, deltaMs);
+    }
+
+    // 3. Invincibility effects
     invincibilitySystem(this.world, deltaMs);
-    renderSystem(this.world);
+
+    // 4. Render with camera offset
+    renderSystem(this.world, this.camera, this.width, this.height);
   }
 
   /**
@@ -92,24 +106,7 @@ export class GameScene extends Scene {
   resize(width: number, height: number): void {
     this.width = width;
     this.height = height;
-
-    // Reposition player to stay in bounds
-    if (this.playerEntity?.position) {
-      this.playerEntity.position.x = Math.max(
-        BOUNDARY_PADDING,
-        Math.min(width - BOUNDARY_PADDING, this.playerEntity.position.x)
-      );
-      this.playerEntity.position.y = Math.max(
-        BOUNDARY_PADDING,
-        Math.min(height - BOUNDARY_PADDING, this.playerEntity.position.y)
-      );
-
-      // Sync sprite position
-      if (this.playerEntity.sprite) {
-        this.playerEntity.sprite.graphics.x = this.playerEntity.position.x;
-        this.playerEntity.sprite.graphics.y = this.playerEntity.position.y;
-      }
-    }
+    // No position clamping in infinite arena
   }
 
   /**
@@ -117,6 +114,13 @@ export class GameScene extends Scene {
    */
   getPlayer(): Graphics | null {
     return this.playerEntity?.sprite?.graphics ?? null;
+  }
+
+  /**
+   * Get the camera (for viewport calculations, enemy spawning)
+   */
+  getCamera(): Camera | null {
+    return this.camera;
   }
 
   /**
@@ -137,12 +141,6 @@ export class GameScene extends Scene {
     if (this.playerEntity?.position) {
       this.playerEntity.position.x = x;
       this.playerEntity.position.y = y;
-
-      // Sync sprite position immediately
-      if (this.playerEntity.sprite) {
-        this.playerEntity.sprite.graphics.x = x;
-        this.playerEntity.sprite.graphics.y = y;
-      }
     }
   }
 
@@ -180,6 +178,14 @@ export class GameScene extends Scene {
     this.world = createGameWorld();
   }
 
+  private createCamera(): void {
+    // Create camera with smooth follow (lerp 0.1)
+    this.camera = new Camera({ lerpFactor: 0.1 });
+    // Initialize camera at origin (where player starts)
+    this.camera.x = 0;
+    this.camera.y = 0;
+  }
+
   private createPlayer(): void {
     if (!this.world || !this.gameContainer) return;
 
@@ -189,11 +195,10 @@ export class GameScene extends Scene {
     graphics.fill({ color: 0x00ff88 });
     graphics.stroke({ width: 3, color: 0xffffff });
 
-    // Center player
-    const startX = this.width / 2;
-    const startY = this.height / 2;
-    graphics.x = startX;
-    graphics.y = startY;
+    // Player starts at world origin (0, 0)
+    // Sprite will be positioned by RenderSystem based on camera
+    const startX = 0;
+    const startY = 0;
 
     this.gameContainer.addChild(graphics);
 

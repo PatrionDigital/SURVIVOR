@@ -12,44 +12,43 @@ function createMockGraphics(x = 0, y = 0): Graphics {
   } as unknown as Graphics;
 }
 
+// Default camera at origin for backward-compatible tests
+const defaultCamera = { x: 0, y: 0 };
+const defaultScreen = { width: 800, height: 600 };
+
 describe("RenderSystem", () => {
-  describe("Position Sync", () => {
-    it("should sync sprite position to entity position", () => {
+  describe("Position Sync (Camera at Origin)", () => {
+    it("should render entity at screen center when at camera position", () => {
       const world = createGameWorld();
       const graphics = createMockGraphics();
       world.add({
-        position: { x: 100, y: 200 },
-        sprite: { graphics },
-      });
-
-      renderSystem(world);
-
-      expect(graphics.x).toBe(100);
-      expect(graphics.y).toBe(200);
-    });
-
-    it("should update sprite when position changes", () => {
-      const world = createGameWorld();
-      const graphics = createMockGraphics();
-      const entity = world.add({
         position: { x: 0, y: 0 },
         sprite: { graphics },
       });
 
-      renderSystem(world);
-      expect(graphics.x).toBe(0);
-      expect(graphics.y).toBe(0);
+      renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height);
 
-      // Update position
-      entity.position!.x = 50;
-      entity.position!.y = 75;
-
-      renderSystem(world);
-      expect(graphics.x).toBe(50);
-      expect(graphics.y).toBe(75);
+      // Entity at (0,0) with camera at (0,0) renders at screen center
+      expect(graphics.x).toBe(400); // 800/2
+      expect(graphics.y).toBe(300); // 600/2
     });
 
-    it("should handle negative positions", () => {
+    it("should offset entity position from camera", () => {
+      const world = createGameWorld();
+      const graphics = createMockGraphics();
+      world.add({
+        position: { x: 100, y: 50 },
+        sprite: { graphics },
+      });
+
+      renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height);
+
+      // Entity at (100,50) with camera at (0,0) renders offset from center
+      expect(graphics.x).toBe(500); // 400 + 100
+      expect(graphics.y).toBe(350); // 300 + 50
+    });
+
+    it("should handle negative entity positions", () => {
       const world = createGameWorld();
       const graphics = createMockGraphics();
       world.add({
@@ -57,55 +56,123 @@ describe("RenderSystem", () => {
         sprite: { graphics },
       });
 
-      renderSystem(world);
+      renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height);
 
-      expect(graphics.x).toBe(-100);
-      expect(graphics.y).toBe(-50);
+      expect(graphics.x).toBe(300); // 400 - 100
+      expect(graphics.y).toBe(250); // 300 - 50
     });
+  });
 
-    it("should handle decimal positions", () => {
+  describe("Camera Offset", () => {
+    it("should keep player centered when camera follows player", () => {
       const world = createGameWorld();
       const graphics = createMockGraphics();
       world.add({
-        position: { x: 100.5, y: 200.75 },
+        position: { x: 500, y: 300 },
         sprite: { graphics },
       });
 
-      renderSystem(world);
+      // Camera following player at same position
+      const camera = { x: 500, y: 300 };
+      renderSystem(world, camera, 800, 600);
 
-      expect(graphics.x).toBe(100.5);
-      expect(graphics.y).toBe(200.75);
+      // Player should be at screen center
+      expect(graphics.x).toBe(400);
+      expect(graphics.y).toBe(300);
+    });
+
+    it("should offset other entities relative to camera", () => {
+      const world = createGameWorld();
+      const playerGraphics = createMockGraphics();
+      const enemyGraphics = createMockGraphics();
+
+      world.add({
+        position: { x: 1000, y: 500 },
+        sprite: { graphics: playerGraphics },
+        playerControlled: true,
+      });
+      world.add({
+        position: { x: 1100, y: 550 },
+        sprite: { graphics: enemyGraphics },
+      });
+
+      // Camera follows player
+      const camera = { x: 1000, y: 500 };
+      renderSystem(world, camera, 800, 600);
+
+      // Player at screen center
+      expect(playerGraphics.x).toBe(400);
+      expect(playerGraphics.y).toBe(300);
+
+      // Enemy offset from player
+      expect(enemyGraphics.x).toBe(500); // 400 + (1100-1000)
+      expect(enemyGraphics.y).toBe(350); // 300 + (550-500)
+    });
+
+    it("should handle entities behind camera (negative screen positions)", () => {
+      const world = createGameWorld();
+      const graphics = createMockGraphics();
+      world.add({
+        position: { x: 0, y: 0 },
+        sprite: { graphics },
+      });
+
+      // Camera far ahead
+      const camera = { x: 1000, y: 1000 };
+      renderSystem(world, camera, 800, 600);
+
+      // Entity should be off-screen to the top-left
+      expect(graphics.x).toBe(-600); // 400 - 1000
+      expect(graphics.y).toBe(-700); // 300 - 1000
+    });
+
+    it("should handle different screen sizes", () => {
+      const world = createGameWorld();
+      const graphics = createMockGraphics();
+      world.add({
+        position: { x: 100, y: 100 },
+        sprite: { graphics },
+      });
+
+      const camera = { x: 100, y: 100 };
+      renderSystem(world, camera, 1920, 1080);
+
+      // Entity at camera position = screen center
+      expect(graphics.x).toBe(960); // 1920/2
+      expect(graphics.y).toBe(540); // 1080/2
     });
   });
 
   describe("Multiple Entities", () => {
-    it("should sync all entities with position and sprite", () => {
+    it("should apply camera offset to all entities", () => {
       const world = createGameWorld();
       const graphics1 = createMockGraphics();
       const graphics2 = createMockGraphics();
       const graphics3 = createMockGraphics();
 
       world.add({
-        position: { x: 10, y: 20 },
+        position: { x: 0, y: 0 },
         sprite: { graphics: graphics1 },
       });
       world.add({
-        position: { x: 30, y: 40 },
+        position: { x: 100, y: 100 },
         sprite: { graphics: graphics2 },
       });
       world.add({
-        position: { x: 50, y: 60 },
+        position: { x: -50, y: 50 },
         sprite: { graphics: graphics3 },
       });
 
-      renderSystem(world);
+      const camera = { x: 50, y: 50 };
+      renderSystem(world, camera, 800, 600);
 
-      expect(graphics1.x).toBe(10);
-      expect(graphics1.y).toBe(20);
-      expect(graphics2.x).toBe(30);
-      expect(graphics2.y).toBe(40);
-      expect(graphics3.x).toBe(50);
-      expect(graphics3.y).toBe(60);
+      // All positions offset by camera
+      expect(graphics1.x).toBe(350); // 400 + (0-50)
+      expect(graphics1.y).toBe(250); // 300 + (0-50)
+      expect(graphics2.x).toBe(450); // 400 + (100-50)
+      expect(graphics2.y).toBe(350); // 300 + (100-50)
+      expect(graphics3.x).toBe(300); // 400 + (-50-50)
+      expect(graphics3.y).toBe(300); // 300 + (50-50)
     });
   });
 
@@ -118,7 +185,9 @@ describe("RenderSystem", () => {
       });
 
       // Should not throw
-      expect(() => renderSystem(world)).not.toThrow();
+      expect(() =>
+        renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height)
+      ).not.toThrow();
     });
 
     it("should not affect entities without position", () => {
@@ -129,7 +198,7 @@ describe("RenderSystem", () => {
         // No position
       });
 
-      renderSystem(world);
+      renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height);
 
       // Graphics should remain unchanged
       expect(graphics.x).toBe(999);
@@ -154,10 +223,10 @@ describe("RenderSystem", () => {
         // No sprite
       });
 
-      renderSystem(world);
+      renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height);
 
-      expect(graphicsWithPosition.x).toBe(100);
-      expect(graphicsWithPosition.y).toBe(200);
+      expect(graphicsWithPosition.x).toBe(500); // 400 + 100
+      expect(graphicsWithPosition.y).toBe(500); // 300 + 200
       expect(graphicsNoPosition.x).toBe(999); // Unchanged
       expect(graphicsNoPosition.y).toBe(999); // Unchanged
     });
@@ -168,24 +237,12 @@ describe("RenderSystem", () => {
       const world = createGameWorld();
 
       // Should not throw
-      expect(() => renderSystem(world)).not.toThrow();
+      expect(() =>
+        renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height)
+      ).not.toThrow();
     });
 
-    it("should handle zero position", () => {
-      const world = createGameWorld();
-      const graphics = createMockGraphics(100, 100);
-      world.add({
-        position: { x: 0, y: 0 },
-        sprite: { graphics },
-      });
-
-      renderSystem(world);
-
-      expect(graphics.x).toBe(0);
-      expect(graphics.y).toBe(0);
-    });
-
-    it("should handle very large positions", () => {
+    it("should handle very large world positions", () => {
       const world = createGameWorld();
       const graphics = createMockGraphics();
       world.add({
@@ -193,10 +250,26 @@ describe("RenderSystem", () => {
         sprite: { graphics },
       });
 
-      renderSystem(world);
+      const camera = { x: 999999, y: 999999 };
+      renderSystem(world, camera, 800, 600);
 
-      expect(graphics.x).toBe(999999);
-      expect(graphics.y).toBe(999999);
+      // Should still render at screen center
+      expect(graphics.x).toBe(400);
+      expect(graphics.y).toBe(300);
+    });
+
+    it("should handle decimal positions", () => {
+      const world = createGameWorld();
+      const graphics = createMockGraphics();
+      world.add({
+        position: { x: 100.5, y: 200.75 },
+        sprite: { graphics },
+      });
+
+      renderSystem(world, defaultCamera, defaultScreen.width, defaultScreen.height);
+
+      expect(graphics.x).toBe(500.5); // 400 + 100.5
+      expect(graphics.y).toBe(500.75); // 300 + 200.75
     });
   });
 });
