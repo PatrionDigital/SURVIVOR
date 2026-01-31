@@ -548,10 +548,10 @@ Create player entity with movement and stats.
 
 ---
 
-#### Task 2.2.2: Implement Camera/Viewport
+#### Task 2.2.2: Implement Camera/Viewport ✅
 
-**Priority:** P1  
-**Estimate:** 3 hours  
+**Priority:** P1
+**Estimate:** 3 hours
 **Dependencies:** 2.2.1
 
 **Description:**
@@ -559,15 +559,15 @@ Camera that follows player in infinite arena.
 
 **Subtasks:**
 
-- [ ] Create Camera class
-- [ ] Implement smooth follow
-- [ ] Implement viewport culling
-- [ ] Update all entity positions relative to camera
+- [x] Create Camera class
+- [x] Implement smooth follow (frame-rate independent lerp)
+- [ ] Implement viewport culling (deferred to enemy implementation)
+- [x] Update all entity positions relative to camera (RenderSystem)
 
 **Acceptance Criteria:**
 
 - Camera follows player smoothly
-- Only visible entities are rendered
+- Only visible entities are rendered (partial - background tiles culled, entity culling deferred)
 
 ---
 
