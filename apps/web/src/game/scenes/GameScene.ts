@@ -159,10 +159,7 @@ export class GameScene extends Scene {
 
     // Apply damage to health
     if (this.playerEntity.health) {
-      this.playerEntity.health.current = Math.max(
-        0,
-        this.playerEntity.health.current - amount
-      );
+      this.playerEntity.health.current = Math.max(0, this.playerEntity.health.current - amount);
     }
 
     // Add invincibility frames (1 second)
