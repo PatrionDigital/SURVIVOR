@@ -191,7 +191,7 @@ describe("InputSystem", () => {
       expect(inputSystem.getState().movement.y).toBe(0);
     });
 
-    it("should ignore movement within dead zone (100px)", () => {
+    it("should ignore movement within dead zone (20px)", () => {
       container.dispatchEvent(
         new PointerEvent("pointerdown", {
           clientX: 400,
@@ -200,10 +200,10 @@ describe("InputSystem", () => {
         })
       );
 
-      // Move 50px to the right (within 100px dead zone)
+      // Move 10px to the right (within 20px dead zone)
       container.dispatchEvent(
         new PointerEvent("pointermove", {
-          clientX: 450,
+          clientX: 410,
           clientY: 300,
           pointerId: 1,
         })
@@ -223,10 +223,10 @@ describe("InputSystem", () => {
         })
       );
 
-      // Move 150px to the right (50px beyond 100px dead zone)
+      // Move 100px to the right (80px beyond 20px dead zone)
       container.dispatchEvent(
         new PointerEvent("pointermove", {
-          clientX: 550,
+          clientX: 500,
           clientY: 300,
           pointerId: 1,
         })
@@ -404,6 +404,209 @@ describe("InputSystem", () => {
 
       inputSystem.disable();
       expect(inputSystem.getState().movement.y).toBe(0);
+    });
+  });
+
+  describe("continuous touch input simulation", () => {
+    beforeEach(() => {
+      inputSystem.attach(container);
+    });
+
+    it("should handle rapid direction reversal (down to up)", () => {
+      const origin = { x: 400, y: 300 };
+      const beyondDeadZone = 50;
+
+      // Start touch
+      container.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          clientX: origin.x,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      // Move down (beyond dead zone)
+      container.dispatchEvent(
+        new PointerEvent("pointermove", {
+          clientX: origin.x,
+          clientY: origin.y + beyondDeadZone,
+          pointerId: 1,
+        })
+      );
+
+      let state = inputSystem.getState();
+      expect(state.movement.y).toBeGreaterThan(0);
+      expect(state.movement.x).toBe(0);
+
+      // Quickly reverse to up (crossing origin, beyond dead zone on other side)
+      container.dispatchEvent(
+        new PointerEvent("pointermove", {
+          clientX: origin.x,
+          clientY: origin.y - beyondDeadZone,
+          pointerId: 1,
+        })
+      );
+
+      state = inputSystem.getState();
+      expect(state.movement.y).toBeLessThan(0);
+      expect(state.movement.x).toBe(0);
+    });
+
+    it("should handle rapid direction reversal (right to left)", () => {
+      const origin = { x: 400, y: 300 };
+      const beyondDeadZone = 50;
+
+      container.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          clientX: origin.x,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      // Move right
+      container.dispatchEvent(
+        new PointerEvent("pointermove", {
+          clientX: origin.x + beyondDeadZone,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      let state = inputSystem.getState();
+      expect(state.movement.x).toBeGreaterThan(0);
+
+      // Reverse to left
+      container.dispatchEvent(
+        new PointerEvent("pointermove", {
+          clientX: origin.x - beyondDeadZone,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      state = inputSystem.getState();
+      expect(state.movement.x).toBeLessThan(0);
+    });
+
+    it("should handle continuous circular movement", () => {
+      const origin = { x: 400, y: 300 };
+      const radius = 100; // Beyond dead zone
+
+      container.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          clientX: origin.x,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      // Simulate circular movement (8 positions around the circle)
+      const positions = [
+        { angle: 0, expectedX: 1, expectedY: 0 },
+        { angle: Math.PI / 4, expectedX: 0.707, expectedY: 0.707 },
+        { angle: Math.PI / 2, expectedX: 0, expectedY: 1 },
+        { angle: (3 * Math.PI) / 4, expectedX: -0.707, expectedY: 0.707 },
+        { angle: Math.PI, expectedX: -1, expectedY: 0 },
+        { angle: (5 * Math.PI) / 4, expectedX: -0.707, expectedY: -0.707 },
+        { angle: (3 * Math.PI) / 2, expectedX: 0, expectedY: -1 },
+        { angle: (7 * Math.PI) / 4, expectedX: 0.707, expectedY: -0.707 },
+      ];
+
+      for (const pos of positions) {
+        container.dispatchEvent(
+          new PointerEvent("pointermove", {
+            clientX: origin.x + Math.cos(pos.angle) * radius,
+            clientY: origin.y + Math.sin(pos.angle) * radius,
+            pointerId: 1,
+          })
+        );
+
+        const state = inputSystem.getState();
+        // Check direction is correct (using sign)
+        if (pos.expectedX !== 0) {
+          expect(Math.sign(state.movement.x)).toBe(Math.sign(pos.expectedX));
+        }
+        if (pos.expectedY !== 0) {
+          expect(Math.sign(state.movement.y)).toBe(Math.sign(pos.expectedY));
+        }
+      }
+    });
+
+    it("should maintain correct magnitude during movement", () => {
+      const origin = { x: 400, y: 300 };
+      const deadZone = 20;
+      const maxDistance = 60;
+
+      container.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          clientX: origin.x,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      // Move just past dead zone - should have small magnitude
+      container.dispatchEvent(
+        new PointerEvent("pointermove", {
+          clientX: origin.x + deadZone + 10,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      let state = inputSystem.getState();
+      let magnitude = Math.sqrt(state.movement.x ** 2 + state.movement.y ** 2);
+      expect(magnitude).toBeLessThan(0.2);
+      expect(magnitude).toBeGreaterThan(0);
+
+      // Move to max distance - should have magnitude close to 1
+      container.dispatchEvent(
+        new PointerEvent("pointermove", {
+          clientX: origin.x + deadZone + maxDistance + 50,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      state = inputSystem.getState();
+      expect(state.movement.x).toBeCloseTo(1, 1);
+    });
+
+    it("should return to zero when touch ends", () => {
+      const origin = { x: 400, y: 300 };
+
+      container.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          clientX: origin.x,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      container.dispatchEvent(
+        new PointerEvent("pointermove", {
+          clientX: origin.x + 100,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      let state = inputSystem.getState();
+      expect(state.movement.x).toBeGreaterThan(0);
+
+      // End touch
+      container.dispatchEvent(
+        new PointerEvent("pointerup", {
+          clientX: origin.x + 100,
+          clientY: origin.y,
+          pointerId: 1,
+        })
+      );
+
+      state = inputSystem.getState();
+      expect(state.movement.x).toBe(0);
+      expect(state.movement.y).toBe(0);
     });
   });
 
