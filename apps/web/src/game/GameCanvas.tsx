@@ -1,17 +1,23 @@
 import { useEffect, useRef, useCallback } from "react";
 import { GameEngine } from "./GameEngine";
 import { InputSystem, InputState } from "./InputSystem";
+import { SceneManager } from "./SceneManager";
+import { MenuScene, GameScene, ResultScene, GameResults } from "./scenes";
 import { useGameStore } from "../stores/gameStore";
 
 export interface GameCanvasProps {
   /** Called when engine is initialized */
-  onReady?: (engine: GameEngine, input: InputSystem) => void;
+  onReady?: (engine: GameEngine, input: InputSystem, sceneManager?: SceneManager) => void;
   /** Called each frame with delta time in ms and input state */
   onUpdate?: (deltaMs: number, input: InputState) => void;
   /** CSS class name for the container */
   className?: string;
   /** Background color (hex) */
   backgroundColor?: number;
+  /** Use scene-based UI instead of React overlays */
+  useScenes?: boolean;
+  /** Called when game ends with results (scene mode only) */
+  onGameEnd?: (results: GameResults) => void;
 }
 
 /**
@@ -21,12 +27,23 @@ export interface GameCanvasProps {
  * - Engine initialization and cleanup
  * - Window resize events
  * - Integration with Zustand game store
+ * - Optional scene-based UI (Menu, Game, Result scenes)
  *
  * @example
  * ```tsx
+ * // Traditional mode with React overlays
  * <GameCanvas
  *   onReady={(engine) => console.log('Engine ready')}
  *   onUpdate={(delta) => updateGame(delta)}
+ *   className="w-full h-full"
+ * />
+ *
+ * // Scene mode with PixiJS UI
+ * <GameCanvas
+ *   useScenes
+ *   onReady={(engine, input, sceneManager) => {
+ *     // Scenes are already registered
+ *   }}
  *   className="w-full h-full"
  * />
  * ```
@@ -36,24 +53,39 @@ export function GameCanvas({
   onUpdate,
   className = "",
   backgroundColor = 0x1a1a2e,
+  useScenes = false,
+  onGameEnd,
 }: GameCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const inputRef = useRef<InputSystem | null>(null);
+  const sceneManagerRef = useRef<SceneManager | null>(null);
 
   // Game store state
   const { isPlaying, isPaused, startGame, pauseGame, resumeGame, endGame } = useGameStore();
 
-  // Handle resize
+  // Handle resize - also resize scenes
   const handleResize = useCallback(() => {
     const container = containerRef.current;
     const engine = engineRef.current;
+    const sceneManager = sceneManagerRef.current;
 
     if (!container || !engine) return;
 
     const { clientWidth, clientHeight } = container;
     if (clientWidth > 0 && clientHeight > 0) {
       engine.resize(clientWidth, clientHeight);
+
+      // Resize all scenes
+      if (sceneManager) {
+        const menuScene = sceneManager.getScene("menu") as MenuScene | undefined;
+        const gameScene = sceneManager.getScene("game") as GameScene | undefined;
+        const resultScene = sceneManager.getScene("result") as ResultScene | undefined;
+
+        menuScene?.resize(clientWidth, clientHeight);
+        gameScene?.resize(clientWidth, clientHeight);
+        resultScene?.resize(clientWidth, clientHeight);
+      }
     }
   }, []);
 
@@ -92,16 +124,59 @@ export function GameCanvas({
         // Attach input system to container
         input.attach(container);
 
-        // Register update callback with input state
-        if (onUpdate) {
+        // Initialize SceneManager if using scenes
+        let sceneManager: SceneManager | undefined;
+        if (useScenes && engine.stage) {
+          sceneManager = new SceneManager(engine.stage);
+          sceneManagerRef.current = sceneManager;
+
+          // Create and register scenes
+          const menuScene = new MenuScene();
+          const gameScene = new GameScene();
+          const resultScene = new ResultScene();
+
+          sceneManager.register(menuScene);
+          sceneManager.register(gameScene);
+          sceneManager.register(resultScene);
+
+          // Connect input to game scene
+          gameScene.setInputSystem(input);
+
+          // Initial resize for scenes
+          const { clientWidth, clientHeight } = container;
+          menuScene.resize(clientWidth, clientHeight);
+          gameScene.resize(clientWidth, clientHeight);
+          resultScene.resize(clientWidth, clientHeight);
+
+          // Start on menu scene
+          sceneManager.switchTo("menu");
+
+          // Add scene update to engine loop
           engine.onUpdate((deltaMs) => {
-            onUpdate(deltaMs, input.getState());
+            sceneManager?.update(deltaMs);
+            if (onUpdate) {
+              onUpdate(deltaMs, input.getState());
+            }
           });
+
+          // Set up tap handling for scene transitions
+          setupSceneTransitions(container, sceneManager, input, startGame, endGame, onGameEnd);
+
+          // Start engine immediately for scene rendering (menu needs to be visible)
+          // Input remains disabled until game scene is active
+          engine.start();
+        } else {
+          // Traditional mode - just register update callback
+          if (onUpdate) {
+            engine.onUpdate((deltaMs) => {
+              onUpdate(deltaMs, input.getState());
+            });
+          }
         }
 
         // Notify ready
         if (onReady) {
-          onReady(engine, input);
+          onReady(engine, input, sceneManager);
         }
       } catch (error) {
         // Ignore errors if cancelled (expected during Strict Mode cleanup)
@@ -116,6 +191,14 @@ export function GameCanvas({
     return () => {
       isCancelled = true;
       resizeObserver?.disconnect();
+      // Clean up scene transitions
+      const sceneCleanup = (container as HTMLElement & { _sceneCleanup?: () => void })
+        ._sceneCleanup;
+      if (sceneCleanup) {
+        sceneCleanup();
+      }
+      sceneManagerRef.current?.destroy();
+      sceneManagerRef.current = null;
       input.destroy();
       engine.destroy();
       engineRef.current = null;
@@ -124,10 +207,22 @@ export function GameCanvas({
       // User can resume or quit when returning
       pauseGame();
     };
-  }, [backgroundColor, handleResize, onReady, onUpdate, pauseGame]);
+  }, [
+    backgroundColor,
+    handleResize,
+    onReady,
+    onUpdate,
+    pauseGame,
+    useScenes,
+    startGame,
+    endGame,
+    onGameEnd,
+  ]);
 
-  // Sync game state with engine and input
+  // Sync game state with engine and input (only in traditional mode)
   useEffect(() => {
+    if (useScenes) return; // Scene mode handles this internally
+
     const engine = engineRef.current;
     const input = inputRef.current;
     if (!engine || !engine.isInitialized) return;
@@ -153,8 +248,23 @@ export function GameCanvas({
       // Disable input when not playing
       input?.disable();
     }
-  }, [isPlaying, isPaused]);
+  }, [isPlaying, isPaused, useScenes]);
 
+  // Scene mode handles transitions in game loop, hide React overlays
+  if (useScenes) {
+    return (
+      <div
+        ref={containerRef}
+        className={`relative overflow-hidden ${className}`}
+        style={{ touchAction: "none" }}
+      >
+        {/* Canvas will be appended here by the engine */}
+        {/* Scene-based UI is rendered by PixiJS */}
+      </div>
+    );
+  }
+
+  // Traditional mode with React overlays
   return (
     <div
       ref={containerRef}
@@ -197,4 +307,97 @@ export function GameCanvas({
       )}
     </div>
   );
+}
+
+/**
+ * Set up tap/click handling for scene transitions
+ */
+function setupSceneTransitions(
+  container: HTMLElement,
+  sceneManager: SceneManager,
+  input: InputSystem,
+  startGame: () => void,
+  endGame: () => void,
+  onGameEnd?: (results: GameResults) => void
+): void {
+  // Track game state for demo purposes
+  let gameStartTime = 0;
+  let enemiesKilled = 0;
+  let score = 0;
+  let level = 1;
+
+  const handleTap = async (e: PointerEvent) => {
+    // Only handle primary button (touch or left click)
+    if (e.button !== 0) return;
+
+    const currentScene = sceneManager.currentSceneName;
+
+    if (currentScene === "menu") {
+      // Transition from menu to game
+      await sceneManager.transitionTo("game", { duration: 200 });
+      input.enable();
+      startGame();
+      gameStartTime = performance.now();
+      // Reset game stats
+      enemiesKilled = 0;
+      score = 0;
+      level = 1;
+    } else if (currentScene === "result") {
+      // Tap to play again - go back to game
+      await sceneManager.transitionTo("game", { duration: 200 });
+      input.enable();
+      startGame();
+      gameStartTime = performance.now();
+      // Reset game stats
+      enemiesKilled = 0;
+      score = 0;
+      level = 1;
+    }
+    // In game scene, taps are handled by the game (player movement)
+  };
+
+  container.addEventListener("pointerup", handleTap);
+
+  // For demo: end game after 10 seconds and show result
+  // In a real game, this would be triggered by player death
+  const demoInterval = setInterval(() => {
+    if (sceneManager.currentSceneName === "game" && gameStartTime > 0) {
+      const elapsed = (performance.now() - gameStartTime) / 1000;
+
+      // Demo: simulate progression
+      score = Math.floor(elapsed * 100);
+      enemiesKilled = Math.floor(elapsed * 2);
+      level = Math.floor(elapsed / 15) + 1;
+
+      // End game after 30 seconds for demo
+      if (elapsed >= 30) {
+        const results: GameResults = {
+          survivalTime: elapsed,
+          score,
+          enemiesKilled,
+          level,
+        };
+
+        // Set results and transition to result scene
+        const resultScene = sceneManager.getScene("result") as ResultScene | undefined;
+        resultScene?.setResults(results);
+
+        sceneManager.transitionTo("result", { duration: 200 });
+        input.disable();
+        endGame();
+        gameStartTime = 0;
+
+        if (onGameEnd) {
+          onGameEnd(results);
+        }
+      }
+    }
+  }, 1000);
+
+  // Clean up on unmount (handled by effect cleanup)
+  // Store cleanup function on container for later removal
+  (container as HTMLElement & { _sceneCleanup?: () => void })._sceneCleanup = () => {
+    container.removeEventListener("pointerup", handleTap);
+    clearInterval(demoInterval);
+  };
 }
