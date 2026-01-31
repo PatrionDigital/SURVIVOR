@@ -14,7 +14,7 @@ Implement Player entity using an Entity-Component-System (ECS) architecture with
 
 ## File Structure
 
-```
+```bash
 apps/web/src/game/ecs/
 ├── World.ts              # miniplex World wrapper and entity type
 ├── components.ts         # Component interface definitions
@@ -30,10 +30,16 @@ apps/web/src/game/ecs/
 
 ```typescript
 // Position - where the entity is
-interface Position { x: number; y: number; }
+interface Position {
+  x: number;
+  y: number;
+}
 
 // Velocity - how fast it's moving
-interface Velocity { vx: number; vy: number; }
+interface Velocity {
+  vx: number;
+  vy: number;
+}
 
 // Health - can take damage, can die
 interface Health {
@@ -43,17 +49,17 @@ interface Health {
 
 // Invincibility - temporary damage immunity (i-frames)
 interface Invincibility {
-  remaining: number;  // ms remaining
-  duration: number;   // total duration when triggered
+  remaining: number; // ms remaining
+  duration: number; // total duration when triggered
 }
 
 // Sprite - visual representation
 interface Sprite {
-  graphics: Graphics;  // PixiJS Graphics instance
+  graphics: Graphics; // PixiJS Graphics instance
 }
 
 // PlayerControlled - tag marking this entity as the player
-interface PlayerControlled { }
+interface PlayerControlled {}
 
 // Entity type (miniplex style)
 type Entity = {
@@ -63,22 +69,25 @@ type Entity = {
   invincibility?: Invincibility;
   sprite?: Sprite;
   playerControlled?: PlayerControlled;
-}
+};
 ```
 
 ## Systems
 
 ### MovementSystem
+
 - Queries entities with position + velocity
 - For player: reads input, sets velocity based on PLAYER_SPEED
 - For all: applies velocity to position using delta time
 - Clamps player to screen bounds (PADDING from edges)
 
 ### RenderSystem
+
 - Queries entities with position + sprite
 - Syncs sprite.graphics.x/y with position.x/y
 
 ### InvincibilitySystem
+
 - Queries entities with invincibility + sprite
 - Decrements remaining timer by deltaMs
 - Flashes sprite alpha (0.5/1.0 toggle every 100ms)
@@ -87,6 +96,7 @@ type Entity = {
 ## GameScene Integration
 
 GameScene changes:
+
 - Creates miniplex World on `onEnter()`
 - Creates player entity with all components
 - Runs systems in `onUpdate()`: movement → invincibility → render
