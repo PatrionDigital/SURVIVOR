@@ -42,7 +42,7 @@ export function GameCanvas({
   const inputRef = useRef<InputSystem | null>(null);
 
   // Game store state
-  const { isPlaying, isPaused, startGame, resumeGame, endGame } = useGameStore();
+  const { isPlaying, isPaused, startGame, pauseGame, resumeGame, endGame } = useGameStore();
 
   // Handle resize
   const handleResize = useCallback(() => {
@@ -117,11 +117,11 @@ export function GameCanvas({
       engine.destroy();
       engineRef.current = null;
       inputRef.current = null;
-      // Reset game state when canvas unmounts (e.g., navigating away)
-      // This ensures clean state when returning to the game
-      endGame();
+      // Pause game when canvas unmounts (e.g., navigating away)
+      // User can resume or quit when returning
+      pauseGame();
     };
-  }, [backgroundColor, handleResize, onReady, onUpdate, endGame]);
+  }, [backgroundColor, handleResize, onReady, onUpdate, pauseGame]);
 
   // Sync game state with engine and input
   useEffect(() => {
