@@ -86,6 +86,9 @@ export function GameCanvas({
         resizeObserver = new ResizeObserver(handleResize);
         resizeObserver.observe(container);
 
+        // Trigger initial resize to ensure correct dimensions
+        handleResize();
+
         // Attach input system to container
         input.attach(container);
 
