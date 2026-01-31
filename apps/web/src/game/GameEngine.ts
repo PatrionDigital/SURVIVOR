@@ -116,7 +116,13 @@ export class GameEngine {
       antialias: options.antialias ?? true,
       resolution: options.resolution ?? (window.devicePixelRatio || 1),
       autoDensity: true,
+      autoStart: false, // Prevent auto-starting ticker (React Strict Mode compatibility)
     });
+
+    // Check if destroyed during async init (React Strict Mode protection)
+    if (this._state === GameEngineState.DESTROYED || !this.app) {
+      return;
+    }
 
     // Store canvas reference and append to container
     this._canvas = this.app.canvas;

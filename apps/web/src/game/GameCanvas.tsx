@@ -60,6 +60,10 @@ export function GameCanvas({
     const container = containerRef.current;
     if (!container) return;
 
+    // Track if effect has been cleaned up (React Strict Mode protection)
+    let isCancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
+
     const engine = new GameEngine();
     engineRef.current = engine;
 
@@ -67,8 +71,14 @@ export function GameCanvas({
       try {
         await engine.init(container, { backgroundColor });
 
+        // Check if we were cancelled during async init (React Strict Mode)
+        if (isCancelled) {
+          engine.destroy();
+          return;
+        }
+
         // Set up resize observer
-        const resizeObserver = new ResizeObserver(handleResize);
+        resizeObserver = new ResizeObserver(handleResize);
         resizeObserver.observe(container);
 
         // Register update callback
@@ -80,22 +90,19 @@ export function GameCanvas({
         if (onReady) {
           onReady(engine);
         }
-
-        return () => {
-          resizeObserver.disconnect();
-        };
       } catch (error) {
-        console.error("Failed to initialize game engine:", error);
+        // Ignore errors if cancelled (expected during Strict Mode cleanup)
+        if (!isCancelled) {
+          console.error("Failed to initialize game engine:", error);
+        }
       }
     };
 
-    let cleanup: (() => void) | undefined;
-    initEngine().then((cleanupFn) => {
-      cleanup = cleanupFn;
-    });
+    initEngine();
 
     return () => {
-      cleanup?.();
+      isCancelled = true;
+      resizeObserver?.disconnect();
       engine.destroy();
       engineRef.current = null;
     };
