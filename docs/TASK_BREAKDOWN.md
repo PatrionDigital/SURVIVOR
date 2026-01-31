@@ -504,12 +504,18 @@ Manage game scenes (menu, game, results).
 - [x] Create MenuScene shell with title and animated prompt
 - [x] Create GameScene shell with player entity
 - [x] Create ResultScene shell with stats display
+- [x] Integrate SceneManager into GameCanvas with `useScenes` prop
+- [x] Add tap/click handlers for scene transitions (Menu → Game → Result)
+- [x] Add scene mode toggle in GamePage header
+- [x] Add integration tests for SceneManager with GameCanvas (15 tests)
 
 **Acceptance Criteria:**
 
 - ✅ Can switch between scenes
 - ✅ Scenes clean up properly
 - ✅ Transitions are smooth (async with configurable duration)
+- ✅ Scene flow works: Menu → Game → Result → Game
+- ✅ Both scene mode and traditional React overlay mode supported
 
 ---
 
