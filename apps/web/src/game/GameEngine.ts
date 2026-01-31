@@ -64,11 +64,13 @@ export class GameEngine {
   }
 
   get width(): number {
-    return this._width;
+    // Use actual renderer dimensions if available, fallback to cached
+    return this.app?.renderer?.width ?? this._width;
   }
 
   get height(): number {
-    return this._height;
+    // Use actual renderer dimensions if available, fallback to cached
+    return this.app?.renderer?.height ?? this._height;
   }
 
   get stage(): Container | null {
