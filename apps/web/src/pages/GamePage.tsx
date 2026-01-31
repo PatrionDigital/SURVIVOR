@@ -5,7 +5,8 @@ import { GameCanvas, GameEngine, InputSystem, InputState } from "../game";
 import { useGameStore, useSettingsStore } from "../stores";
 
 export function GamePage() {
-  const { isPlaying, pauseGame, setSurvivalTime } = useGameStore();
+  const { isPlaying, pauseGame, setSurvivalTime, playerPosition, setPlayerPosition } =
+    useGameStore();
   const { showVirtualJoystick, toggleVirtualJoystick } = useSettingsStore();
   const playerRef = useRef<Graphics | null>(null);
   const engineRef = useRef<GameEngine | null>(null);
@@ -23,6 +24,16 @@ export function GamePage() {
       if (joystickKnobRef.current) joystickKnobRef.current.visible = false;
     }
   }, [showVirtualJoystick]);
+
+  // Save player position before unmount (for persistence across navigation)
+  useEffect(() => {
+    return () => {
+      const player = playerRef.current;
+      if (player) {
+        setPlayerPosition({ x: player.x, y: player.y });
+      }
+    };
+  }, [setPlayerPosition]);
 
   // Player movement speed (pixels per second)
   const PLAYER_SPEED = 200;
@@ -98,46 +109,55 @@ export function GamePage() {
   );
 
   // Called when engine is ready - create player sprite and joystick
-  const handleEngineReady = useCallback((engine: GameEngine, input: InputSystem) => {
-    console.log("Game engine ready:", engine.width, "x", engine.height);
-    console.log("Input system attached:", input.isAttached);
+  const handleEngineReady = useCallback(
+    (engine: GameEngine, input: InputSystem) => {
+      console.log("Game engine ready:", engine.width, "x", engine.height);
+      console.log("Input system attached:", input.isAttached);
 
-    engineRef.current = engine;
-    inputRef.current = input;
+      engineRef.current = engine;
+      inputRef.current = input;
 
-    // Create a simple player sprite (circle)
-    const player = new Graphics();
-    player.circle(0, 0, 20);
-    player.fill({ color: 0x00ff88 });
-    player.stroke({ width: 3, color: 0xffffff });
+      // Create a simple player sprite (circle)
+      const player = new Graphics();
+      player.circle(0, 0, 20);
+      player.fill({ color: 0x00ff88 });
+      player.stroke({ width: 3, color: 0xffffff });
 
-    // Position at center
-    player.x = engine.width / 2;
-    player.y = engine.height / 2;
+      // Restore saved position or default to center
+      if (playerPosition) {
+        player.x = playerPosition.x;
+        player.y = playerPosition.y;
+        console.log("Restored player position:", player.x, player.y);
+      } else {
+        player.x = engine.width / 2;
+        player.y = engine.height / 2;
+      }
 
-    // Add to stage
-    engine.stage?.addChild(player);
-    playerRef.current = player;
+      // Add to stage
+      engine.stage?.addChild(player);
+      playerRef.current = player;
 
-    // Create joystick base (outer circle)
-    const joystickBase = new Graphics();
-    joystickBase.circle(0, 0, JOYSTICK_BASE_RADIUS);
-    joystickBase.fill({ color: 0xffffff, alpha: 0.2 });
-    joystickBase.stroke({ width: 2, color: 0xffffff, alpha: 0.5 });
-    joystickBase.visible = false;
-    engine.stage?.addChild(joystickBase);
-    joystickBaseRef.current = joystickBase;
+      // Create joystick base (outer circle)
+      const joystickBase = new Graphics();
+      joystickBase.circle(0, 0, JOYSTICK_BASE_RADIUS);
+      joystickBase.fill({ color: 0xffffff, alpha: 0.2 });
+      joystickBase.stroke({ width: 2, color: 0xffffff, alpha: 0.5 });
+      joystickBase.visible = false;
+      engine.stage?.addChild(joystickBase);
+      joystickBaseRef.current = joystickBase;
 
-    // Create joystick knob (inner circle)
-    const joystickKnob = new Graphics();
-    joystickKnob.circle(0, 0, JOYSTICK_KNOB_RADIUS);
-    joystickKnob.fill({ color: 0xffffff, alpha: 0.6 });
-    joystickKnob.visible = false;
-    engine.stage?.addChild(joystickKnob);
-    joystickKnobRef.current = joystickKnob;
+      // Create joystick knob (inner circle)
+      const joystickKnob = new Graphics();
+      joystickKnob.circle(0, 0, JOYSTICK_KNOB_RADIUS);
+      joystickKnob.fill({ color: 0xffffff, alpha: 0.6 });
+      joystickKnob.visible = false;
+      engine.stage?.addChild(joystickKnob);
+      joystickKnobRef.current = joystickKnob;
 
-    console.log("Player sprite created at:", player.x, player.y);
-  }, []);
+      console.log("Player sprite created at:", player.x, player.y);
+    },
+    [playerPosition]
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">

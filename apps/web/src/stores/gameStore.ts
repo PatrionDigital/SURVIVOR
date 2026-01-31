@@ -1,5 +1,25 @@
 import { create } from "zustand";
 
+/**
+ * Player position for persistence across navigation
+ */
+export interface PlayerPosition {
+  x: number;
+  y: number;
+}
+
+/**
+ * Player profile stub for future implementation
+ * Will contain player stats, equipped gear, and progression
+ */
+export interface PlayerProfile {
+  id: string | null;
+  name: string | null;
+  level: number;
+  experience: number;
+  // Future: equipped gear, achievements, etc.
+}
+
 export interface GameState {
   isPlaying: boolean;
   isPaused: boolean;
@@ -7,6 +27,12 @@ export interface GameState {
   level: number;
   survivalTime: number;
   enemiesKilled: number;
+
+  // Player position for persistence across navigation
+  playerPosition: PlayerPosition | null;
+
+  // Player profile stub (future implementation)
+  playerProfile: PlayerProfile;
 }
 
 interface GameStore extends GameState {
@@ -18,8 +44,22 @@ interface GameStore extends GameState {
   incrementLevel: () => void;
   setEnemiesKilled: (count: number) => void;
   setSurvivalTime: (time: number | ((prev: number) => number)) => void;
+
+  // Player position actions
+  setPlayerPosition: (position: PlayerPosition | null) => void;
+
+  // Player profile actions (stubs for future implementation)
+  setPlayerProfile: (profile: Partial<PlayerProfile>) => void;
+
   reset: () => void;
 }
+
+const initialPlayerProfile: PlayerProfile = {
+  id: null,
+  name: null,
+  level: 1,
+  experience: 0,
+};
 
 const initialState: GameState = {
   isPlaying: false,
@@ -28,6 +68,8 @@ const initialState: GameState = {
   level: 1,
   survivalTime: 0,
   enemiesKilled: 0,
+  playerPosition: null,
+  playerProfile: initialPlayerProfile,
 };
 
 // AFK timeout - auto-end game after 5 minutes of being paused
@@ -74,6 +116,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((state) => ({
       survivalTime: typeof time === "function" ? time(state.survivalTime) : time,
     })),
+
+  // Player position persistence
+  setPlayerPosition: (position) => set({ playerPosition: position }),
+
+  // Player profile stub (future implementation)
+  setPlayerProfile: (profile) =>
+    set((state) => ({
+      playerProfile: { ...state.playerProfile, ...profile },
+    })),
+
   reset: () => {
     clearAfkTimeout();
     set(initialState);
