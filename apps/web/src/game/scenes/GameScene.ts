@@ -10,6 +10,13 @@ import {
   invincibilitySystem,
   renderSystem,
 } from "../ecs";
+import {
+  PlayerWeaponSystem,
+  projectileMovementSystem,
+  projectileLifetimeSystem,
+  projectileCollisionSystem,
+  type WeaponConfig,
+} from "../combat";
 
 /**
  * GameScene - Main gameplay scene
@@ -28,6 +35,23 @@ const GRID_COLOR_PRIMARY = 0x1a1a2e; // Dark blue-purple
 const GRID_COLOR_SECONDARY = 0x16213e; // Slightly lighter
 const GRID_LINE_COLOR = 0x0f3460; // Grid lines
 
+// Default player weapon configuration
+const DEFAULT_WEAPON_CONFIG: WeaponConfig = {
+  id: "basic-blaster",
+  name: "Basic Blaster",
+  damage: 10,
+  cooldown: 500, // Fire every 500ms
+  projectileSpeed: 400, // Pixels per second
+  projectileLifetime: 2000, // 2 seconds
+  visual: {
+    color: 0x00ffff, // Cyan projectiles
+    radius: 5,
+  },
+  projectilesPerShot: 1,
+  spreadAngle: 0,
+  pierce: 0,
+};
+
 export class GameScene extends Scene {
   private gameContainer: Container | null = null;
   private backgroundContainer: Container | null = null;
@@ -40,6 +64,9 @@ export class GameScene extends Scene {
 
   // Camera
   private camera: Camera | null = null;
+
+  // Combat
+  private playerWeaponSystem: PlayerWeaponSystem | null = null;
 
   // Game dimensions (set on resize)
   private width = 800;
@@ -55,12 +82,22 @@ export class GameScene extends Scene {
     this.createWorld();
     this.createCamera();
     this.createPlayer();
+    this.createWeaponSystem();
   }
 
   protected onExit(): void {
     // Destroy player sprite
     if (this.playerEntity?.sprite) {
       this.playerEntity.sprite.graphics.destroy();
+    }
+
+    // Clean up projectiles
+    if (this.world) {
+      for (const entity of this.world.with("projectile")) {
+        if (entity.sprite?.graphics) {
+          entity.sprite.graphics.destroy();
+        }
+      }
     }
 
     // Clean up background
@@ -76,6 +113,7 @@ export class GameScene extends Scene {
     this.world = null;
     this.playerEntity = null;
     this.camera = null;
+    this.playerWeaponSystem = null;
   }
 
   protected onUpdate(deltaMs: number): void {
@@ -98,10 +136,31 @@ export class GameScene extends Scene {
     // 3. Invincibility effects
     invincibilitySystem(this.world, deltaMs);
 
-    // 4. Update background to follow camera
+    // 4. Combat systems
+    if (this.playerEntity?.position && this.playerWeaponSystem) {
+      // Player weapon auto-fires at nearest enemy
+      this.playerWeaponSystem.update(deltaMs, this.playerEntity.position);
+    }
+
+    // 5. Projectile systems
+    projectileMovementSystem(this.world, deltaMs);
+    projectileLifetimeSystem(this.world, deltaMs);
+
+    // 6. Projectile collision (player radius 20, projectile radius 5)
+    const collisionResult = projectileCollisionSystem(this.world, 5, 20);
+
+    // Apply player damage from enemy projectiles
+    if (collisionResult.playerHit && this.playerEntity) {
+      this.damagePlayer(collisionResult.playerDamageTaken);
+    }
+
+    // Clean up consumed projectiles
+    this.cleanupConsumedProjectiles();
+
+    // 7. Update background to follow camera
     this.updateBackground();
 
-    // 5. Render with camera offset
+    // 8. Render with camera offset
     renderSystem(this.world, this.camera, this.width, this.height);
   }
 
@@ -186,6 +245,35 @@ export class GameScene extends Scene {
     });
 
     return true;
+  }
+
+  private createWeaponSystem(): void {
+    if (!this.world || !this.gameContainer) return;
+
+    this.playerWeaponSystem = new PlayerWeaponSystem(
+      this.world,
+      this.gameContainer,
+      DEFAULT_WEAPON_CONFIG
+    );
+  }
+
+  private cleanupConsumedProjectiles(): void {
+    if (!this.world) return;
+
+    const toRemove: Entity[] = [];
+
+    for (const entity of this.world.with("projectile")) {
+      if (entity.projectile!.consumed || entity.projectile!.lifetime <= 0) {
+        toRemove.push(entity);
+      }
+    }
+
+    for (const entity of toRemove) {
+      if (entity.sprite?.graphics) {
+        entity.sprite.graphics.destroy();
+      }
+      this.world.remove(entity);
+    }
   }
 
   private createBackground(): void {
