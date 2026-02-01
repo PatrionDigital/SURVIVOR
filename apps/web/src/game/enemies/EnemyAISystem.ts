@@ -1,4 +1,4 @@
-import { EntityManager, Vector3 } from "yuka";
+import { EntityManager, SeekBehavior, Vehicle } from "yuka";
 import type { GameWorld } from "../ecs/World";
 
 /**
@@ -49,13 +49,15 @@ export function enemyAISystem(
         // Player in range - switch to seeking
         if (entity.enemy!.currentBehavior !== "seeking") {
           entity.enemy!.currentBehavior = "seeking";
-          // Update seek target
-          updateSeekTarget(vehicle, playerPosition);
+          setSeekingBehavior(vehicle, true);
         }
+        // Always update seek target to track player movement
+        updateSeekTarget(vehicle, playerPosition);
       } else {
         // Player out of range - switch to flocking
         if (entity.enemy!.currentBehavior !== "flocking") {
           entity.enemy!.currentBehavior = "flocking";
+          setSeekingBehavior(vehicle, false);
         }
       }
     }
@@ -63,20 +65,33 @@ export function enemyAISystem(
 }
 
 /**
+ * Find the seek behavior in a vehicle's steering behaviors
+ */
+function findSeekBehavior(vehicle: Vehicle): SeekBehavior | null {
+  for (const behavior of vehicle.steering.behaviors) {
+    if (behavior instanceof SeekBehavior) {
+      return behavior;
+    }
+  }
+  return null;
+}
+
+/**
+ * Enable or disable seeking behavior
+ */
+function setSeekingBehavior(vehicle: Vehicle, active: boolean): void {
+  const seekBehavior = findSeekBehavior(vehicle);
+  if (seekBehavior) {
+    seekBehavior.active = active;
+  }
+}
+
+/**
  * Update the seek behavior target position
  */
-function updateSeekTarget(
-  vehicle: { steering: { behaviors: unknown[] } },
-  target: { x: number; y: number }
-): void {
-  // Find seek behavior and update target
-  // This is a placeholder - actual seek behavior will be added in a later step
-  // For now, behaviors are set up in EnemyFactory
-  const seekBehavior = vehicle.steering.behaviors.find(
-    (b: unknown) => (b as { constructor: { name: string } }).constructor.name === "SeekBehavior"
-  );
-
+function updateSeekTarget(vehicle: Vehicle, target: { x: number; y: number }): void {
+  const seekBehavior = findSeekBehavior(vehicle);
   if (seekBehavior) {
-    (seekBehavior as { target: Vector3 }).target = new Vector3(target.x, target.y, 0);
+    seekBehavior.target.set(target.x, target.y, 0);
   }
 }
