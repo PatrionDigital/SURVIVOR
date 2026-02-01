@@ -5,6 +5,8 @@ import {
   AlignmentBehavior,
   CohesionBehavior,
   SeparationBehavior,
+  SeekBehavior,
+  Vector3,
 } from "yuka";
 import type { GameWorld, Entity } from "../ecs/World";
 import type { EnemyTypeConfig } from "./types";
@@ -45,6 +47,12 @@ export function createEnemy(
   const separation = new SeparationBehavior();
   separation.weight = config.flocking.separation;
   vehicle.steering.add(separation);
+
+  // Add seek behavior for chasing player (starts inactive)
+  const seek = new SeekBehavior(new Vector3(0, 0, 0));
+  seek.weight = config.behavior.seekWeight;
+  seek.active = false; // Will be activated when player is in range
+  vehicle.steering.add(seek);
 
   // Add vehicle to Yuka manager
   yukaManager.add(vehicle);
