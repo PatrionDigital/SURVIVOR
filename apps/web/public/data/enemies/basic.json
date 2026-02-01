@@ -1,0 +1,30 @@
+{
+  "id": "basic",
+  "name": "Basic Enemy",
+  "visual": {
+    "color": "0xff4444",
+    "radius": 15
+  },
+  "combat": {
+    "damage": 10,
+    "health": 30,
+    "xpValue": 10
+  },
+  "movement": {
+    "maxSpeed": 100,
+    "maxForce": 80,
+    "mass": 1.0
+  },
+  "flocking": {
+    "alignment": 0.8,
+    "cohesion": 1.0,
+    "separation": 1.2
+  },
+  "vision": {
+    "range": 250,
+    "fieldOfView": 360
+  },
+  "behavior": {
+    "seekWeight": 1.5
+  }
+}

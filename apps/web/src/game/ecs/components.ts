@@ -38,3 +38,6 @@ export interface Invincibility {
 export interface Sprite {
   graphics: Graphics;
 }
+
+// Re-export enemy AI component from enemies module
+export type { EnemyAI } from "../enemies/types";

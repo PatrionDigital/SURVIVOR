@@ -1,5 +1,5 @@
 import { World } from "miniplex";
-import type { Position, Velocity, Health, Invincibility, Sprite } from "./components";
+import type { Position, Velocity, Health, Invincibility, Sprite, EnemyAI } from "./components";
 
 /**
  * Entity type for the game ECS
@@ -14,6 +14,7 @@ export type Entity = {
   invincibility?: Invincibility;
   sprite?: Sprite;
   playerControlled?: boolean;
+  enemy?: EnemyAI;
 };
 
 /**
