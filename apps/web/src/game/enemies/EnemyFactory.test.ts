@@ -41,13 +41,10 @@ describe("EnemyFactory", () => {
 
   describe("createEnemy", () => {
     it("should create an entity with position component", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 100, y: 200 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 100,
+        y: 200,
+      });
 
       expect(entity.position).toBeDefined();
       expect(entity.position!.x).toBe(100);
@@ -55,13 +52,10 @@ describe("EnemyFactory", () => {
     });
 
     it("should create an entity with velocity component", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       expect(entity.velocity).toBeDefined();
       expect(entity.velocity!.vx).toBe(0);
@@ -69,13 +63,10 @@ describe("EnemyFactory", () => {
     });
 
     it("should create an entity with health from config", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       expect(entity.health).toBeDefined();
       expect(entity.health!.current).toBe(30);
@@ -83,26 +74,20 @@ describe("EnemyFactory", () => {
     });
 
     it("should create an entity with sprite component", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       expect(entity.sprite).toBeDefined();
       expect(entity.sprite!.graphics).toBeDefined();
     });
 
     it("should create an entity with enemy AI component", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       expect(entity.enemy).toBeDefined();
       expect(entity.enemy!.vehicle).toBeDefined();
@@ -111,13 +96,10 @@ describe("EnemyFactory", () => {
     });
 
     it("should configure Yuka Vehicle with movement settings", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       const vehicle = entity.enemy!.vehicle;
       expect(vehicle.maxSpeed).toBe(100);
@@ -126,13 +108,10 @@ describe("EnemyFactory", () => {
     });
 
     it("should set Yuka Vehicle position", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 150, y: 250 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 150,
+        y: 250,
+      });
 
       const vehicle = entity.enemy!.vehicle;
       expect(vehicle.position.x).toBe(150);
@@ -141,13 +120,10 @@ describe("EnemyFactory", () => {
     });
 
     it("should add Vehicle to Yuka EntityManager", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       // Check that the vehicle is in the manager
       const vehicles = Array.from(yukaManager.entities);
@@ -155,38 +131,26 @@ describe("EnemyFactory", () => {
     });
 
     it("should add sprite to container", () => {
-      createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      createEnemy(world, yukaManager, mockContainer as never, mockConfig, { x: 0, y: 0 });
 
       expect(mockContainer.addChild).toHaveBeenCalled();
     });
 
     it("should add entity to ECS world", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       const enemies = Array.from(world.with("enemy"));
       expect(enemies).toContain(entity);
     });
 
     it("should add flocking behaviors to vehicle", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       const vehicle = entity.enemy!.vehicle;
       // Vehicle should have steering behaviors
@@ -196,13 +160,10 @@ describe("EnemyFactory", () => {
 
   describe("destroyEnemy", () => {
     it("should remove entity from ECS world", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       destroyEnemy(world, yukaManager, entity);
 
@@ -211,13 +172,10 @@ describe("EnemyFactory", () => {
     });
 
     it("should remove Vehicle from Yuka EntityManager", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       const vehicle = entity.enemy!.vehicle;
       destroyEnemy(world, yukaManager, entity);
@@ -227,13 +185,10 @@ describe("EnemyFactory", () => {
     });
 
     it("should destroy sprite graphics", () => {
-      const entity = createEnemy(
-        world,
-        yukaManager,
-        mockContainer as never,
-        mockConfig,
-        { x: 0, y: 0 }
-      );
+      const entity = createEnemy(world, yukaManager, mockContainer as never, mockConfig, {
+        x: 0,
+        y: 0,
+      });
 
       const destroySpy = vi.spyOn(entity.sprite!.graphics, "destroy");
       destroyEnemy(world, yukaManager, entity);

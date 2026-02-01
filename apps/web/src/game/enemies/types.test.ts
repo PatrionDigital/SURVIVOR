@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  parseEnemyTypeConfig,
-  validateEnemyTypeConfig,
-  type EnemyTypeConfigJSON,
-} from "./types";
+import { parseEnemyTypeConfig, validateEnemyTypeConfig, type EnemyTypeConfigJSON } from "./types";
 
 const validConfig: EnemyTypeConfigJSON = {
   id: "basic",

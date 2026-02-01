@@ -79,11 +79,7 @@ export function createEnemy(
  * @param yukaManager - Yuka EntityManager to remove vehicle from
  * @param entity - The entity to destroy
  */
-export function destroyEnemy(
-  world: GameWorld,
-  yukaManager: EntityManager,
-  entity: Entity
-): void {
+export function destroyEnemy(world: GameWorld, yukaManager: EntityManager, entity: Entity): void {
   // Remove vehicle from Yuka manager
   if (entity.enemy?.vehicle) {
     yukaManager.remove(entity.enemy.vehicle);

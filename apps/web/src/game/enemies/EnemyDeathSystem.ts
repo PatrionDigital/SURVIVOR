@@ -23,10 +23,7 @@ export interface DeathResult {
  * @param yukaManager - Yuka EntityManager
  * @returns Death processing results
  */
-export function enemyDeathSystem(
-  world: GameWorld,
-  yukaManager: EntityManager
-): DeathResult {
+export function enemyDeathSystem(world: GameWorld, yukaManager: EntityManager): DeathResult {
   const result: DeathResult = {
     killedCount: 0,
     totalXP: 0,

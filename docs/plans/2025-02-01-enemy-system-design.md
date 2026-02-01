@@ -27,6 +27,7 @@ Yuka handles AI movement. Our ECS handles rendering and game state.
 ```
 
 **Update flow:**
+
 1. `enemyAISystem()` calls Yuka's `entityManager.update(delta)`
 2. Yuka calculates steering forces (flocking + seek)
 3. Sync `vehicle.position` → ECS entity `position`
@@ -37,16 +38,27 @@ Yuka handles AI movement. Our ECS handles rendering and game state.
 ```typescript
 // New component for enemies
 interface EnemyAI {
-  vehicle: Vehicle;              // Yuka Vehicle instance
-  config: EnemyTypeConfig;       // Reference to type config
-  currentBehavior: 'flocking' | 'seeking';
+  vehicle: Vehicle; // Yuka Vehicle instance
+  config: EnemyTypeConfig; // Reference to type config
+  currentBehavior: "flocking" | "seeking";
 }
 
 // Existing components reused
-interface Position { x: number; y: number; }
-interface Velocity { vx: number; vy: number; }
-interface Health { current: number; max: number; }
-interface Sprite { graphics: Graphics; }
+interface Position {
+  x: number;
+  y: number;
+}
+interface Velocity {
+  vx: number;
+  vy: number;
+}
+interface Health {
+  current: number;
+  max: number;
+}
+interface Sprite {
+  graphics: Graphics;
+}
 ```
 
 ### Entity Type
@@ -59,7 +71,7 @@ export type Entity = {
   invincibility?: Invincibility;
   sprite?: Sprite;
   playerControlled?: boolean;
-  enemy?: EnemyAI;               // NEW
+  enemy?: EnemyAI; // NEW
 };
 ```
 
@@ -179,6 +191,7 @@ class EnemyTypeRegistry {
 ### Default State: Flocking
 
 All enemies start with flocking behaviors:
+
 - **AlignmentBehavior**: Match velocity of nearby enemies
 - **CohesionBehavior**: Move toward center of nearby enemies
 - **SeparationBehavior**: Maintain spacing from all neighbors
@@ -188,11 +201,13 @@ Weights from config determine grouping tightness.
 ### Player Detection: Seek
 
 When player enters vision range:
+
 1. Yuka's Vision component detects player
 2. Remove flocking behaviors
 3. Add SeekBehavior targeting player position
 
 When player leaves vision range:
+
 1. Remove SeekBehavior
 2. Restore flocking behaviors
 
@@ -210,7 +225,7 @@ function onPlayerDetected(enemy: Entity, playerPos: Vector3): void {
   seek.weight = enemy.enemy!.config.behavior.seekWeight;
   vehicle.steering.add(seek);
 
-  enemy.enemy!.currentBehavior = 'seeking';
+  enemy.enemy!.currentBehavior = "seeking";
 }
 
 function onPlayerLost(enemy: Entity): void {
@@ -222,7 +237,7 @@ function onPlayerLost(enemy: Entity): void {
   // Restore flocking
   vehicle.steering.add(enemy.enemy!.flockingBehaviors);
 
-  enemy.enemy!.currentBehavior = 'flocking';
+  enemy.enemy!.currentBehavior = "flocking";
 }
 ```
 
@@ -248,7 +263,7 @@ function collisionSystem(world: GameWorld): CollisionEvent[] {
 
     if (dist < minDist) {
       events.push({
-        type: 'enemy-player',
+        type: "enemy-player",
         enemy,
         player,
         damage: enemy.enemy!.config.combat.damage,
@@ -263,6 +278,7 @@ function collisionSystem(world: GameWorld): CollisionEvent[] {
 ### Enemy-Enemy (Yuka Separation)
 
 Handled automatically by Yuka's SeparationBehavior:
+
 - All enemies are in the same EntityManager
 - Separation applies to all neighbors regardless of type
 - Weight in config controls spacing strength
@@ -402,7 +418,7 @@ function createEnemy(
     enemy: {
       vehicle,
       config,
-      currentBehavior: 'flocking',
+      currentBehavior: "flocking",
     },
   });
 
@@ -435,17 +451,20 @@ apps/web/public/data/enemies/
 ### Unit Tests (Mock Yuka)
 
 **EnemyTypeRegistry.test.ts:**
+
 - Load JSON config correctly
 - Validate required fields
 - Handle missing/malformed files
 - Cache loaded configs
 
 **EnemyFactory.test.ts:**
+
 - Create enemy with correct components
 - Sprite created with config visual properties
 - Health initialized from config
 
 **CollisionSystem.test.ts:**
+
 - Detect player-enemy overlap
 - No collision when player has invincibility
 - Correct damage applied
@@ -454,11 +473,13 @@ apps/web/public/data/enemies/
 ### Integration Tests (Real Yuka)
 
 **EnemyAISystem.integration.test.ts:**
+
 - Position syncs from Yuka to ECS
 - Enemies move when update called
 - Multiple enemies maintain separation
 
 **Behavior.integration.test.ts:**
+
 - Flocking produces natural grouping
 - Seek moves enemy toward target
 - Behavior switching works correctly
