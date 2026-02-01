@@ -1,4 +1,5 @@
 import { Container, Graphics } from "pixi.js";
+import { EntityManager } from "yuka";
 import { Scene } from "../SceneManager";
 import { InputSystem, InputState } from "../InputSystem";
 import { Camera } from "../Camera";
@@ -17,6 +18,14 @@ import {
   projectileCollisionSystem,
   type WeaponConfig,
 } from "../combat";
+import { SpawningSystem, type SpawningConfig } from "../spawning";
+import {
+  EnemyTypeRegistry,
+  enemyAISystem,
+  collisionSystem,
+  enemyDeathSystem,
+  destroyEnemy,
+} from "../enemies";
 
 /**
  * GameScene - Main gameplay scene
@@ -52,6 +61,19 @@ const DEFAULT_WEAPON_CONFIG: WeaponConfig = {
   pierce: 0,
 };
 
+// Default spawning configuration
+const DEFAULT_SPAWNING_CONFIG: SpawningConfig = {
+  baseSpawnInterval: 2000, // Spawn every 2 seconds
+  minSpawnInterval: 500, // Minimum 0.5 seconds at max difficulty
+  spawnDistanceFromViewport: 100, // Spawn 100px outside viewport
+  maxEnemies: 30, // Cap at 30 enemies
+  difficultyScaling: {
+    intervalDecreasePerMinute: 100, // Get faster over time
+    enemiesPerWaveIncreasePerMinute: 0.5,
+  },
+  enemyTypes: ["basic"],
+};
+
 export class GameScene extends Scene {
   private gameContainer: Container | null = null;
   private backgroundContainer: Container | null = null;
@@ -68,6 +90,11 @@ export class GameScene extends Scene {
   // Combat
   private playerWeaponSystem: PlayerWeaponSystem | null = null;
 
+  // Enemies
+  private yukaManager: EntityManager | null = null;
+  private enemyRegistry: EnemyTypeRegistry | null = null;
+  private spawningSystem: SpawningSystem | null = null;
+
   // Game dimensions (set on resize)
   private width = 800;
   private height = 600;
@@ -83,6 +110,7 @@ export class GameScene extends Scene {
     this.createCamera();
     this.createPlayer();
     this.createWeaponSystem();
+    this.createEnemySystems();
   }
 
   protected onExit(): void {
@@ -100,6 +128,13 @@ export class GameScene extends Scene {
       }
     }
 
+    // Clean up enemies
+    if (this.world && this.yukaManager) {
+      for (const entity of this.world.with("enemy")) {
+        destroyEnemy(this.world, this.yukaManager, entity);
+      }
+    }
+
     // Clean up background
     if (this.backgroundGraphics) {
       this.backgroundGraphics.destroy();
@@ -114,6 +149,9 @@ export class GameScene extends Scene {
     this.playerEntity = null;
     this.camera = null;
     this.playerWeaponSystem = null;
+    this.yukaManager = null;
+    this.enemyRegistry = null;
+    this.spawningSystem = null;
   }
 
   protected onUpdate(deltaMs: number): void {
@@ -136,31 +174,61 @@ export class GameScene extends Scene {
     // 3. Invincibility effects
     invincibilitySystem(this.world, deltaMs);
 
-    // 4. Combat systems
+    // 4. Enemy spawning
+    if (this.spawningSystem) {
+      this.spawningSystem.update(
+        deltaMs,
+        { x: this.camera.x, y: this.camera.y },
+        this.width,
+        this.height
+      );
+    }
+
+    // 5. Enemy AI (Yuka steering behaviors)
+    if (this.yukaManager) {
+      const playerPos = this.playerEntity?.position ?? null;
+      enemyAISystem(this.world, this.yukaManager, deltaMs, playerPos);
+    }
+
+    // 6. Enemy-player collision (contact damage)
+    if (this.yukaManager) {
+      const enemyCollision = collisionSystem(this.world, 20); // player radius
+
+      if (enemyCollision.playerHit) {
+        this.damagePlayer(enemyCollision.totalDamage);
+      }
+    }
+
+    // 7. Combat systems (player weapon)
     if (this.playerEntity?.position && this.playerWeaponSystem) {
       // Player weapon auto-fires at nearest enemy
       this.playerWeaponSystem.update(deltaMs, this.playerEntity.position);
     }
 
-    // 5. Projectile systems
+    // 8. Projectile systems
     projectileMovementSystem(this.world, deltaMs);
     projectileLifetimeSystem(this.world, deltaMs);
 
-    // 6. Projectile collision (player radius 20, projectile radius 5)
-    const collisionResult = projectileCollisionSystem(this.world, 5, 20);
+    // 9. Projectile collision (player radius 20, projectile radius 5)
+    const projectileResult = projectileCollisionSystem(this.world, 5, 20);
 
     // Apply player damage from enemy projectiles
-    if (collisionResult.playerHit && this.playerEntity) {
-      this.damagePlayer(collisionResult.playerDamageTaken);
+    if (projectileResult.playerHit && this.playerEntity) {
+      this.damagePlayer(projectileResult.playerDamageTaken);
     }
 
     // Clean up consumed projectiles
     this.cleanupConsumedProjectiles();
 
-    // 7. Update background to follow camera
+    // 10. Enemy death (check for dead enemies, award XP)
+    if (this.yukaManager) {
+      enemyDeathSystem(this.world, this.yukaManager);
+    }
+
+    // 11. Update background to follow camera
     this.updateBackground();
 
-    // 8. Render with camera offset
+    // 12. Render with camera offset
     renderSystem(this.world, this.camera, this.width, this.height);
   }
 
@@ -254,6 +322,28 @@ export class GameScene extends Scene {
       this.world,
       this.gameContainer,
       DEFAULT_WEAPON_CONFIG
+    );
+  }
+
+  private createEnemySystems(): void {
+    if (!this.world || !this.gameContainer) return;
+
+    // Create Yuka EntityManager for AI steering
+    this.yukaManager = new EntityManager();
+
+    // Create enemy type registry and load basic enemy
+    this.enemyRegistry = new EnemyTypeRegistry();
+    this.enemyRegistry.load("basic").catch((err) => {
+      console.warn("Failed to load basic enemy config:", err);
+    });
+
+    // Create spawning system
+    this.spawningSystem = new SpawningSystem(
+      this.world,
+      this.yukaManager,
+      this.gameContainer,
+      this.enemyRegistry,
+      DEFAULT_SPAWNING_CONFIG
     );
   }
 
