@@ -2,31 +2,31 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export interface SettingsState {
-  showVirtualJoystick: boolean;
-  useSceneMode: boolean;
+  // Future settings can be added here (e.g., sound volume, screen shake, etc.)
+  soundEnabled: boolean;
+  musicEnabled: boolean;
 }
 
 interface SettingsStore extends SettingsState {
-  setShowVirtualJoystick: (show: boolean) => void;
-  toggleVirtualJoystick: () => void;
-  setSceneMode: (use: boolean) => void;
-  toggleSceneMode: () => void;
+  setSoundEnabled: (enabled: boolean) => void;
+  setMusicEnabled: (enabled: boolean) => void;
+  toggleSound: () => void;
+  toggleMusic: () => void;
 }
 
 const initialState: SettingsState = {
-  showVirtualJoystick: true,
-  useSceneMode: true, // Default to scene mode to demo the feature
+  soundEnabled: true,
+  musicEnabled: true,
 };
 
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
       ...initialState,
-      setShowVirtualJoystick: (show) => set({ showVirtualJoystick: show }),
-      toggleVirtualJoystick: () =>
-        set((state) => ({ showVirtualJoystick: !state.showVirtualJoystick })),
-      setSceneMode: (use) => set({ useSceneMode: use }),
-      toggleSceneMode: () => set((state) => ({ useSceneMode: !state.useSceneMode })),
+      setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
+      setMusicEnabled: (enabled) => set({ musicEnabled: enabled }),
+      toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
+      toggleMusic: () => set((state) => ({ musicEnabled: !state.musicEnabled })),
     }),
     {
       name: "survivor-settings",
