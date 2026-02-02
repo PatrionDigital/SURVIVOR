@@ -2,7 +2,30 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { EnemyTypeConfig, EnemyTypeConfigJSON } from "@game/enemies/types";
 import type { WaveConfig } from "@game/waves/types";
+import type { WeaponConfig } from "@game/combat/types";
+import type { Upgrade } from "@game/leveling/UpgradeChoices";
 import { parseEnemyTypeConfig, validateEnemyTypeConfig } from "@game/enemies/types";
+import { UPGRADE_POOL } from "@game/leveling/UpgradeChoices";
+
+/**
+ * Default weapon config for new weapons
+ */
+const DEFAULT_WEAPON_CONFIG: WeaponConfig = {
+  id: "new-weapon",
+  name: "New Weapon",
+  damage: 10,
+  cooldown: 500,
+  projectileSpeed: 400,
+  projectileLifetime: 2000,
+  range: 300,
+  visual: {
+    color: 0x00ffff,
+    radius: 6,
+  },
+  projectilesPerShot: 1,
+  spreadAngle: 0,
+  pierce: 0,
+};
 
 /**
  * Default enemy config for new enemies
@@ -59,6 +82,13 @@ interface DesignerState {
   waves: Record<string, WaveConfig>;
   selectedWaveId: string | null;
 
+  // Upgrade pool
+  upgrades: Upgrade[];
+
+  // Weapon configs
+  weapons: Record<string, WeaponConfig>;
+  selectedWeaponId: string | null;
+
   // Preview state
   preview: PreviewState;
 
@@ -76,6 +106,16 @@ interface DesignerState {
   deleteWave: (id: string) => void;
   selectWave: (id: string | null) => void;
   importWave: (json: unknown) => { success: boolean; error?: string; id?: string };
+
+  // Actions - Upgrades
+  setUpgrades: (upgrades: Upgrade[]) => void;
+
+  // Actions - Weapons
+  addWeapon: (config?: Partial<WeaponConfig>) => string;
+  updateWeapon: (id: string, updates: Partial<WeaponConfig>) => void;
+  deleteWeapon: (id: string) => void;
+  selectWeapon: (id: string | null) => void;
+  importWeapon: (json: unknown) => { success: boolean; error?: string; id?: string };
 
   // Actions - Preview
   setPreviewPaused: (paused: boolean) => void;
@@ -105,6 +145,9 @@ export const useDesignerStore = create<DesignerState>()(
       selectedEnemyId: null,
       waves: {},
       selectedWaveId: null,
+      upgrades: [...UPGRADE_POOL],
+      weapons: {},
+      selectedWeaponId: null,
       preview: {
         isPaused: false,
         timeScale: 1,
@@ -244,6 +287,71 @@ export const useDesignerStore = create<DesignerState>()(
         return { success: true, id };
       },
 
+      // Upgrade actions
+      setUpgrades: (upgrades) => {
+        set({ upgrades });
+      },
+
+      // Weapon actions
+      addWeapon: (config) => {
+        const id = generateId("weapon");
+        const newConfig: WeaponConfig = {
+          ...DEFAULT_WEAPON_CONFIG,
+          ...config,
+          id,
+          name: config?.name || `Weapon ${Object.keys(get().weapons).length + 1}`,
+        };
+        set((state) => ({
+          weapons: { ...state.weapons, [id]: newConfig },
+          selectedWeaponId: id,
+        }));
+        return id;
+      },
+
+      updateWeapon: (id, updates) => {
+        set((state) => {
+          const existing = state.weapons[id];
+          if (!existing) return state;
+          return {
+            weapons: {
+              ...state.weapons,
+              [id]: { ...existing, ...updates },
+            },
+          };
+        });
+      },
+
+      deleteWeapon: (id) => {
+        set((state) => {
+          const { [id]: _, ...rest } = state.weapons;
+          return {
+            weapons: rest,
+            selectedWeaponId: state.selectedWeaponId === id ? null : state.selectedWeaponId,
+          };
+        });
+      },
+
+      selectWeapon: (id) => {
+        set({ selectedWeaponId: id });
+      },
+
+      importWeapon: (json) => {
+        const config = json as WeaponConfig;
+        if (!config.id || !config.name || typeof config.damage !== "number") {
+          return { success: false, error: "Invalid weapon configuration" };
+        }
+
+        const id = config.id || generateId("weapon");
+        const finalConfig = { ...config, id };
+
+        set((state) => ({
+          weapons: { ...state.weapons, [id]: finalConfig },
+          selectedWeaponId: id,
+        }));
+
+        return { success: true, id };
+      },
+
       // Preview actions
       setPreviewPaused: (paused) => {
         set((state) => ({
@@ -270,6 +378,9 @@ export const useDesignerStore = create<DesignerState>()(
           selectedEnemyId: null,
           waves: {},
           selectedWaveId: null,
+          upgrades: [...UPGRADE_POOL],
+          weapons: {},
+          selectedWeaponId: null,
           preview: {
             isPaused: false,
             timeScale: 1,
@@ -303,6 +414,8 @@ export const useDesignerStore = create<DesignerState>()(
       partialize: (state) => ({
         enemies: state.enemies,
         waves: state.waves,
+        upgrades: state.upgrades,
+        weapons: state.weapons,
         preview: state.preview,
       }),
     }
@@ -333,6 +446,34 @@ export function exportWaveConfig(config: WaveConfig): void {
   const a = document.createElement("a");
   a.href = url;
   a.download = `${config.id}-wave.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Export upgrade pool as JSON file
+ */
+export function exportUpgradePool(upgrades: Upgrade[]): void {
+  const json = JSON.stringify(upgrades, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "upgrade-pool.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Export weapon config as JSON file
+ */
+export function exportWeaponConfig(config: WeaponConfig): void {
+  const json = JSON.stringify(config, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${config.id}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
