@@ -109,6 +109,8 @@ export interface EnemyAI {
   config: EnemyTypeConfig;
   /** Current AI behavior state */
   currentBehavior: "flocking" | "seeking";
+  /** Effective damage after wave modifiers (used by collision system) */
+  effectiveDamage?: number;
 }
 
 /**

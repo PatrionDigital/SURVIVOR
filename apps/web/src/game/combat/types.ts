@@ -43,6 +43,8 @@ export interface WeaponConfig {
   projectileSpeed: number;
   /** Projectile lifetime (ms) */
   projectileLifetime: number;
+  /** Maximum targeting range in pixels (limits auto-aim distance) */
+  range: number;
   /** Visual configuration */
   visual: {
     color: number;

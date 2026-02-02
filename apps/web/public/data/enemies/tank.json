@@ -1,0 +1,30 @@
+{
+  "id": "tank",
+  "name": "Tank",
+  "visual": {
+    "color": "0x8844ff",
+    "radius": 22
+  },
+  "combat": {
+    "damage": 20,
+    "health": 300,
+    "xpValue": 25
+  },
+  "movement": {
+    "maxSpeed": 50,
+    "maxForce": 40,
+    "mass": 2.0
+  },
+  "flocking": {
+    "alignment": 0.3,
+    "cohesion": 0.4,
+    "separation": 0.8
+  },
+  "vision": {
+    "range": 200,
+    "fieldOfView": 360
+  },
+  "behavior": {
+    "seekWeight": 1.0
+  }
+}

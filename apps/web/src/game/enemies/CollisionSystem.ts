@@ -63,7 +63,8 @@ export function collisionSystem(world: GameWorld, playerRadius: number): Collisi
     if (distance <= combinedRadii) {
       result.playerHit = true;
       result.collidingEnemies.push(enemy);
-      result.totalDamage += enemy.enemy!.config.combat.damage;
+      // Use effective damage (from wave modifiers) if available, else base damage
+      result.totalDamage += enemy.enemy!.effectiveDamage ?? enemy.enemy!.config.combat.damage;
     }
   }
 

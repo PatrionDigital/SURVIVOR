@@ -28,6 +28,7 @@ const mockWeaponConfig: WeaponConfig = {
   cooldown: 500,
   projectileSpeed: 400,
   projectileLifetime: 2000,
+  range: 500,
   visual: { color: 0x00ff00, radius: 5 },
   projectilesPerShot: 1,
   spreadAngle: 0,

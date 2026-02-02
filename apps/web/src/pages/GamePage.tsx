@@ -7,6 +7,7 @@ import {
   InputState,
   SceneManager,
   GameScene,
+  ResultScene,
   GameResults,
   type Upgrade,
 } from "../game";
@@ -14,7 +15,7 @@ import { useGameStore } from "../stores";
 import { LevelUpModal, GameHUD, PauseMenu } from "../components/game";
 
 export function GamePage() {
-  const { isPlaying, setSurvivalTime, playerPosition, setPlayerPosition, survivalTime } =
+  const { isPlaying, endGame, setSurvivalTime, playerPosition, setPlayerPosition, survivalTime } =
     useGameStore();
 
   const engineRef = useRef<GameEngine | null>(null);
@@ -33,8 +34,20 @@ export function GamePage() {
   const [currentXP, setCurrentXP] = useState(0);
   const [xpToNextLevel, setXpToNextLevel] = useState(100);
 
+  // Wave system stats
+  const [phaseName, setPhaseName] = useState<string | undefined>(undefined);
+  const [waveProgress, setWaveProgress] = useState<number | undefined>(undefined);
+  const [timeRemaining, setTimeRemaining] = useState<number | undefined>(undefined);
+  const [warning, setWarning] = useState<string | undefined>(undefined);
+
+  // Applied upgrades for pause menu
+  const [appliedUpgrades, setAppliedUpgrades] = useState<Upgrade[]>([]);
+
   // Pause state
   const [isPaused, setIsPaused] = useState(false);
+
+  // Track if difficulty has been increased (after 1 min or first upgrade)
+  const difficultyIncreasedRef = useRef(false);
 
   // Save player position before unmount (for persistence across navigation)
   useEffect(() => {
@@ -49,20 +62,43 @@ export function GamePage() {
     };
   }, [setPlayerPosition]);
 
-  // Handle upgrade selection from level-up modal
-  const handleSelectUpgrade = useCallback((upgrade: Upgrade) => {
-    if (sceneManagerRef.current) {
-      const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
-      if (gameScene) {
-        gameScene.applyUpgrade(upgrade);
-        setIsLevelUpOpen(false);
-        setUpgradeChoices([]);
+  // Increase difficulty (spawn rate) - called after 1 min or first upgrade
+  const increaseDifficulty = useCallback(() => {
+    if (difficultyIncreasedRef.current) return;
+    difficultyIncreasedRef.current = true;
 
-        // Resume game after selecting upgrade
-        engineRef.current?.resume();
-      }
+    const gameScene = sceneManagerRef.current?.getScene("game") as GameScene | undefined;
+    if (gameScene) {
+      // Greatly increase spawn rate: faster spawning, more enemies
+      gameScene.updateSpawningConfig({
+        baseSpawnInterval: 500, // Down from 2000ms
+        minSpawnInterval: 200, // Down from 500ms
+        maxEnemies: 60, // Up from 30
+      });
+      console.log("Difficulty increased! Spawn rate greatly increased.");
     }
   }, []);
+
+  // Handle upgrade selection from level-up modal
+  const handleSelectUpgrade = useCallback(
+    (upgrade: Upgrade) => {
+      if (sceneManagerRef.current) {
+        const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
+        if (gameScene) {
+          gameScene.applyUpgrade(upgrade);
+          setIsLevelUpOpen(false);
+          setUpgradeChoices([]);
+
+          // Increase difficulty after first upgrade
+          increaseDifficulty();
+
+          // Resume game after selecting upgrade
+          engineRef.current?.resume();
+        }
+      }
+    },
+    [increaseDifficulty]
+  );
 
   // Handle pause
   const handlePause = useCallback(() => {
@@ -82,11 +118,16 @@ export function GamePage() {
 
   // Handle quit from pause menu
   const handleQuit = useCallback(() => {
+    // End the game (resets stats)
+    endGame();
+    // Resume engine so menu scene can render (engine was paused for pause menu)
+    engineRef.current?.resume();
+    // Switch to menu scene
     if (sceneManagerRef.current) {
       sceneManagerRef.current.switchTo("menu");
     }
     setIsPaused(false);
-  }, []);
+  }, [endGame]);
 
   // ESC key to pause/resume game
   useEffect(() => {
@@ -105,6 +146,59 @@ export function GamePage() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isPlaying, isLevelUpOpen, isPaused, handlePause, handleResume]);
+
+  // Handle victory - transition to result scene with victory flag
+  const handleVictory = useCallback(() => {
+    if (!sceneManagerRef.current) return;
+
+    const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
+    const resultScene = sceneManagerRef.current.getScene("result") as ResultScene | undefined;
+
+    if (gameScene && resultScene) {
+      // Gather final stats with victory bonus
+      const results: GameResults = {
+        survivalTime,
+        score: (totalXP * 10 + enemiesKilled * 5) * 2, // Double score for victory
+        enemiesKilled,
+        level: currentLevel,
+        victory: true,
+      };
+
+      // Set results and transition to result scene
+      resultScene.setResults(results);
+      endGame();
+      sceneManagerRef.current.switchTo("result");
+
+      // Reset difficulty flag for next game
+      difficultyIncreasedRef.current = false;
+    }
+  }, [survivalTime, totalXP, enemiesKilled, currentLevel, endGame]);
+
+  // Handle player death - transition to result scene
+  const handlePlayerDeath = useCallback(() => {
+    if (!sceneManagerRef.current) return;
+
+    const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
+    const resultScene = sceneManagerRef.current.getScene("result") as ResultScene | undefined;
+
+    if (gameScene && resultScene) {
+      // Gather final stats
+      const results: GameResults = {
+        survivalTime,
+        score: totalXP * 10 + enemiesKilled * 5,
+        enemiesKilled,
+        level: currentLevel,
+      };
+
+      // Set results and transition to result scene
+      resultScene.setResults(results);
+      endGame();
+      sceneManagerRef.current.switchTo("result");
+
+      // Reset difficulty flag for next game
+      difficultyIncreasedRef.current = false;
+    }
+  }, [survivalTime, totalXP, enemiesKilled, currentLevel, endGame]);
 
   // Track survival time and update HUD stats
   const handleUpdate = useCallback(
@@ -126,6 +220,41 @@ export function GamePage() {
           setCurrentXP(gameScene.getCurrentXP());
           setXpToNextLevel(gameScene.getXPToNextLevel());
 
+          // Update wave system stats
+          setPhaseName(gameScene.getPhaseName());
+          setWaveProgress(gameScene.getWaveProgress());
+          setTimeRemaining(gameScene.getTimeRemaining());
+
+          // Update applied upgrades for pause menu
+          setAppliedUpgrades(gameScene.getAppliedUpgrades());
+
+          // Check for warnings
+          const warnings = gameScene.getPendingWarnings();
+          if (warnings.length > 0) {
+            setWarning(warnings[0].title);
+            // Clear the warning after displaying it
+            gameScene.clearWarning(0);
+            // Auto-hide warning after 3 seconds
+            setTimeout(() => setWarning(undefined), 3000);
+          }
+
+          // Check for player death
+          if (isPlaying && gameScene.isPlayerDead()) {
+            handlePlayerDeath();
+            return;
+          }
+
+          // Check for victory (survival complete)
+          if (isPlaying && gameScene.isVictory()) {
+            handleVictory();
+            return;
+          }
+
+          // Check for 1-minute mark to increase difficulty
+          if (survivalTime >= 60) {
+            increaseDifficulty();
+          }
+
           // Check for level-up
           if (!isLevelUpOpen && gameScene.isLevelingUp()) {
             const choices = gameScene.getUpgradeChoices(3);
@@ -138,7 +267,15 @@ export function GamePage() {
         }
       }
     },
-    [setSurvivalTime, isLevelUpOpen, isPlaying, isPaused]
+    [
+      setSurvivalTime,
+      isLevelUpOpen,
+      isPlaying,
+      isPaused,
+      handlePlayerDeath,
+      survivalTime,
+      increaseDifficulty,
+    ]
   );
 
   // Called when engine is ready
@@ -202,6 +339,10 @@ export function GamePage() {
             enemiesKilled={enemiesKilled}
             totalXP={totalXP}
             onPause={handlePause}
+            phaseName={phaseName}
+            waveProgress={waveProgress}
+            timeRemaining={timeRemaining}
+            warning={warning}
           />
         )}
 
@@ -214,7 +355,12 @@ export function GamePage() {
         />
 
         {/* Pause menu */}
-        <PauseMenu isOpen={isPaused} onResume={handleResume} onQuit={handleQuit} />
+        <PauseMenu
+          isOpen={isPaused}
+          onResume={handleResume}
+          onQuit={handleQuit}
+          upgrades={appliedUpgrades}
+        />
       </div>
     </div>
   );

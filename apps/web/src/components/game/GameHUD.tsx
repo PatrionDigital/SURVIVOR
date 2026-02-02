@@ -9,6 +9,8 @@
  * - Enemies killed
  * - Total XP collected
  * - Pause button
+ * - Wave/phase info
+ * - Event warnings
  */
 export interface GameHUDProps {
   health: { current: number; max: number };
@@ -21,6 +23,14 @@ export interface GameHUDProps {
   totalXP: number;
   /** Callback when pause button is clicked */
   onPause?: () => void;
+  /** Current wave/phase name */
+  phaseName?: string;
+  /** Wave progress (0-100) */
+  waveProgress?: number;
+  /** Time remaining in seconds */
+  timeRemaining?: number;
+  /** Warning message to display */
+  warning?: string;
 }
 
 /**
@@ -51,6 +61,10 @@ export function GameHUD({
   enemiesKilled,
   totalXP,
   onPause,
+  phaseName,
+  waveProgress,
+  timeRemaining,
+  warning,
 }: GameHUDProps) {
   const healthPercent = health.max > 0 ? (health.current / health.max) * 100 : 0;
   const healthColor = getHealthColor(healthPercent);
@@ -80,8 +94,24 @@ export function GameHUD({
             <span className="text-sm font-bold text-white">Lv.{level}</span>
           </div>
 
+          {/* Phase badge */}
+          {phaseName && (
+            <div className="bg-purple-600/80 px-3 py-1 rounded-full border border-purple-400">
+              <span className="text-sm font-bold text-white">{phaseName}</span>
+            </div>
+          )}
+
           {/* Spacer */}
           <div className="flex-1" />
+
+          {/* Time remaining */}
+          {timeRemaining !== undefined && timeRemaining > 0 && (
+            <div className="bg-gray-800/80 px-3 py-1 rounded-lg border border-gray-600">
+              <span className="text-sm text-gray-300">
+                {formatTime(timeRemaining)} left
+              </span>
+            </div>
+          )}
 
           {/* Pause button */}
           {onPause && (
@@ -130,6 +160,35 @@ export function GameHUD({
             <span className="text-white font-mono">{totalXP}</span>
           </div>
         </div>
+
+        {/* Wave progress bar (optional) */}
+        {waveProgress !== undefined && (
+          <div className="flex items-center gap-2 max-w-md">
+            <span className="text-xs font-bold text-purple-400 w-12">Wave</span>
+            <div className="flex-1 h-2 bg-gray-800/80 rounded-full overflow-hidden border border-gray-600">
+              <div
+                data-testid="wave-progress-fill"
+                className="h-full bg-purple-500 transition-all duration-500"
+                style={{ width: `${waveProgress}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-300 w-10 text-right">
+              {Math.floor(waveProgress)}%
+            </span>
+          </div>
+        )}
+
+        {/* Warning banner */}
+        {warning && (
+          <div className="flex justify-center mt-2">
+            <div
+              data-testid="warning-banner"
+              className="bg-red-600/90 px-6 py-2 rounded-lg border-2 border-red-400 animate-pulse"
+            >
+              <span className="text-lg font-bold text-white">{warning}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

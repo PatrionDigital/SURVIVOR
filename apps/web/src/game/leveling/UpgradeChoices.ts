@@ -164,15 +164,56 @@ export const UPGRADE_POOL: Upgrade[] = [
 ];
 
 /**
- * Generate random upgrade choices
+ * Generate random upgrade choices with diverse stat types
+ *
+ * Prioritizes selecting upgrades from different stat types to give
+ * players more meaningful choices. Falls back to any available upgrade
+ * if there aren't enough unique types.
  *
  * @param count - Number of choices to generate (default 3)
- * @returns Array of unique upgrade choices
+ * @returns Array of unique upgrade choices, preferring different types
  */
 export function generateUpgradeChoices(count: number = 3): Upgrade[] {
-  // Shuffle the pool and take first N
-  const shuffled = [...UPGRADE_POOL].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(count, UPGRADE_POOL.length));
+  // Group upgrades by type
+  const byType = new Map<UpgradeType, Upgrade[]>();
+  for (const upgrade of UPGRADE_POOL) {
+    const typeUpgrades = byType.get(upgrade.type) || [];
+    typeUpgrades.push(upgrade);
+    byType.set(upgrade.type, typeUpgrades);
+  }
+
+  // Shuffle the types to randomize which stats appear
+  const types = [...byType.keys()].sort(() => Math.random() - 0.5);
+
+  const choices: Upgrade[] = [];
+  const usedTypes = new Set<UpgradeType>();
+
+  // First pass: pick one random upgrade from each type (up to count)
+  for (const type of types) {
+    if (choices.length >= count) break;
+
+    const typeUpgrades = byType.get(type)!;
+    // Pick a random upgrade from this type
+    const randomIndex = Math.floor(Math.random() * typeUpgrades.length);
+    choices.push(typeUpgrades[randomIndex]);
+    usedTypes.add(type);
+  }
+
+  // Second pass: if we still need more, pick from remaining upgrades
+  // (this handles edge cases where count > number of types)
+  if (choices.length < count) {
+    const remaining = UPGRADE_POOL.filter(
+      (upgrade) => !choices.some((c) => c.id === upgrade.id)
+    ).sort(() => Math.random() - 0.5);
+
+    for (const upgrade of remaining) {
+      if (choices.length >= count) break;
+      choices.push(upgrade);
+    }
+  }
+
+  // Final shuffle to randomize presentation order
+  return choices.sort(() => Math.random() - 0.5);
 }
 
 /**

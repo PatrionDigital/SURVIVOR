@@ -1,0 +1,30 @@
+{
+  "id": "elite_basic",
+  "name": "Elite Grunt",
+  "visual": {
+    "color": "0xff8800",
+    "radius": 18
+  },
+  "combat": {
+    "damage": 15,
+    "health": 200,
+    "xpValue": 30
+  },
+  "movement": {
+    "maxSpeed": 120,
+    "maxForce": 100,
+    "mass": 1.2
+  },
+  "flocking": {
+    "alignment": 0.7,
+    "cohesion": 0.9,
+    "separation": 1.0
+  },
+  "vision": {
+    "range": 280,
+    "fieldOfView": 360
+  },
+  "behavior": {
+    "seekWeight": 1.8
+  }
+}

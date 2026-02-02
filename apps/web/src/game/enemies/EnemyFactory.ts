@@ -12,6 +12,20 @@ import type { GameWorld, Entity } from "../ecs/World";
 import type { EnemyTypeConfig } from "./types";
 
 /**
+ * Stat modifiers for enemy creation (from wave system)
+ */
+export interface EnemyStatModifiers {
+  /** Health multiplier (1.0 = normal) */
+  healthMultiplier?: number;
+  /** Damage multiplier (1.0 = normal) */
+  damageMultiplier?: number;
+  /** Speed multiplier (1.0 = normal) */
+  speedMultiplier?: number;
+  /** Whether this is a boss enemy (larger, different color) */
+  isBoss?: boolean;
+}
+
+/**
  * Create an enemy entity with all required components
  *
  * @param world - ECS world to add entity to
@@ -19,6 +33,7 @@ import type { EnemyTypeConfig } from "./types";
  * @param container - PixiJS container for sprite
  * @param config - Enemy type configuration
  * @param position - Spawn position
+ * @param modifiers - Optional stat modifiers from wave system
  * @returns The created entity
  */
 export function createEnemy(
@@ -26,16 +41,33 @@ export function createEnemy(
   yukaManager: EntityManager,
   container: Container,
   config: EnemyTypeConfig,
-  position: { x: number; y: number }
+  position: { x: number; y: number },
+  modifiers?: EnemyStatModifiers
 ): Entity {
+  // Apply stat modifiers
+  const healthMult = modifiers?.healthMultiplier ?? 1;
+  const speedMult = modifiers?.speedMultiplier ?? 1;
+  const damageMult = modifiers?.damageMultiplier ?? 1;
+  const isBoss = modifiers?.isBoss ?? false;
+
+  const effectiveHealth = Math.round(config.combat.health * healthMult);
+  const effectiveSpeed = config.movement.maxSpeed * speedMult;
+  const effectiveDamage = Math.round(config.combat.damage * damageMult);
+
+  // Bosses are larger (2x radius)
+  const effectiveRadius = isBoss ? config.visual.radius * 2 : config.visual.radius;
+
   // Create Yuka Vehicle for AI
   const vehicle = new Vehicle();
   vehicle.position.set(position.x, position.y, 0);
-  vehicle.maxSpeed = config.movement.maxSpeed;
+  vehicle.maxSpeed = effectiveSpeed;
   vehicle.maxForce = config.movement.maxForce;
   vehicle.mass = config.movement.mass;
+  // Set bounding radius larger than visual radius to prevent overlap
+  // (separation triggers when vehicles are within combined bounding radii)
+  vehicle.boundingRadius = effectiveRadius * 2;
   // Set neighborhood radius for flocking behaviors to find nearby vehicles
-  vehicle.neighborhoodRadius = 150;
+  vehicle.neighborhoodRadius = Math.max(200, effectiveRadius * 8);
   vehicle.updateNeighborhood = true;
 
   // Add flocking behaviors with weights from config
@@ -47,8 +79,9 @@ export function createEnemy(
   cohesion.weight = config.flocking.cohesion;
   vehicle.steering.add(cohesion);
 
+  // Separation weight scaled by sprite size to prevent overlap
   const separation = new SeparationBehavior();
-  separation.weight = config.flocking.separation;
+  separation.weight = config.flocking.separation * (effectiveRadius / config.visual.radius);
   vehicle.steering.add(separation);
 
   // Add seek behavior for chasing player (active by default for survivor gameplay)
@@ -62,8 +95,14 @@ export function createEnemy(
 
   // Create sprite graphics
   const graphics = new Graphics();
-  graphics.circle(0, 0, config.visual.radius);
-  graphics.fill({ color: config.visual.color });
+  graphics.circle(0, 0, effectiveRadius);
+  // Bosses have different color (golden/orange) and a border
+  if (isBoss) {
+    graphics.fill({ color: 0xff8800 }); // Orange/gold for bosses
+    graphics.stroke({ width: 4, color: 0xffcc00 }); // Gold border
+  } else {
+    graphics.fill({ color: config.visual.color });
+  }
 
   container.addChild(graphics);
 
@@ -71,12 +110,13 @@ export function createEnemy(
   const entity = world.add({
     position: { x: position.x, y: position.y },
     velocity: { vx: 0, vy: 0 },
-    health: { current: config.combat.health, max: config.combat.health },
+    health: { current: effectiveHealth, max: effectiveHealth },
     sprite: { graphics },
     enemy: {
       vehicle,
       config,
       currentBehavior: "seeking",
+      effectiveDamage, // Store modified damage for collision system
     },
   });
 

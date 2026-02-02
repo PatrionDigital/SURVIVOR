@@ -1,6 +1,6 @@
 // Enemy system exports
 export { EnemyTypeRegistry } from "./EnemyTypeRegistry";
-export { createEnemy, destroyEnemy } from "./EnemyFactory";
+export { createEnemy, destroyEnemy, type EnemyStatModifiers } from "./EnemyFactory";
 export { enemyAISystem } from "./EnemyAISystem";
 export { collisionSystem, type CollisionResult } from "./CollisionSystem";
 export { enemyDeathSystem, type DeathResult, type EnemyDeath } from "./EnemyDeathSystem";

@@ -12,19 +12,19 @@
   },
   "movement": {
     "maxSpeed": 100,
-    "maxForce": 80,
+    "maxForce": 150,
     "mass": 1.0
   },
   "flocking": {
-    "alignment": 0.8,
-    "cohesion": 1.0,
-    "separation": 1.2
+    "alignment": 0.2,
+    "cohesion": 0.0,
+    "separation": 15.0
   },
   "vision": {
     "range": 250,
     "fieldOfView": 360
   },
   "behavior": {
-    "seekWeight": 1.5
+    "seekWeight": 1.0
   }
 }

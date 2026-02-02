@@ -1,0 +1,30 @@
+{
+  "id": "boss_slime",
+  "name": "Giant Slime",
+  "visual": {
+    "color": "0xff0088",
+    "radius": 35
+  },
+  "combat": {
+    "damage": 30,
+    "health": 1000,
+    "xpValue": 100
+  },
+  "movement": {
+    "maxSpeed": 70,
+    "maxForce": 50,
+    "mass": 3.0
+  },
+  "flocking": {
+    "alignment": 0.0,
+    "cohesion": 0.0,
+    "separation": 0.5
+  },
+  "vision": {
+    "range": 400,
+    "fieldOfView": 360
+  },
+  "behavior": {
+    "seekWeight": 1.2
+  }
+}
