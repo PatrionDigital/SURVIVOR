@@ -35,15 +35,8 @@ export interface RewardClaimData {
 
 export function useGameSession() {
   const { address, isConnected } = useAccount();
-  const {
-    authToken,
-    isAuthenticated,
-    sessionId,
-    setAuth,
-    clearAuth,
-    startSession,
-    endSession,
-  } = useSessionStore();
+  const { authToken, isAuthenticated, sessionId, setAuth, clearAuth, startSession, endSession } =
+    useSessionStore();
 
   // Track if we're currently authenticating to prevent double calls
   const isAuthenticatingRef = useRef(false);

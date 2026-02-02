@@ -57,21 +57,29 @@ export function getDatabaseUrl(): string {
 // Local DB client that mimics Supabase interface for common operations
 interface LocalDbQueryBuilder {
   from: (table: string) => LocalDbTableBuilder;
-  rpc: (fnName: string, params: Record<string, unknown>) => Promise<{ data: unknown; error: Error | null }>;
+  rpc: (
+    fnName: string,
+    params: Record<string, unknown>
+  ) => Promise<{ data: unknown; error: Error | null }>;
 }
 
 interface LocalDbTableBuilder {
   select: (columns?: string) => LocalDbSelectBuilder;
   insert: (data: Record<string, unknown>) => LocalDbInsertBuilder;
   update: (data: Record<string, unknown>) => LocalDbUpdateBuilder;
-  upsert: (data: Record<string, unknown>, options?: { onConflict?: string }) => LocalDbInsertBuilder;
+  upsert: (
+    data: Record<string, unknown>,
+    options?: { onConflict?: string }
+  ) => LocalDbInsertBuilder;
   delete: () => LocalDbDeleteBuilder;
 }
 
 interface LocalDbSelectBuilder {
   eq: (column: string, value: unknown) => LocalDbSelectBuilder;
   single: () => Promise<{ data: Record<string, unknown> | null; error: Error | null }>;
-  then: <T>(resolve: (result: { data: Record<string, unknown>[] | null; error: Error | null }) => T) => Promise<T>;
+  then: <T>(
+    resolve: (result: { data: Record<string, unknown>[] | null; error: Error | null }) => T
+  ) => Promise<T>;
 }
 
 interface LocalDbInsertBuilder {
@@ -125,12 +133,14 @@ function createSelectBuilder(
   conditions: Array<{ column: string; value: unknown }> = []
 ): LocalDbSelectBuilder {
   const builder: LocalDbSelectBuilder = {
-    eq: (column, value) => createSelectBuilder(pool, table, columns, [...conditions, { column, value }]),
+    eq: (column, value) =>
+      createSelectBuilder(pool, table, columns, [...conditions, { column, value }]),
     single: async () => {
       try {
-        const whereClause = conditions.length > 0
-          ? `WHERE ${conditions.map((c, i) => `${c.column} = $${i + 1}`).join(" AND ")}`
-          : "";
+        const whereClause =
+          conditions.length > 0
+            ? `WHERE ${conditions.map((c, i) => `${c.column} = $${i + 1}`).join(" AND ")}`
+            : "";
         const values = conditions.map((c) => c.value);
         const query = `SELECT ${columns} FROM ${table} ${whereClause} LIMIT 1`;
         const result = await pool.query(query, values);
@@ -141,9 +151,10 @@ function createSelectBuilder(
     },
     then: async (resolve) => {
       try {
-        const whereClause = conditions.length > 0
-          ? `WHERE ${conditions.map((c, i) => `${c.column} = $${i + 1}`).join(" AND ")}`
-          : "";
+        const whereClause =
+          conditions.length > 0
+            ? `WHERE ${conditions.map((c, i) => `${c.column} = $${i + 1}`).join(" AND ")}`
+            : "";
         const values = conditions.map((c) => c.value);
         const query = `SELECT ${columns} FROM ${table} ${whereClause}`;
         const result = await pool.query(query, values);
@@ -163,7 +174,9 @@ function createInsertBuilder(
 ): LocalDbInsertBuilder {
   return {
     select: () => ({
-      eq: () => { throw new Error("eq not supported after insert"); },
+      eq: () => {
+        throw new Error("eq not supported after insert");
+      },
       single: async () => {
         try {
           const columns = Object.keys(data);
@@ -200,13 +213,18 @@ function createUpsertBuilder(
 ): LocalDbInsertBuilder {
   return {
     select: () => ({
-      eq: () => { throw new Error("eq not supported after upsert"); },
+      eq: () => {
+        throw new Error("eq not supported after upsert");
+      },
       single: async () => {
         try {
           const columns = Object.keys(data);
           const values = Object.values(data);
           const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
-          const updateSet = columns.filter(c => c !== onConflict).map(c => `${c} = EXCLUDED.${c}`).join(", ");
+          const updateSet = columns
+            .filter((c) => c !== onConflict)
+            .map((c) => `${c} = EXCLUDED.${c}`)
+            .join(", ");
           const conflictTarget = onConflict || columns[0];
           const query = `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})
             ON CONFLICT (${conflictTarget}) DO UPDATE SET ${updateSet} RETURNING *`;
@@ -221,7 +239,10 @@ function createUpsertBuilder(
           const columns = Object.keys(data);
           const values = Object.values(data);
           const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
-          const updateSet = columns.filter(c => c !== onConflict).map(c => `${c} = EXCLUDED.${c}`).join(", ");
+          const updateSet = columns
+            .filter((c) => c !== onConflict)
+            .map((c) => `${c} = EXCLUDED.${c}`)
+            .join(", ");
           const conflictTarget = onConflict || columns[0];
           const query = `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})
             ON CONFLICT (${conflictTarget}) DO UPDATE SET ${updateSet} RETURNING *`;
@@ -242,13 +263,16 @@ function createUpdateBuilder(
   conditions: Array<{ column: string; value: unknown }> = []
 ): LocalDbUpdateBuilder {
   return {
-    eq: (column, value) => createUpdateBuilder(pool, table, data, [...conditions, { column, value }]),
+    eq: (column, value) =>
+      createUpdateBuilder(pool, table, data, [...conditions, { column, value }]),
     then: async (resolve) => {
       try {
         const columns = Object.keys(data);
         const dataValues = Object.values(data);
         const setClause = columns.map((c, i) => `${c} = $${i + 1}`).join(", ");
-        const whereClause = conditions.map((c, i) => `${c.column} = $${columns.length + i + 1}`).join(" AND ");
+        const whereClause = conditions
+          .map((c, i) => `${c.column} = $${columns.length + i + 1}`)
+          .join(" AND ");
         const conditionValues = conditions.map((c) => c.value);
         const query = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
         await pool.query(query, [...dataValues, ...conditionValues]);

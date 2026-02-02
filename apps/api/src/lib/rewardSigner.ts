@@ -4,14 +4,7 @@
  * For local Anvil development, uses the deployer private key.
  * For production, should use a secure HSM or KMS-based signer.
  */
-import {
-  createWalletClient,
-  http,
-  encodePacked,
-  keccak256,
-  type Hex,
-  type Address,
-} from "viem";
+import { createWalletClient, http, encodePacked, keccak256, type Hex, type Address } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { anvil, baseSepolia, base } from "viem/chains";
 
@@ -116,7 +109,9 @@ function getSignerPrivateKey(): Hex {
   // For production/testnet, require environment variable
   const privateKey = process.env.REWARD_SIGNER_PRIVATE_KEY;
   if (!privateKey) {
-    throw new Error("REWARD_SIGNER_PRIVATE_KEY environment variable required for non-local environments");
+    throw new Error(
+      "REWARD_SIGNER_PRIVATE_KEY environment variable required for non-local environments"
+    );
   }
   return privateKey as Hex;
 }

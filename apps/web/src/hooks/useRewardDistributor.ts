@@ -1,4 +1,9 @@
-import { useReadContracts, useWriteContract, useAccount, useWaitForTransactionReceipt } from "wagmi";
+import {
+  useReadContracts,
+  useWriteContract,
+  useAccount,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 import { formatUnits } from "viem";
 import { useMemo, useCallback, useState } from "react";
 import { rewardDistributorAbi } from "@survivor/sdk";
@@ -100,7 +105,11 @@ export function useRewardDistributor(): UseRewardDistributorReturn {
     contracts: readContracts as Array<{
       address: `0x${string}`;
       abi: typeof rewardDistributorAbi;
-      functionName: "canClaim" | "getDailyClaimed" | "getRemainingDailyAllowance" | "getLastClaimTime";
+      functionName:
+        | "canClaim"
+        | "getDailyClaimed"
+        | "getRemainingDailyAllowance"
+        | "getLastClaimTime";
       args: readonly [`0x${string}`];
     }>,
     query: {
