@@ -34,6 +34,9 @@ export function createEnemy(
   vehicle.maxSpeed = config.movement.maxSpeed;
   vehicle.maxForce = config.movement.maxForce;
   vehicle.mass = config.movement.mass;
+  // Set neighborhood radius for flocking behaviors to find nearby vehicles
+  vehicle.neighborhoodRadius = 150;
+  vehicle.updateNeighborhood = true;
 
   // Add flocking behaviors with weights from config
   const alignment = new AlignmentBehavior();
@@ -48,10 +51,10 @@ export function createEnemy(
   separation.weight = config.flocking.separation;
   vehicle.steering.add(separation);
 
-  // Add seek behavior for chasing player (starts inactive)
+  // Add seek behavior for chasing player (active by default for survivor gameplay)
   const seek = new SeekBehavior(new Vector3(0, 0, 0));
   seek.weight = config.behavior.seekWeight;
-  seek.active = false; // Will be activated when player is in range
+  seek.active = true; // Always chase the player
   vehicle.steering.add(seek);
 
   // Add vehicle to Yuka manager
@@ -73,7 +76,7 @@ export function createEnemy(
     enemy: {
       vehicle,
       config,
-      currentBehavior: "flocking",
+      currentBehavior: "seeking",
     },
   });
 
