@@ -123,6 +123,87 @@ describe("LevelUpModal", () => {
 
       expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[0]);
     });
+
+    it("should select first upgrade when pressing 1", () => {
+      const onSelectUpgrade = vi.fn();
+      render(
+        <LevelUpModal
+          isOpen={true}
+          level={2}
+          choices={mockUpgrades}
+          onSelectUpgrade={onSelectUpgrade}
+        />
+      );
+
+      fireEvent.keyDown(document, { key: "1" });
+
+      expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[0]);
+    });
+
+    it("should select second upgrade when pressing 2", () => {
+      const onSelectUpgrade = vi.fn();
+      render(
+        <LevelUpModal
+          isOpen={true}
+          level={2}
+          choices={mockUpgrades}
+          onSelectUpgrade={onSelectUpgrade}
+        />
+      );
+
+      fireEvent.keyDown(document, { key: "2" });
+
+      expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[1]);
+    });
+
+    it("should select third upgrade when pressing 3", () => {
+      const onSelectUpgrade = vi.fn();
+      render(
+        <LevelUpModal
+          isOpen={true}
+          level={2}
+          choices={mockUpgrades}
+          onSelectUpgrade={onSelectUpgrade}
+        />
+      );
+
+      fireEvent.keyDown(document, { key: "3" });
+
+      expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[2]);
+    });
+
+    it("should not respond to keyboard when modal is closed", () => {
+      const onSelectUpgrade = vi.fn();
+      render(
+        <LevelUpModal
+          isOpen={false}
+          level={2}
+          choices={mockUpgrades}
+          onSelectUpgrade={onSelectUpgrade}
+        />
+      );
+
+      fireEvent.keyDown(document, { key: "1" });
+
+      expect(onSelectUpgrade).not.toHaveBeenCalled();
+    });
+
+    it("should ignore invalid key numbers", () => {
+      const onSelectUpgrade = vi.fn();
+      render(
+        <LevelUpModal
+          isOpen={true}
+          level={2}
+          choices={mockUpgrades}
+          onSelectUpgrade={onSelectUpgrade}
+        />
+      );
+
+      fireEvent.keyDown(document, { key: "4" });
+      fireEvent.keyDown(document, { key: "0" });
+
+      expect(onSelectUpgrade).not.toHaveBeenCalled();
+    });
   });
 
   describe("Accessibility", () => {

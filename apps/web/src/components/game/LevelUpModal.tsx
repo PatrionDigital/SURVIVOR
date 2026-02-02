@@ -1,3 +1,4 @@
+import { useEffect, useCallback } from "react";
 import type { Upgrade } from "@/game/leveling";
 
 export interface LevelUpModalProps {
@@ -16,6 +17,26 @@ export interface LevelUpModalProps {
  * Shows 3 upgrade choices for the player to select
  */
 export function LevelUpModal({ isOpen, level, choices, onSelectUpgrade }: LevelUpModalProps) {
+  // Handle global keyboard shortcuts (1, 2, 3) for quick selection
+  const handleGlobalKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      const keyNum = parseInt(e.key, 10);
+      if (keyNum >= 1 && keyNum <= choices.length) {
+        onSelectUpgrade(choices[keyNum - 1]);
+      }
+    },
+    [choices, onSelectUpgrade]
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, [isOpen, handleGlobalKeyDown]);
+
   if (!isOpen) {
     return null;
   }
