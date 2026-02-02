@@ -23,7 +23,7 @@ contract MaintenancePool is Ownable2Step, Pausable, ReentrancyGuard {
 
     // ============ Constants ============
     uint256 public constant WEEKLY_DECAY_BPS = 100; // 1% per week
-    uint256 public constant BPS_DENOMINATOR = 10000;
+    uint256 public constant BPS_DENOMINATOR = 10_000;
     uint256 public constant SECONDS_PER_WEEK = 7 days;
 
     // ============ Immutables ============
@@ -63,10 +63,7 @@ contract MaintenancePool is Ownable2Step, Pausable, ReentrancyGuard {
      * @param initialOwner Owner address
      * @param _vscToken VSC token address
      */
-    constructor(
-        address initialOwner,
-        address _vscToken
-    ) Ownable(initialOwner) {
+    constructor(address initialOwner, address _vscToken) Ownable(initialOwner) {
         if (_vscToken == address(0)) revert ZeroAddress();
         vscToken = IERC20(_vscToken);
     }
@@ -187,9 +184,8 @@ contract MaintenancePool is Ownable2Step, Pausable, ReentrancyGuard {
         if (gearStaking == address(0)) return 0;
 
         // Call GearStaking to get total staked
-        (bool success, bytes memory data) = gearStaking.staticcall(
-            abi.encodeWithSignature("getTotalStaked(address)", player)
-        );
+        (bool success, bytes memory data) =
+            gearStaking.staticcall(abi.encodeWithSignature("getTotalStaked(address)", player));
 
         if (!success || data.length < 32) return 0;
 
@@ -225,7 +221,11 @@ contract MaintenancePool is Ownable2Step, Pausable, ReentrancyGuard {
      * @return balance Raw balance
      * @return lastUpdateTime Last update timestamp
      */
-    function getRawMaintenanceData(address player) external view returns (uint256 balance, uint256 lastUpdateTime) {
+    function getRawMaintenanceData(address player)
+        external
+        view
+        returns (uint256 balance, uint256 lastUpdateTime)
+    {
         MaintenanceData storage data = maintenanceData[player];
         return (data.balance, data.lastUpdateTime);
     }
@@ -283,7 +283,8 @@ contract MaintenancePool is Ownable2Step, Pausable, ReentrancyGuard {
         // Calculate weekly decay rate applied over time
         // decay = balance * (weeklyDecayRate / 100) * (timeElapsed / secondsPerWeek)
         // decay = balance * WEEKLY_DECAY_BPS * timeElapsed / (BPS_DENOMINATOR * SECONDS_PER_WEEK)
-        uint256 decay = (data.balance * WEEKLY_DECAY_BPS * timeElapsed) / (BPS_DENOMINATOR * SECONDS_PER_WEEK);
+        uint256 decay =
+            (data.balance * WEEKLY_DECAY_BPS * timeElapsed) / (BPS_DENOMINATOR * SECONDS_PER_WEEK);
 
         return decay;
     }

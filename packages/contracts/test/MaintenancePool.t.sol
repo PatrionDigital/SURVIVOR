@@ -123,7 +123,9 @@ contract MaintenancePoolTest is Test {
         pool.deposit(depositAmount);
 
         vm.expectEmit(true, false, false, true);
-        emit MaintenancePool.MaintenanceWithdrawn(player1, withdrawAmount, depositAmount - withdrawAmount);
+        emit MaintenancePool.MaintenanceWithdrawn(
+            player1, withdrawAmount, depositAmount - withdrawAmount
+        );
 
         pool.withdraw(withdrawAmount);
         vm.stopPrank();
@@ -172,7 +174,7 @@ contract MaintenancePoolTest is Test {
 
         // Balance should have decayed by ~1%
         uint256 balanceAfter = pool.getPoolBalance(player1);
-        uint256 expectedDecay = (amount * 100) / 10000; // 1%
+        uint256 expectedDecay = (amount * 100) / 10_000; // 1%
         uint256 expectedBalance = amount - expectedDecay;
 
         assertApproxEqRel(balanceAfter, expectedBalance, 0.001e18); // 0.1% tolerance
@@ -190,7 +192,7 @@ contract MaintenancePoolTest is Test {
         vm.warp(block.timestamp + 7 days);
 
         uint256 pendingDecay = pool.getPendingDecay(player1);
-        uint256 expectedDecay = (amount * 100) / 10000; // 1%
+        uint256 expectedDecay = (amount * 100) / 10_000; // 1%
 
         assertApproxEqRel(pendingDecay, expectedDecay, 0.001e18);
     }
@@ -211,7 +213,7 @@ contract MaintenancePoolTest is Test {
 
         // Check raw data is updated
         (uint256 rawBalance, uint256 lastUpdate) = pool.getRawMaintenanceData(player1);
-        uint256 expectedBalance = amount - (amount * 100) / 10000;
+        uint256 expectedBalance = amount - (amount * 100) / 10_000;
 
         assertApproxEqRel(rawBalance, expectedBalance, 0.001e18);
         assertEq(lastUpdate, block.timestamp);
@@ -228,7 +230,7 @@ contract MaintenancePoolTest is Test {
         // Advance 1 week
         vm.warp(block.timestamp + 7 days);
 
-        uint256 expectedDecay = (amount * 100) / 10000;
+        uint256 expectedDecay = (amount * 100) / 10_000;
         uint256 expectedBalance = amount - expectedDecay;
 
         vm.expectEmit(true, false, false, false); // We can't precisely match values due to time
@@ -249,7 +251,7 @@ contract MaintenancePoolTest is Test {
         vm.warp(block.timestamp + 28 days);
 
         uint256 balanceAfter = pool.getPoolBalance(player1);
-        uint256 expectedDecay = (amount * 400) / 10000; // ~4%
+        uint256 expectedDecay = (amount * 400) / 10_000; // ~4%
         uint256 expectedBalance = amount - expectedDecay;
 
         assertApproxEqRel(balanceAfter, expectedBalance, 0.001e18);
@@ -267,7 +269,7 @@ contract MaintenancePoolTest is Test {
     }
 
     function test_getThreshold_calculatesFromGearStaking() public {
-        uint256 totalStaked = 10000 * 1e18;
+        uint256 totalStaked = 10_000 * 1e18;
 
         // Mock GearStaking.getTotalStaked to return totalStaked
         vm.mockCall(
@@ -280,12 +282,12 @@ contract MaintenancePoolTest is Test {
         pool.setGearStaking(gearStaking);
 
         // Threshold = totalStaked * 10% (default multiplier)
-        uint256 expectedThreshold = (totalStaked * 1000) / 10000;
+        uint256 expectedThreshold = (totalStaked * 1000) / 10_000;
         assertEq(pool.getThreshold(player1), expectedThreshold);
     }
 
     function test_getThreshold_respectsMultiplier() public {
-        uint256 totalStaked = 10000 * 1e18;
+        uint256 totalStaked = 10_000 * 1e18;
 
         vm.mockCall(
             gearStaking,
@@ -298,7 +300,7 @@ contract MaintenancePoolTest is Test {
         pool.setMaintenanceMultiplier(2000); // 20%
         vm.stopPrank();
 
-        uint256 expectedThreshold = (totalStaked * 2000) / 10000;
+        uint256 expectedThreshold = (totalStaked * 2000) / 10_000;
         assertEq(pool.getThreshold(player1), expectedThreshold);
     }
 
@@ -310,8 +312,8 @@ contract MaintenancePoolTest is Test {
     }
 
     function test_getMaintenanceStatus_activeWhenAboveThreshold() public {
-        uint256 totalStaked = 10000 * 1e18;
-        uint256 threshold = (totalStaked * 1000) / 10000; // 1000 tokens
+        uint256 totalStaked = 10_000 * 1e18;
+        uint256 threshold = (totalStaked * 1000) / 10_000; // 1000 tokens
 
         vm.mockCall(
             gearStaking,
@@ -332,8 +334,8 @@ contract MaintenancePoolTest is Test {
     }
 
     function test_getMaintenanceStatus_inactiveWhenBelowThreshold() public {
-        uint256 totalStaked = 10000 * 1e18;
-        uint256 threshold = (totalStaked * 1000) / 10000; // 1000 tokens
+        uint256 totalStaked = 10_000 * 1e18;
+        uint256 threshold = (totalStaked * 1000) / 10_000; // 1000 tokens
 
         vm.mockCall(
             gearStaking,
@@ -354,8 +356,8 @@ contract MaintenancePoolTest is Test {
     }
 
     function test_getMaintenancePercentage() public {
-        uint256 totalStaked = 10000 * 1e18;
-        uint256 threshold = (totalStaked * 1000) / 10000; // 1000 tokens
+        uint256 totalStaked = 10_000 * 1e18;
+        uint256 threshold = (totalStaked * 1000) / 10_000; // 1000 tokens
 
         vm.mockCall(
             gearStaking,

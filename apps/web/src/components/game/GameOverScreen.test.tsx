@@ -2,6 +2,25 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { GameOverScreen, GameOverScreenProps } from "./GameOverScreen";
 
+// Mock the useRewardDistributor hook to avoid needing WagmiProvider
+vi.mock("@/hooks", () => ({
+  useRewardDistributor: () => ({
+    claimReward: vi.fn(),
+    isPending: false,
+    isConfirming: false,
+    isSuccess: false,
+    claimError: null,
+    txHash: undefined,
+    resetClaim: vi.fn(),
+  }),
+  RewardType: {
+    GAMEPLAY: 0,
+    DAILY_LOGIN: 1,
+    ACHIEVEMENT: 2,
+    SOCIAL: 3,
+  },
+}));
+
 const defaultProps: GameOverScreenProps = {
   isOpen: true,
   survivalTime: 185, // 3:05

@@ -23,3 +23,9 @@ export type { MaintenanceData, UseMaintenancePoolReturn } from "./useMaintenance
 
 export { useBondingCurve } from "./useBondingCurve";
 export type { BondingCurveData, UseBondingCurveReturn } from "./useBondingCurve";
+
+export { useRewardDistributor, RewardType } from "./useRewardDistributor";
+export type { RewardClaimData, UseRewardDistributorReturn } from "./useRewardDistributor";
+
+export { useGameSession } from "./useGameSession";
+export type { RewardClaimData as GameRewardData } from "./useGameSession";

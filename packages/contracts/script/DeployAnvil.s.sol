@@ -35,12 +35,14 @@ contract DeployAnvil is Script {
     RewardDistributor public rewardDistributor;
 
     // Gear metadata
-    string[6] public gearNames = ["Weapon Core", "Armor Plate", "Power Belt", "Combat Gloves", "Amulet", "Swift Boots"];
+    string[6] public gearNames =
+        ["Weapon Core", "Armor Plate", "Power Belt", "Combat Gloves", "Amulet", "Swift Boots"];
     string[6] public gearSymbols = ["WEAPON", "ARMOR", "POWER", "GLOVES", "AMULET", "BOOTS"];
 
     function run() public {
         // Use Anvil's first default private key
-        uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+        uint256 deployerPrivateKey =
+            0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
 
         console.log("=== Anvil Local Deployment ===");
         console.log("Deployer:", DEPLOYER);
@@ -67,10 +69,10 @@ contract DeployAnvil is Script {
         console.log("3. Deploying BondingCurves...");
         for (uint256 i = 0; i < 6; i++) {
             bondingCurves[i] = new ERC20BondingCurve(
-                address(vscToken),      // base token (VSC)
-                gearTokenAddresses[i],  // gear token
-                DEPLOYER,               // treasury (deployer for testing)
-                DEPLOYER                // owner
+                address(vscToken), // base token (VSC)
+                gearTokenAddresses[i], // gear token
+                DEPLOYER, // treasury (deployer for testing)
+                DEPLOYER // owner
             );
             console.log("  ", gearSymbols[i], "Curve:", address(bondingCurves[i]));
         }

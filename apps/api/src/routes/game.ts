@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { Address } from "viem";
 import {
   startSessionSchema,
   heartbeatSchema,
@@ -8,6 +9,12 @@ import {
 } from "../lib/validation.js";
 import { getSupabaseClient } from "../lib/db.js";
 import { cacheSession, getCachedSession, deleteCachedSession } from "../lib/redis.js";
+import {
+  signRewardClaim,
+  generateNonce,
+  calculateExpiry,
+  RewardType,
+} from "../lib/rewardSigner.js";
 
 export async function gameRoutes(fastify: FastifyInstance) {
   // POST /api/game/session/start - Start a new game session
@@ -157,11 +164,36 @@ export async function gameRoutes(fastify: FastifyInstance) {
 
       const supabase = getSupabaseClient();
 
-      // TODO: Calculate VSC reward based on performance
-      // TODO: Generate reward signature
-      const vscReward = BigInt(Math.floor(finalScore * 0.001 + finalWave * 10 + totalKills * 0.5));
-      const nonce = `0x${crypto.randomUUID().replace(/-/g, "")}`;
-      const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+      // Get player's wallet address for signing
+      const walletAddress = request.user.walletAddress as Address;
+      if (!walletAddress) {
+        return reply.status(400).send({ error: "Wallet address not found in session" });
+      }
+
+      // Calculate VSC reward based on performance
+      // Base formula: score * 0.001 + wave * 10 + kills * 0.5
+      // Converted to wei (18 decimals)
+      const baseReward = Math.floor(finalScore * 0.001 + finalWave * 10 + totalKills * 0.5);
+      const vscReward = BigInt(baseReward) * BigInt(1e18);
+
+      // Generate unique nonce and expiry
+      const nonce = generateNonce();
+      const expiry = calculateExpiry(1); // 1 hour
+
+      // Sign the reward claim
+      let signedReward;
+      try {
+        signedReward = await signRewardClaim({
+          player: walletAddress,
+          amount: vscReward,
+          rewardType: RewardType.GAMEPLAY,
+          nonce,
+          expiry,
+        });
+      } catch (signError) {
+        fastify.log.error({ err: signError }, "Failed to sign reward");
+        return reply.status(500).send({ error: "Failed to sign reward claim" });
+      }
 
       // Update session
       const { error } = await supabase
@@ -175,8 +207,8 @@ export async function gameRoutes(fastify: FastifyInstance) {
           damage_dealt: damageDealt,
           damage_taken: damageTaken,
           xp_earned: xpEarned,
-          vsc_reward: vscReward.toString(),
-          reward_nonce: nonce,
+          vsc_reward: signedReward.amount,
+          reward_nonce: signedReward.nonce,
         })
         .eq("id", sessionId)
         .eq("player_id", playerId);
@@ -191,17 +223,17 @@ export async function gameRoutes(fastify: FastifyInstance) {
         p_player_id: playerId,
         p_score: finalScore,
         p_wave: finalWave,
-        p_vsc: vscReward.toString(),
+        p_vsc: signedReward.amount,
       });
 
       // Clear session cache
       await deleteCachedSession(sessionId);
 
       return reply.send({
-        vscReward: vscReward.toString(),
-        rewardSignature: "0x" + "0".repeat(130), // TODO: Generate real signature
-        nonce,
-        deadline,
+        vscReward: signedReward.amount,
+        rewardSignature: signedReward.signature,
+        nonce: signedReward.nonce,
+        deadline: signedReward.expiry,
       });
     }
   );

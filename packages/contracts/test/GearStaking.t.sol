@@ -92,7 +92,7 @@ contract GearStakingTest is Test {
 
     function test_stake_transfersTokens() public {
         uint256 amount = 1000 * 1e18;
-        uint256 fee = (amount * 500) / 10000; // 5% fee
+        uint256 fee = (amount * 500) / 10_000; // 5% fee
         uint256 amountAfterFee = amount - fee;
 
         vm.startPrank(player1);
@@ -111,7 +111,7 @@ contract GearStakingTest is Test {
 
     function test_stake_emitsEvents() public {
         uint256 amount = 1000 * 1e18;
-        uint256 fee = (amount * 500) / 10000;
+        uint256 fee = (amount * 500) / 10_000;
         uint256 amountAfterFee = amount - fee;
 
         vm.startPrank(player1);
@@ -151,7 +151,7 @@ contract GearStakingTest is Test {
         }
         vm.stopPrank();
 
-        uint256 expectedStaked = amount - (amount * 500) / 10000;
+        uint256 expectedStaked = amount - (amount * 500) / 10_000;
         for (uint8 i = 0; i < 6; i++) {
             assertEq(staking.stakedAmounts(player1, i), expectedStaked);
         }
@@ -159,7 +159,7 @@ contract GearStakingTest is Test {
 
     function test_stake_additiveStaking() public {
         uint256 amount = 1000 * 1e18;
-        uint256 amountAfterFee = amount - (amount * 500) / 10000;
+        uint256 amountAfterFee = amount - (amount * 500) / 10_000;
 
         vm.startPrank(player1);
 
@@ -175,7 +175,7 @@ contract GearStakingTest is Test {
 
     function test_unstake_transfersTokensBack() public {
         uint256 stakeAmount = 1000 * 1e18;
-        uint256 amountAfterFee = stakeAmount - (stakeAmount * 500) / 10000;
+        uint256 amountAfterFee = stakeAmount - (stakeAmount * 500) / 10_000;
 
         vm.startPrank(player1);
         gearTokens[0].approve(address(staking), stakeAmount);
@@ -192,7 +192,7 @@ contract GearStakingTest is Test {
 
     function test_unstake_emitsEvent() public {
         uint256 stakeAmount = 1000 * 1e18;
-        uint256 amountAfterFee = stakeAmount - (stakeAmount * 500) / 10000;
+        uint256 amountAfterFee = stakeAmount - (stakeAmount * 500) / 10_000;
 
         vm.startPrank(player1);
         gearTokens[0].approve(address(staking), stakeAmount);
@@ -207,7 +207,7 @@ contract GearStakingTest is Test {
 
     function test_unstake_partial() public {
         uint256 stakeAmount = 1000 * 1e18;
-        uint256 amountAfterFee = stakeAmount - (stakeAmount * 500) / 10000;
+        uint256 amountAfterFee = stakeAmount - (stakeAmount * 500) / 10_000;
         uint256 unstakeAmount = amountAfterFee / 2;
 
         vm.startPrank(player1);
@@ -300,7 +300,7 @@ contract GearStakingTest is Test {
         staking.setMaintenancePool(maintenancePool);
 
         uint256 totalPower = staking.getTotalPower(player1);
-        uint256 expectedPower = basePower + (basePower * 5000) / 10000; // +50% bonus
+        uint256 expectedPower = basePower + (basePower * 5000) / 10_000; // +50% bonus
 
         assertEq(totalPower, expectedPower);
     }
@@ -327,13 +327,13 @@ contract GearStakingTest is Test {
     }
 
     function test_getTier_epic() public view {
-        assertEq(staking.getTier(10000 * 1e18), 4);
-        assertEq(staking.getTier(99999 * 1e18), 4);
+        assertEq(staking.getTier(10_000 * 1e18), 4);
+        assertEq(staking.getTier(99_999 * 1e18), 4);
     }
 
     function test_getTier_legendary() public view {
-        assertEq(staking.getTier(100000 * 1e18), 5);
-        assertEq(staking.getTier(1000000 * 1e18), 5);
+        assertEq(staking.getTier(100_000 * 1e18), 5);
+        assertEq(staking.getTier(1_000_000 * 1e18), 5);
     }
 
     // ============ Player Stats Tests ============
@@ -350,7 +350,7 @@ contract GearStakingTest is Test {
 
         GearStaking.PlayerStats memory stats = staking.getPlayerStats(player1);
 
-        uint256 expectedStaked = stakeAmount - (stakeAmount * 500) / 10000;
+        uint256 expectedStaked = stakeAmount - (stakeAmount * 500) / 10_000;
         for (uint8 i = 0; i < 6; i++) {
             assertEq(stats.stakedAmounts[i], expectedStaked);
             assertTrue(stats.slotPowers[i] > 0);
@@ -443,7 +443,7 @@ contract GearStakingTest is Test {
         staking.stake(0, amount);
         vm.stopPrank();
 
-        uint256 fee = (amount * 500) / 10000;
+        uint256 fee = (amount * 500) / 10_000;
         uint256 expected = amount - fee;
         assertEq(staking.stakedAmounts(player1, 0), expected);
     }

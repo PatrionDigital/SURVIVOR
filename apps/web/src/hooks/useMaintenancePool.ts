@@ -124,14 +124,15 @@ export function useMaintenancePool(): UseMaintenancePoolReturn {
     },
   });
 
-  // Watch for new blocks to auto-refresh
-  const { data: blockNumber } = useBlockNumber({ watch: true });
+  // Watch for new blocks to auto-refresh (disabled during initial load to prevent loading loops)
+  const { data: blockNumber } = useBlockNumber({ watch: !isLoading });
 
   useEffect(() => {
-    if (blockNumber && queryKey) {
+    // Only invalidate if we're not currently loading and have data
+    if (blockNumber && queryKey && !isLoading && results !== undefined) {
       queryClient.invalidateQueries({ queryKey });
     }
-  }, [blockNumber, queryClient, queryKey]);
+  }, [blockNumber, queryClient, queryKey, isLoading, results]);
 
   // Write contract hooks
   const { writeContractAsync, isPending } = useWriteContract();
