@@ -286,6 +286,25 @@ function createUpsertBuilder(
         }
       },
     }),
+    // Direct then for await without .select()
+    then: async (resolve) => {
+      try {
+        const columns = Object.keys(data);
+        const values = Object.values(data);
+        const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
+        const updateSet = columns
+          .filter((c) => c !== onConflict)
+          .map((c) => `${c} = EXCLUDED.${c}`)
+          .join(", ");
+        const conflictTarget = onConflict || columns[0];
+        const query = `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})
+          ON CONFLICT (${conflictTarget}) DO UPDATE SET ${updateSet}`;
+        await pool.query(query, values);
+        return resolve({ data: null, error: null });
+      } catch (err) {
+        return resolve({ data: null, error: err as Error });
+      }
+    },
   };
 }
 
