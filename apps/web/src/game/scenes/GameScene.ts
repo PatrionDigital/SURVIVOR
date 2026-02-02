@@ -373,7 +373,12 @@ export class GameScene extends Scene {
     // Load enemy configs, then create spawning system
     // Using async IIFE since onEnter is synchronous
     (async () => {
-      await this.enemyRegistry!.load("basic");
+      const config = await this.enemyRegistry!.load("basic");
+
+      if (!config) {
+        console.error("Failed to load basic enemy config - spawning disabled");
+        return;
+      }
 
       // Create spawning system after configs are loaded
       this.spawningSystem = new SpawningSystem(
@@ -384,7 +389,7 @@ export class GameScene extends Scene {
         DEFAULT_SPAWNING_CONFIG
       );
     })().catch((err) => {
-      console.warn("Failed to initialize enemy systems:", err);
+      console.error("Failed to initialize enemy systems:", err);
     });
   }
 
