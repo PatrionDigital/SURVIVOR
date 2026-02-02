@@ -1,4 +1,31 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
+import type { Upgrade } from "../../game";
+
+/**
+ * Aggregated upgrade with count for display
+ */
+interface AggregatedUpgrade {
+  upgrade: Upgrade;
+  count: number;
+}
+
+/**
+ * Aggregate upgrades by ID, counting duplicates
+ */
+function aggregateUpgrades(upgrades: Upgrade[]): AggregatedUpgrade[] {
+  const map = new Map<string, AggregatedUpgrade>();
+
+  for (const upgrade of upgrades) {
+    const existing = map.get(upgrade.id);
+    if (existing) {
+      existing.count++;
+    } else {
+      map.set(upgrade.id, { upgrade, count: 1 });
+    }
+  }
+
+  return Array.from(map.values());
+}
 
 /**
  * PauseMenu - Overlay shown when game is paused
@@ -8,14 +35,19 @@ import { useEffect, useCallback } from "react";
  * - Click outside to resume
  * - ESC key to resume
  * - Accessible dialog
+ * - Display current session upgrades (aggregated by type)
  */
 export interface PauseMenuProps {
   isOpen: boolean;
   onResume: () => void;
   onQuit: () => void;
+  /** Upgrades applied during this session */
+  upgrades?: Upgrade[];
 }
 
-export function PauseMenu({ isOpen, onResume, onQuit }: PauseMenuProps) {
+export function PauseMenu({ isOpen, onResume, onQuit, upgrades = [] }: PauseMenuProps) {
+  // Aggregate duplicate upgrades
+  const aggregatedUpgrades = useMemo(() => aggregateUpgrades(upgrades), [upgrades]);
   // Handle ESC key to resume
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -77,6 +109,29 @@ export function PauseMenu({ isOpen, onResume, onQuit }: PauseMenuProps) {
             Quit
           </button>
         </div>
+
+        {/* Current Upgrades */}
+        {upgrades.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-gray-700">
+            <h3 className="text-sm font-bold text-gray-400 mb-3">Current Upgrades</h3>
+            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+              {aggregatedUpgrades.map(({ upgrade, count }) => (
+                <div
+                  key={upgrade.id}
+                  className="bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-600"
+                  title={upgrade.description}
+                >
+                  <span className="text-sm text-white">
+                    {upgrade.name}
+                    {count > 1 && (
+                      <span className="text-primary-400 ml-1 font-bold">+{count}</span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Hint */}
         <p className="text-gray-500 text-sm text-center mt-6">

@@ -9,6 +9,8 @@ export interface GameResults {
   score: number;
   enemiesKilled: number;
   level: number;
+  /** True if player achieved victory (survived full duration) */
+  victory?: boolean;
 }
 
 /**

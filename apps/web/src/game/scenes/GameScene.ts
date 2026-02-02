@@ -39,6 +39,13 @@ import {
   type LevelUpResult,
   type Upgrade,
 } from "../leveling";
+import {
+  WaveController,
+  type WaveConfig,
+  type TimedEvent,
+  type EventWarning,
+} from "../waves";
+import { createEnemy, type EnemyStatModifiers } from "../enemies";
 
 /**
  * GameScene - Main gameplay scene
@@ -88,6 +95,100 @@ const DEFAULT_SPAWNING_CONFIG: SpawningConfig = {
   enemyTypes: ["basic"],
 };
 
+// Default wave configuration for survival mode (20 minutes)
+const DEFAULT_WAVE_CONFIG: WaveConfig = {
+  id: "survival",
+  name: "Survival Mode",
+  version: "1.0.0",
+  description: "Standard 20-minute survival with escalating difficulty",
+  globalSettings: {
+    baseSpawnInterval: 2000,
+    minSpawnInterval: 500,
+    maxGameTime: 20 * 60 * 1000, // 20 minutes
+    spawnDistanceFromViewport: 100,
+  },
+  phases: [
+    {
+      id: "phase-1",
+      name: "Early Game",
+      startTime: 0,
+      endTime: 3 * 60 * 1000, // 0-3 minutes
+      enemyTypes: ["basic"],
+      spawnRateMultiplier: 1.0,
+      maxEnemies: 20,
+      healthMultiplier: 1.0,
+      damageMultiplier: 1.0,
+      speedMultiplier: 1.0,
+    },
+    {
+      id: "phase-2",
+      name: "Mid Game",
+      startTime: 3 * 60 * 1000,
+      endTime: 10 * 60 * 1000, // 3-10 minutes
+      enemyTypes: ["basic"],
+      spawnRateMultiplier: 1.5,
+      maxEnemies: 35,
+      healthMultiplier: 1.25,
+      damageMultiplier: 1.1,
+      speedMultiplier: 1.1,
+    },
+    {
+      id: "phase-3",
+      name: "Late Game",
+      startTime: 10 * 60 * 1000,
+      endTime: 20 * 60 * 1000, // 10-20 minutes
+      enemyTypes: ["basic"],
+      spawnRateMultiplier: 2.0,
+      maxEnemies: 50,
+      healthMultiplier: 1.5,
+      damageMultiplier: 1.25,
+      speedMultiplier: 1.2,
+    },
+  ],
+  events: [
+    {
+      id: "mini-boss-1",
+      type: "boss_spawn",
+      triggerTime: 3 * 60 * 1000, // 3 minutes
+      data: {
+        bossType: "basic",
+        enemyType: "basic",
+        count: 1,
+      },
+    },
+    {
+      id: "horde-1",
+      type: "horde",
+      triggerTime: 5 * 60 * 1000, // 5 minutes
+      data: {
+        enemyType: "basic",
+        count: 15,
+        duration: 5000,
+      },
+    },
+    {
+      id: "mini-boss-2",
+      type: "boss_spawn",
+      triggerTime: 10 * 60 * 1000, // 10 minutes
+      data: {
+        bossType: "basic",
+        enemyType: "basic",
+        count: 1,
+      },
+    },
+    {
+      id: "horde-2",
+      type: "horde",
+      triggerTime: 15 * 60 * 1000, // 15 minutes
+      data: {
+        enemyType: "basic",
+        count: 25,
+        duration: 5000,
+      },
+    },
+  ],
+};
+
 export class GameScene extends Scene {
   private gameContainer: Container | null = null;
   private backgroundContainer: Container | null = null;
@@ -112,9 +213,15 @@ export class GameScene extends Scene {
   // Leveling
   private levelingSystem: LevelingSystem | null = null;
 
+  // Wave system
+  private waveController: WaveController | null = null;
+  private pendingWarnings: EventWarning[] = [];
+
   // Stats tracking
   private enemiesKilled = 0;
   private totalXPCollected = 0;
+  private victoryTriggered = false;
+  private appliedUpgrades: Upgrade[] = [];
 
   // Game dimensions (set on resize)
   private width = 800;
@@ -128,6 +235,9 @@ export class GameScene extends Scene {
     // Reset stats
     this.enemiesKilled = 0;
     this.totalXPCollected = 0;
+    this.victoryTriggered = false;
+    this.pendingWarnings = [];
+    this.appliedUpgrades = [];
 
     this.createBackground();
     this.createGameContainer();
@@ -137,6 +247,7 @@ export class GameScene extends Scene {
     this.createWeaponSystem();
     this.createEnemySystems();
     this.createLevelingSystem();
+    this.createWaveSystem();
   }
 
   protected onExit(): void {
@@ -186,6 +297,8 @@ export class GameScene extends Scene {
     this.enemyRegistry = null;
     this.spawningSystem = null;
     this.levelingSystem = null;
+    this.waveController = null;
+    this.pendingWarnings = [];
   }
 
   protected onUpdate(deltaMs: number): void {
@@ -207,6 +320,28 @@ export class GameScene extends Scene {
 
     // 3. Invincibility effects
     invincibilitySystem(this.world, deltaMs);
+
+    // 3.5. Wave system update
+    if (this.waveController) {
+      // Update wave time and get triggered events
+      const events = this.waveController.update(deltaMs);
+
+      // Process triggered events (bosses, hordes)
+      for (const event of events) {
+        this.handleWaveEvent(event);
+      }
+
+      // Check for upcoming warnings (5 second window)
+      this.waveController.checkWarnings(this.waveController.getGameTime(), 5000);
+
+      // Check for victory (survival complete)
+      if (this.waveController.isComplete()) {
+        this.triggerVictory();
+      }
+
+      // Update spawning config periodically based on wave state
+      this.updateSpawningFromWave();
+    }
 
     // 4. Enemy spawning
     if (this.spawningSystem) {
@@ -426,6 +561,62 @@ export class GameScene extends Scene {
   }
 
   /**
+   * Check if player has achieved victory (survived full duration)
+   */
+  isVictory(): boolean {
+    return this.victoryTriggered;
+  }
+
+  /**
+   * Get current wave/phase name
+   */
+  getPhaseName(): string {
+    return this.waveController?.getCurrentPhaseName() ?? "Unknown";
+  }
+
+  /**
+   * Get wave progress (0-100)
+   */
+  getWaveProgress(): number {
+    return (this.waveController?.getProgress() ?? 0) * 100;
+  }
+
+  /**
+   * Get game time in seconds
+   */
+  getGameTime(): number {
+    return (this.waveController?.getGameTime() ?? 0) / 1000;
+  }
+
+  /**
+   * Get time remaining in seconds
+   */
+  getTimeRemaining(): number {
+    return (this.waveController?.getTimeRemaining() ?? 0) / 1000;
+  }
+
+  /**
+   * Get pending warnings for HUD display
+   */
+  getPendingWarnings(): EventWarning[] {
+    return this.pendingWarnings;
+  }
+
+  /**
+   * Clear a warning (after it's been displayed)
+   */
+  clearWarning(index: number): void {
+    this.pendingWarnings.splice(index, 1);
+  }
+
+  /**
+   * Clear all warnings
+   */
+  clearAllWarnings(): void {
+    this.pendingWarnings = [];
+  }
+
+  /**
    * Update spawning system configuration
    * @param updates - Partial config updates to apply
    */
@@ -465,12 +656,22 @@ export class GameScene extends Scene {
     const consumed = this.levelingSystem.consumeLevelUp();
     if (!consumed) return false;
 
+    // Track the applied upgrade
+    this.appliedUpgrades.push(upgrade);
+
     // TODO: Apply upgrade effects to actual game systems
     // For now, just log it - actual stat application will be implemented
     // when player stats system is fully integrated
     console.log(`Applied upgrade: ${upgrade.name} (${upgrade.description})`);
 
     return true;
+  }
+
+  /**
+   * Get list of upgrades applied during this session
+   */
+  getAppliedUpgrades(): Upgrade[] {
+    return [...this.appliedUpgrades];
   }
 
   /**
@@ -512,6 +713,134 @@ export class GameScene extends Scene {
 
   private createLevelingSystem(): void {
     this.levelingSystem = new LevelingSystem();
+  }
+
+  private createWaveSystem(): void {
+    // Create wave controller with default survival config
+    this.waveController = new WaveController(DEFAULT_WAVE_CONFIG);
+
+    // Register phase change callback
+    this.waveController.onPhaseChange((newPhase, _oldPhase) => {
+      console.log(`Phase transition: ${newPhase.name}`);
+      // Update spawning config based on new phase
+      this.updateSpawningFromWave();
+    });
+
+    // Register warning callback
+    this.waveController.onWarning((_event, warning) => {
+      this.pendingWarnings.push(warning);
+      console.log(`Warning: ${warning.title} - ${warning.description}`);
+    });
+
+    // Initialize stat modifiers from first phase
+    this.updateSpawningFromWave();
+  }
+
+  /**
+   * Handle a wave event (boss spawn, horde, etc.)
+   */
+  private handleWaveEvent(event: TimedEvent): void {
+    if (!this.waveController || !this.world || !this.yukaManager || !this.gameContainer) return;
+
+    const commands = this.waveController.getSpawnCommandsForEvent(event);
+    const config = this.waveController.getSpawnConfig();
+
+    console.log(`Wave event: ${event.type} - ${event.id} (${commands.length} spawn commands)`);
+
+    for (const command of commands) {
+      // Get enemy config from registry
+      const enemyConfig = this.enemyRegistry?.get(command.enemyType);
+      if (!enemyConfig) {
+        console.warn(`Enemy type '${command.enemyType}' not found for event ${event.id}`);
+        continue;
+      }
+
+      // Calculate spawn position (use command position if provided, else random)
+      const position = command.position ?? this.getRandomSpawnPosition();
+
+      // Apply stat modifiers (bosses get extra health)
+      const modifiers: EnemyStatModifiers = {
+        healthMultiplier: config.healthMultiplier * (command.isBoss ? 5 : 1),
+        damageMultiplier: config.damageMultiplier * (command.isBoss ? 1.5 : 1),
+        speedMultiplier: config.speedMultiplier * (command.isBoss ? 0.8 : 1), // Bosses are slower
+      };
+
+      // Spawn the enemy
+      createEnemy(
+        this.world,
+        this.yukaManager,
+        this.gameContainer,
+        enemyConfig,
+        position,
+        modifiers
+      );
+    }
+  }
+
+  /**
+   * Get a random spawn position outside the viewport
+   */
+  private getRandomSpawnPosition(): { x: number; y: number } {
+    if (!this.camera) return { x: 0, y: 0 };
+
+    const offset = 100; // Distance from viewport edge
+    const edges = ["top", "bottom", "left", "right"] as const;
+    const edge = edges[Math.floor(Math.random() * edges.length)];
+
+    const halfWidth = this.width / 2;
+    const halfHeight = this.height / 2;
+
+    switch (edge) {
+      case "top":
+        return {
+          x: this.camera.x - halfWidth + Math.random() * this.width,
+          y: this.camera.y - halfHeight - offset,
+        };
+      case "bottom":
+        return {
+          x: this.camera.x - halfWidth + Math.random() * this.width,
+          y: this.camera.y + halfHeight + offset,
+        };
+      case "left":
+        return {
+          x: this.camera.x - halfWidth - offset,
+          y: this.camera.y - halfHeight + Math.random() * this.height,
+        };
+      case "right":
+        return {
+          x: this.camera.x + halfWidth + offset,
+          y: this.camera.y - halfHeight + Math.random() * this.height,
+        };
+    }
+  }
+
+  /**
+   * Trigger victory (survival complete)
+   */
+  private triggerVictory(): void {
+    // Only trigger once
+    if (this.victoryTriggered) return;
+    this.victoryTriggered = true;
+
+    console.log("VICTORY! Survival complete!");
+    // Victory handling will be done by GamePage checking isVictory()
+  }
+
+  /**
+   * Update spawning system config from wave controller
+   */
+  private updateSpawningFromWave(): void {
+    if (!this.waveController || !this.spawningSystem) return;
+
+    const config = this.waveController.getSpawnConfig();
+
+    // Update spawning system
+    this.spawningSystem.updateConfig({
+      enemyTypes: config.enemyTypes,
+      maxEnemies: config.maxEnemies,
+    });
+    // Note: Stat modifiers are applied in handleWaveEvent for event spawns
+    // Regular spawns use base stats from SpawningSystem
   }
 
   private createEnemySystems(): void {

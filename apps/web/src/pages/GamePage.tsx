@@ -34,6 +34,15 @@ export function GamePage() {
   const [currentXP, setCurrentXP] = useState(0);
   const [xpToNextLevel, setXpToNextLevel] = useState(100);
 
+  // Wave system stats
+  const [phaseName, setPhaseName] = useState<string | undefined>(undefined);
+  const [waveProgress, setWaveProgress] = useState<number | undefined>(undefined);
+  const [timeRemaining, setTimeRemaining] = useState<number | undefined>(undefined);
+  const [warning, setWarning] = useState<string | undefined>(undefined);
+
+  // Applied upgrades for pause menu
+  const [appliedUpgrades, setAppliedUpgrades] = useState<Upgrade[]>([]);
+
   // Pause state
   const [isPaused, setIsPaused] = useState(false);
 
@@ -138,6 +147,33 @@ export function GamePage() {
     };
   }, [isPlaying, isLevelUpOpen, isPaused, handlePause, handleResume]);
 
+  // Handle victory - transition to result scene with victory flag
+  const handleVictory = useCallback(() => {
+    if (!sceneManagerRef.current) return;
+
+    const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
+    const resultScene = sceneManagerRef.current.getScene("result") as ResultScene | undefined;
+
+    if (gameScene && resultScene) {
+      // Gather final stats with victory bonus
+      const results: GameResults = {
+        survivalTime,
+        score: (totalXP * 10 + enemiesKilled * 5) * 2, // Double score for victory
+        enemiesKilled,
+        level: currentLevel,
+        victory: true,
+      };
+
+      // Set results and transition to result scene
+      resultScene.setResults(results);
+      endGame();
+      sceneManagerRef.current.switchTo("result");
+
+      // Reset difficulty flag for next game
+      difficultyIncreasedRef.current = false;
+    }
+  }, [survivalTime, totalXP, enemiesKilled, currentLevel, endGame]);
+
   // Handle player death - transition to result scene
   const handlePlayerDeath = useCallback(() => {
     if (!sceneManagerRef.current) return;
@@ -184,9 +220,33 @@ export function GamePage() {
           setCurrentXP(gameScene.getCurrentXP());
           setXpToNextLevel(gameScene.getXPToNextLevel());
 
+          // Update wave system stats
+          setPhaseName(gameScene.getPhaseName());
+          setWaveProgress(gameScene.getWaveProgress());
+          setTimeRemaining(gameScene.getTimeRemaining());
+
+          // Update applied upgrades for pause menu
+          setAppliedUpgrades(gameScene.getAppliedUpgrades());
+
+          // Check for warnings
+          const warnings = gameScene.getPendingWarnings();
+          if (warnings.length > 0) {
+            setWarning(warnings[0].title);
+            // Clear the warning after displaying it
+            gameScene.clearWarning(0);
+            // Auto-hide warning after 3 seconds
+            setTimeout(() => setWarning(undefined), 3000);
+          }
+
           // Check for player death
           if (isPlaying && gameScene.isPlayerDead()) {
             handlePlayerDeath();
+            return;
+          }
+
+          // Check for victory (survival complete)
+          if (isPlaying && gameScene.isVictory()) {
+            handleVictory();
             return;
           }
 
@@ -279,6 +339,10 @@ export function GamePage() {
             enemiesKilled={enemiesKilled}
             totalXP={totalXP}
             onPause={handlePause}
+            phaseName={phaseName}
+            waveProgress={waveProgress}
+            timeRemaining={timeRemaining}
+            warning={warning}
           />
         )}
 
@@ -291,7 +355,12 @@ export function GamePage() {
         />
 
         {/* Pause menu */}
-        <PauseMenu isOpen={isPaused} onResume={handleResume} onQuit={handleQuit} />
+        <PauseMenu
+          isOpen={isPaused}
+          onResume={handleResume}
+          onQuit={handleQuit}
+          upgrades={appliedUpgrades}
+        />
       </div>
     </div>
   );

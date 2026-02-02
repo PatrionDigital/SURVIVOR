@@ -12,6 +12,18 @@ import type { GameWorld, Entity } from "../ecs/World";
 import type { EnemyTypeConfig } from "./types";
 
 /**
+ * Stat modifiers for enemy creation (from wave system)
+ */
+export interface EnemyStatModifiers {
+  /** Health multiplier (1.0 = normal) */
+  healthMultiplier?: number;
+  /** Damage multiplier (1.0 = normal) */
+  damageMultiplier?: number;
+  /** Speed multiplier (1.0 = normal) */
+  speedMultiplier?: number;
+}
+
+/**
  * Create an enemy entity with all required components
  *
  * @param world - ECS world to add entity to
@@ -19,6 +31,7 @@ import type { EnemyTypeConfig } from "./types";
  * @param container - PixiJS container for sprite
  * @param config - Enemy type configuration
  * @param position - Spawn position
+ * @param modifiers - Optional stat modifiers from wave system
  * @returns The created entity
  */
 export function createEnemy(
@@ -26,12 +39,22 @@ export function createEnemy(
   yukaManager: EntityManager,
   container: Container,
   config: EnemyTypeConfig,
-  position: { x: number; y: number }
+  position: { x: number; y: number },
+  modifiers?: EnemyStatModifiers
 ): Entity {
+  // Apply stat modifiers
+  const healthMult = modifiers?.healthMultiplier ?? 1;
+  const speedMult = modifiers?.speedMultiplier ?? 1;
+  const damageMult = modifiers?.damageMultiplier ?? 1;
+
+  const effectiveHealth = Math.round(config.combat.health * healthMult);
+  const effectiveSpeed = config.movement.maxSpeed * speedMult;
+  const effectiveDamage = Math.round(config.combat.damage * damageMult);
+
   // Create Yuka Vehicle for AI
   const vehicle = new Vehicle();
   vehicle.position.set(position.x, position.y, 0);
-  vehicle.maxSpeed = config.movement.maxSpeed;
+  vehicle.maxSpeed = effectiveSpeed;
   vehicle.maxForce = config.movement.maxForce;
   vehicle.mass = config.movement.mass;
   // Set neighborhood radius for flocking behaviors to find nearby vehicles
@@ -71,12 +94,13 @@ export function createEnemy(
   const entity = world.add({
     position: { x: position.x, y: position.y },
     velocity: { vx: 0, vy: 0 },
-    health: { current: config.combat.health, max: config.combat.health },
+    health: { current: effectiveHealth, max: effectiveHealth },
     sprite: { graphics },
     enemy: {
       vehicle,
       config,
       currentBehavior: "seeking",
+      effectiveDamage, // Store modified damage for collision system
     },
   });
 
