@@ -22,43 +22,22 @@ export type Entity = {
 };
 
 /**
- * Extended World type with helper methods
+ * GameWorld type alias
+ *
+ * Uses miniplex's native World class which provides:
+ * - addComponent(entity, component, value): Add component and reindex entity
+ * - removeComponent(entity, component): Remove component and reindex entity
+ * - with(...components): Query entities with specific components
+ * - without(...components): Query entities without specific components
  */
-export interface GameWorld extends World<Entity> {
-  /**
-   * Add a component to an existing entity
-   */
-  addComponent<K extends keyof Entity>(
-    entity: Entity,
-    component: K,
-    value: NonNullable<Entity[K]>
-  ): void;
-
-  /**
-   * Remove a component from an entity
-   */
-  removeComponent<K extends keyof Entity>(entity: Entity, component: K): void;
-}
+export type GameWorld = World<Entity>;
 
 /**
- * Create a new game world with helper methods
+ * Create a new game world
+ *
+ * Uses miniplex's native World class directly - no custom methods needed.
+ * Miniplex 2.0 provides addComponent/removeComponent with proper reindexing.
  */
 export function createGameWorld(): GameWorld {
-  const world = new World<Entity>() as GameWorld;
-
-  // Add helper method to add components
-  world.addComponent = <K extends keyof Entity>(
-    entity: Entity,
-    component: K,
-    value: NonNullable<Entity[K]>
-  ) => {
-    (entity as Record<string, unknown>)[component] = value;
-  };
-
-  // Add helper method to remove components
-  world.removeComponent = <K extends keyof Entity>(entity: Entity, component: K) => {
-    delete (entity as Record<string, unknown>)[component];
-  };
-
-  return world;
+  return new World<Entity>();
 }

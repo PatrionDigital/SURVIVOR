@@ -65,6 +65,7 @@ const DEFAULT_WEAPON_CONFIG: WeaponConfig = {
   cooldown: 300, // Fire every 300ms (faster)
   projectileSpeed: 500, // Pixels per second (faster projectiles)
   projectileLifetime: 2000, // 2 seconds
+  range: 400, // Maximum targeting range (about half viewport diagonal at 800x600)
   visual: {
     color: 0x00ffff, // Cyan projectiles
     radius: 6, // Slightly larger for visibility
@@ -481,7 +482,9 @@ export class GameScene extends Scene {
     if (!this.world || !this.playerEntity) return false;
 
     // Can't take damage while invincible
-    if (this.playerEntity.invincibility) return false;
+    if (this.playerEntity.invincibility) {
+      return false;
+    }
 
     // Apply damage to health
     if (this.playerEntity.health) {

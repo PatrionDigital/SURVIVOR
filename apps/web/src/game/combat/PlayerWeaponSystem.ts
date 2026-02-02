@@ -50,7 +50,7 @@ export class PlayerWeaponSystem {
   }
 
   /**
-   * Find nearest enemy position
+   * Find nearest enemy position within weapon range
    */
   findNearestEnemy(playerPosition: { x: number; y: number }): { x: number; y: number } | null {
     let nearestEnemy: { x: number; y: number } | null = null;
@@ -61,7 +61,8 @@ export class PlayerWeaponSystem {
       const dy = enemy.position.y - playerPosition.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < nearestDistance) {
+      // Only consider enemies within weapon range
+      if (distance <= this.config.range && distance < nearestDistance) {
         nearestDistance = distance;
         nearestEnemy = { x: enemy.position.x, y: enemy.position.y };
       }

@@ -26,6 +26,7 @@ const basicWeaponConfig: WeaponConfig = {
   cooldown: 500,
   projectileSpeed: 400,
   projectileLifetime: 2000,
+  range: 500, // 500px targeting range
   visual: { color: 0x00ff00, radius: 5 },
   projectilesPerShot: 1,
   spreadAngle: 0,
@@ -39,6 +40,7 @@ const spreadWeaponConfig: WeaponConfig = {
   cooldown: 600,
   projectileSpeed: 350,
   projectileLifetime: 1500,
+  range: 500, // 500px targeting range
   visual: { color: 0xffff00, radius: 4 },
   projectilesPerShot: 3,
   spreadAngle: 30,
@@ -125,6 +127,120 @@ describe("PlayerWeaponSystem", () => {
       const target = system.findNearestEnemy({ x: 0, y: 0 });
 
       expect(target).toBeNull();
+    });
+
+    it("should not target enemies outside weapon range", () => {
+      const shortRangeConfig: WeaponConfig = {
+        ...basicWeaponConfig,
+        range: 150, // Short range
+      };
+      const container = { addChild: vi.fn() };
+      const system = new PlayerWeaponSystem(world, container as never, shortRangeConfig);
+
+      // Player at origin
+      world.add({
+        position: { x: 0, y: 0 },
+        playerControlled: true,
+      });
+
+      // Enemy outside range at 200px
+      const vehicle = new Vehicle();
+      world.add({
+        position: { x: 200, y: 0 },
+        enemy: {
+          vehicle,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      const target = system.findNearestEnemy({ x: 0, y: 0 });
+
+      expect(target).toBeNull(); // Should not find enemy outside range
+    });
+
+    it("should target enemies within weapon range", () => {
+      const shortRangeConfig: WeaponConfig = {
+        ...basicWeaponConfig,
+        range: 150, // Short range
+      };
+      const container = { addChild: vi.fn() };
+      const system = new PlayerWeaponSystem(world, container as never, shortRangeConfig);
+
+      // Player at origin
+      world.add({
+        position: { x: 0, y: 0 },
+        playerControlled: true,
+      });
+
+      // Enemy inside range at 100px
+      const vehicle = new Vehicle();
+      world.add({
+        position: { x: 100, y: 0 },
+        enemy: {
+          vehicle,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      const target = system.findNearestEnemy({ x: 0, y: 0 });
+
+      expect(target).toBeDefined();
+      expect(target!.x).toBe(100);
+    });
+
+    it("should prefer closer enemy within range over farther one", () => {
+      const shortRangeConfig: WeaponConfig = {
+        ...basicWeaponConfig,
+        range: 300, // Medium range
+      };
+      const container = { addChild: vi.fn() };
+      const system = new PlayerWeaponSystem(world, container as never, shortRangeConfig);
+
+      // Player at origin
+      world.add({
+        position: { x: 0, y: 0 },
+        playerControlled: true,
+      });
+
+      // Close enemy at 100px
+      const vehicle1 = new Vehicle();
+      world.add({
+        position: { x: 100, y: 0 },
+        enemy: {
+          vehicle: vehicle1,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      // Farther enemy at 250px (still in range)
+      const vehicle2 = new Vehicle();
+      world.add({
+        position: { x: 250, y: 0 },
+        enemy: {
+          vehicle: vehicle2,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      // Enemy outside range at 400px
+      const vehicle3 = new Vehicle();
+      world.add({
+        position: { x: 400, y: 0 },
+        enemy: {
+          vehicle: vehicle3,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      const target = system.findNearestEnemy({ x: 0, y: 0 });
+
+      expect(target).toBeDefined();
+      expect(target!.x).toBe(100); // Should find closest enemy in range
     });
   });
 
