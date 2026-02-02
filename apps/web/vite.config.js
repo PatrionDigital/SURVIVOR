@@ -19,6 +19,10 @@ export default defineConfig(function (_a) {
   var mode = _a.mode;
   return {
     plugins: [react()],
+    define: {
+      // Polyfill for buffer - needed by some web3 dependencies (bn.js)
+      global: "globalThis",
+    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
