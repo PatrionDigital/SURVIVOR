@@ -1,0 +1,143 @@
+{
+  "id": "hard",
+  "name": "Hard Mode",
+  "version": "1.0.0",
+  "description": "Intense challenge with fast spawns, powerful enemies, and frequent bosses",
+  "phases": [
+    {
+      "id": "early",
+      "name": "No Warmup",
+      "startTime": 0,
+      "endTime": 120000,
+      "enemyTypes": ["basic", "fast"],
+      "spawnRateMultiplier": 1.5,
+      "maxEnemies": 35,
+      "healthMultiplier": 1.2,
+      "damageMultiplier": 1.2,
+      "speedMultiplier": 1.1
+    },
+    {
+      "id": "mid",
+      "name": "Pressure",
+      "startTime": 120000,
+      "endTime": 480000,
+      "enemyTypes": ["basic", "fast", "tank", "elite_basic"],
+      "spawnRateMultiplier": 2.0,
+      "maxEnemies": 50,
+      "healthMultiplier": 1.4,
+      "damageMultiplier": 1.3,
+      "speedMultiplier": 1.2
+    },
+    {
+      "id": "late",
+      "name": "Chaos",
+      "startTime": 480000,
+      "endTime": 1200000,
+      "enemyTypes": ["fast", "tank", "elite_basic"],
+      "spawnRateMultiplier": 2.5,
+      "maxEnemies": 70,
+      "healthMultiplier": 1.6,
+      "damageMultiplier": 1.5,
+      "speedMultiplier": 1.3
+    }
+  ],
+  "events": [
+    {
+      "id": "early-horde",
+      "type": "horde",
+      "triggerTime": 60000,
+      "data": {
+        "enemyType": "fast",
+        "count": 20,
+        "duration": 2000
+      },
+      "repeat": {
+        "interval": 90000,
+        "maxRepeats": 10
+      }
+    },
+    {
+      "id": "first-boss",
+      "type": "boss_spawn",
+      "triggerTime": 120000,
+      "data": {
+        "bossType": "elite_basic",
+        "count": 2
+      }
+    },
+    {
+      "id": "tank-assault",
+      "type": "horde",
+      "triggerTime": 180000,
+      "data": {
+        "enemyType": "tank",
+        "count": 8,
+        "duration": 4000
+      },
+      "repeat": {
+        "interval": 120000,
+        "maxRepeats": 6
+      }
+    },
+    {
+      "id": "difficulty-spike-1",
+      "type": "difficulty_spike",
+      "triggerTime": 300000,
+      "data": {
+        "duration": 45000,
+        "multiplier": 2.5
+      }
+    },
+    {
+      "id": "elite-assault",
+      "type": "horde",
+      "triggerTime": 360000,
+      "data": {
+        "enemyType": "elite_basic",
+        "count": 12,
+        "duration": 3000
+      },
+      "repeat": {
+        "interval": 120000,
+        "maxRepeats": 5
+      }
+    },
+    {
+      "id": "mid-boss",
+      "type": "boss_spawn",
+      "triggerTime": 480000,
+      "data": {
+        "bossType": "boss_slime",
+        "count": 1
+      }
+    },
+    {
+      "id": "difficulty-spike-2",
+      "type": "difficulty_spike",
+      "triggerTime": 720000,
+      "data": {
+        "duration": 60000,
+        "multiplier": 3.0
+      }
+    },
+    {
+      "id": "final-boss-duo",
+      "type": "boss_spawn",
+      "triggerTime": 1080000,
+      "data": {
+        "bossType": "boss_slime",
+        "count": 2
+      }
+    }
+  ],
+  "globalSettings": {
+    "baseSpawnInterval": 1500,
+    "minSpawnInterval": 300,
+    "maxGameTime": 1200000,
+    "spawnDistanceFromViewport": 100
+  },
+  "metadata": {
+    "difficulty": "hard",
+    "author": "SwarmYeet Team"
+  }
+}

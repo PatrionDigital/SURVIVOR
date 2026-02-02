@@ -1,0 +1,97 @@
+{
+  "id": "easy",
+  "name": "Easy Mode",
+  "version": "1.0.0",
+  "description": "Relaxed difficulty with slower enemy spawns and fewer bosses",
+  "phases": [
+    {
+      "id": "early",
+      "name": "Warmup",
+      "startTime": 0,
+      "endTime": 300000,
+      "enemyTypes": ["basic"],
+      "spawnRateMultiplier": 0.7,
+      "maxEnemies": 15,
+      "healthMultiplier": 0.8,
+      "damageMultiplier": 0.8,
+      "speedMultiplier": 0.9
+    },
+    {
+      "id": "mid",
+      "name": "Building Up",
+      "startTime": 300000,
+      "endTime": 900000,
+      "enemyTypes": ["basic", "fast"],
+      "spawnRateMultiplier": 1.0,
+      "maxEnemies": 25,
+      "healthMultiplier": 1.0,
+      "damageMultiplier": 0.9,
+      "speedMultiplier": 1.0
+    },
+    {
+      "id": "late",
+      "name": "Challenging",
+      "startTime": 900000,
+      "endTime": 1200000,
+      "enemyTypes": ["basic", "fast", "tank"],
+      "spawnRateMultiplier": 1.3,
+      "maxEnemies": 35,
+      "healthMultiplier": 1.1,
+      "damageMultiplier": 1.0,
+      "speedMultiplier": 1.0
+    }
+  ],
+  "events": [
+    {
+      "id": "horde-3min",
+      "type": "horde",
+      "triggerTime": 180000,
+      "data": {
+        "enemyType": "basic",
+        "count": 10,
+        "duration": 4000
+      },
+      "repeat": {
+        "interval": 180000,
+        "maxRepeats": 5
+      }
+    },
+    {
+      "id": "rest-period-1",
+      "type": "rest_period",
+      "triggerTime": 480000,
+      "data": {
+        "duration": 15000,
+        "spawnMultiplier": 0.2
+      }
+    },
+    {
+      "id": "miniboss",
+      "type": "boss_spawn",
+      "triggerTime": 600000,
+      "data": {
+        "bossType": "elite_basic",
+        "count": 1
+      }
+    },
+    {
+      "id": "rest-period-2",
+      "type": "rest_period",
+      "triggerTime": 900000,
+      "data": {
+        "duration": 15000,
+        "spawnMultiplier": 0.2
+      }
+    }
+  ],
+  "globalSettings": {
+    "baseSpawnInterval": 2500,
+    "minSpawnInterval": 800,
+    "maxGameTime": 1200000,
+    "spawnDistanceFromViewport": 100
+  },
+  "metadata": {
+    "difficulty": "easy",
+    "author": "SwarmYeet Team"
+  }
+}

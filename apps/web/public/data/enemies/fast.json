@@ -1,0 +1,30 @@
+{
+  "id": "fast",
+  "name": "Fast Runner",
+  "visual": {
+    "color": "0x44ff44",
+    "radius": 12
+  },
+  "combat": {
+    "damage": 5,
+    "health": 50,
+    "xpValue": 8
+  },
+  "movement": {
+    "maxSpeed": 180,
+    "maxForce": 120,
+    "mass": 0.6
+  },
+  "flocking": {
+    "alignment": 0.5,
+    "cohesion": 0.6,
+    "separation": 1.5
+  },
+  "vision": {
+    "range": 300,
+    "fieldOfView": 360
+  },
+  "behavior": {
+    "seekWeight": 2.0
+  }
+}

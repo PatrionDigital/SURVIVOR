@@ -855,12 +855,12 @@ Show results when player dies.
 
 ### 2.7 Wave System
 
-#### Task 2.7.1: Design Wave System Architecture
+#### Task 2.7.1: Design Wave System Architecture ✅
 
 **Priority:** P1
 **Estimate:** 4 hours
 **Dependencies:** 2.3.2
-**Status:** PLANNED
+**Status:** COMPLETE
 
 **Description:**
 Create data-driven wave system with time-based phases and timed events.
@@ -880,87 +880,87 @@ Create data-driven wave system with time-based phases and timed events.
 
 **Subtasks:**
 
-- [ ] Create wave system types (WaveConfig, WavePhase, TimedEvent, etc.)
-- [ ] Create WaveConfigRegistry (load JSON configs)
-- [ ] Create type validation functions
-- [ ] Write unit tests for types
+- [x] Create wave system types (WaveConfig, WavePhase, TimedEvent, etc.)
+- [x] Create WaveConfigRegistry (load JSON configs)
+- [x] Create type validation functions
+- [x] Write unit tests for types (12 tests)
 
 **Acceptance Criteria:**
 
-- Types fully defined with documentation
-- Registry loads and validates JSON configs
-- 100% test coverage for validation logic
+- ✅ Types fully defined with documentation (types.ts)
+- ✅ Registry loads and validates JSON configs (WaveConfigRegistry.ts, 28 tests)
+- ✅ 100% test coverage for validation logic
 
 ---
 
-#### Task 2.7.2: Implement WaveManager
+#### Task 2.7.2: Implement WaveManager ✅
 
 **Priority:** P1
 **Estimate:** 6 hours
 **Dependencies:** 2.7.1
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Core orchestrator that tracks game time and provides spawn parameters.
 
 **Subtasks:**
 
-- [ ] Create WaveManager class
-- [ ] Implement phase tracking based on game time
-- [ ] Implement weighted random enemy selection from pool
-- [ ] Implement global scaling calculations
-- [ ] Implement stat modifier aggregation (phase + global)
-- [ ] Create getSpawnParameters() for SpawningSystem integration
-- [ ] Write comprehensive unit tests
+- [x] Create WaveManager class
+- [x] Implement phase tracking based on game time
+- [x] Implement weighted random enemy selection from pool
+- [x] Implement global scaling calculations
+- [x] Implement stat modifier aggregation (phase + global)
+- [x] Create getSpawnParameters() for SpawningSystem integration
+- [x] Write comprehensive unit tests (24 tests)
 
 **Acceptance Criteria:**
 
-- Phase transitions happen at correct times
-- Enemy selection respects weights and time gates
-- Scaling math is accurate
-- 100% test coverage
+- ✅ Phase transitions happen at correct times
+- ✅ Enemy selection respects weights and time gates
+- ✅ Scaling math is accurate
+- ✅ 100% test coverage
 
 ---
 
-#### Task 2.7.3: Implement EventSystem
+#### Task 2.7.3: Implement EventSystem ✅
 
 **Priority:** P1
 **Estimate:** 4 hours
 **Dependencies:** 2.7.1
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Handle timed events like bosses, hordes, and special spawns.
 
 **Subtasks:**
 
-- [ ] Create EventSystem class
-- [ ] Implement event triggering at timestamps
-- [ ] Implement event repetition (repeatInterval, maxRepeats)
-- [ ] Implement warning system for upcoming events
-- [ ] Integrate event spawning with SpawningSystem
-- [ ] Write unit tests
+- [x] Create EventExecutor class
+- [x] Implement event triggering at timestamps
+- [x] Implement event repetition (repeatInterval, maxRepeats)
+- [x] Implement warning system for upcoming events
+- [x] Integrate event spawning with SpawningSystem
+- [x] Write unit tests
 
 **Acceptance Criteria:**
 
-- Events trigger at correct times
-- Repeating events work correctly
-- Warnings appear before events
-- 100% test coverage
+- ✅ Events trigger at correct times
+- ✅ Repeating events work correctly
+- ✅ Warnings appear before events
+- ✅ 100% test coverage
 
 ---
 
-#### Task 2.7.4: Implement Spawn Patterns
+#### Task 2.7.4: Implement Spawn Patterns ✅
 
 **Priority:** P1
 **Estimate:** 3 hours
 **Dependencies:** 2.7.2
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Add spawn position patterns for variety in enemy appearance.
 
-**Patterns to implement:**
+**Patterns implemented:**
 - `random` - Current behavior (random edge position)
 - `cluster` - Group near single random point
 - `ring` - Circle around player
@@ -969,25 +969,25 @@ Add spawn position patterns for variety in enemy appearance.
 
 **Subtasks:**
 
-- [ ] Create SpawnPatterns.ts with pattern calculations
-- [ ] Integrate patterns into SpawningSystem
-- [ ] Update EnemyFactory to accept stat modifiers
-- [ ] Write unit tests for each pattern
+- [x] Create SpawnPatterns.ts with pattern calculations
+- [x] Integrate patterns into SpawningSystem
+- [x] Update EnemyFactory to accept stat modifiers
+- [x] Write unit tests for each pattern (14 tests)
 
 **Acceptance Criteria:**
 
-- All 5 patterns work correctly
-- Enemies spawn in expected formations
-- Performance acceptable with many spawns
+- ✅ All 5 patterns work correctly
+- ✅ Enemies spawn in expected formations
+- ✅ Performance acceptable with many spawns
 
 ---
 
-#### Task 2.7.5: Create Wave Configurations
+#### Task 2.7.5: Create Wave Configurations ✅
 
 **Priority:** P1
 **Estimate:** 4 hours
 **Dependencies:** 2.7.2, 2.7.3, 2.7.4
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Create JSON configurations and additional enemy types.
@@ -1000,22 +1000,24 @@ Create JSON configurations and additional enemy types.
 
 **Wave Configurations:**
 - `survival.json` - Main 20-minute survival mode
+- `easy.json` - Easier difficulty variant
+- `hard.json` - Harder difficulty variant
 - 3 phases: early (0-3min), mid (3-10min), late (10-20min)
 - Events: Horde every 2min, mini-boss at 3min, final boss at 19min
 
 **Subtasks:**
 
-- [ ] Create new enemy type configs
-- [ ] Create survival wave config with phases
-- [ ] Configure timed events (hordes, bosses)
-- [ ] Balance test the configuration
-- [ ] Create difficulty variants (easy, hard)
+- [x] Create new enemy type configs
+- [x] Create survival wave config with phases
+- [x] Configure timed events (hordes, bosses)
+- [ ] Balance test the configuration (deferred to integration)
+- [x] Create difficulty variants (easy, hard)
 
 **Acceptance Criteria:**
 
-- All configs load without errors
-- Gameplay feels balanced and engaging
-- Boss encounters are challenging but fair
+- ✅ All configs load without errors
+- Gameplay feels balanced and engaging (needs playtesting)
+- Boss encounters are challenging but fair (needs playtesting)
 
 ---
 
@@ -1024,7 +1026,7 @@ Create JSON configurations and additional enemy types.
 **Priority:** P1
 **Estimate:** 4 hours
 **Dependencies:** 2.7.2, 2.7.3, 2.7.5
-**Status:** NOT STARTED
+**Status:** IN PROGRESS
 
 **Description:**
 Integrate wave system into GameScene and UI.
@@ -1032,7 +1034,7 @@ Integrate wave system into GameScene and UI.
 **Subtasks:**
 
 - [ ] Load wave config during scene initialization
-- [ ] Create and update WaveManager each frame
+- [ ] Create and update WaveController each frame
 - [ ] Pass stat modifiers to enemy creation
 - [ ] Handle event spawning separately from regular spawns
 - [ ] Display event warnings in HUD
@@ -1045,6 +1047,238 @@ Integrate wave system into GameScene and UI.
 - Events trigger and spawn correctly
 - UI shows warnings and boss health
 - Performance acceptable throughout
+
+---
+
+### 2.8 Designer Tools
+
+#### Task 2.8.1: Design Designer Tools Architecture
+
+**Priority:** P2
+**Estimate:** 4 hours
+**Dependencies:** 2.7.6
+**Status:** NOT STARTED
+
+**Description:**
+Plan the architecture for in-browser designer tools to help balance and create game content.
+
+**Tool Categories:**
+
+- **Enemy Designer** - Create/edit enemy types, preview AI behavior
+- **Wave Designer** - Visual timeline for wave configuration
+- **Upgrade Path Designer** - Design upgrade trees and balancing
+- **Weapon/Item Designer** - Configure weapon parameters and visuals
+
+**Design Considerations:**
+
+- Separate from main game app (dev tools page or separate build)
+- Real-time preview of changes
+- Export to JSON configurations
+- Import existing configs for editing
+- Undo/redo support
+
+**Subtasks:**
+
+- [ ] Research existing game design tool patterns
+- [ ] Design data flow (JSON configs ↔ tool UI ↔ preview)
+- [ ] Plan tool UI layout (sidebar + preview canvas)
+- [ ] Define tool-specific requirements
+- [ ] Create architecture document
+
+**Acceptance Criteria:**
+
+- Architecture documented with component diagrams
+- Data flow clearly defined
+- UI mockups for each tool
+- Integration points with game engine identified
+
+---
+
+#### Task 2.8.2: Implement Enemy Designer Tool
+
+**Priority:** P2
+**Estimate:** 6 hours
+**Dependencies:** 2.8.1, 2.3.1
+**Status:** NOT STARTED
+
+**Description:**
+Visual tool for creating and editing enemy configurations.
+
+**Features:**
+
+- Form-based enemy config editing (health, speed, damage, xpValue)
+- Sprite/color preview
+- AI behavior preview (steering settings)
+- Live enemy test in preview canvas
+- Export to JSON
+
+**Subtasks:**
+
+- [ ] Create EnemyDesigner React component
+- [ ] Implement enemy config form with validation
+- [ ] Create preview canvas with single enemy spawn
+- [ ] Implement AI behavior visualization
+- [ ] Add export/import JSON functionality
+- [ ] Test with existing enemy types
+
+**Acceptance Criteria:**
+
+- Can create new enemy types visually
+- Can edit existing enemy configs
+- Preview shows enemy behavior accurately
+- Exported JSON works in game
+
+---
+
+#### Task 2.8.3: Implement Wave Designer Tool
+
+**Priority:** P2
+**Estimate:** 8 hours
+**Dependencies:** 2.8.1, 2.7.2
+**Status:** NOT STARTED
+
+**Description:**
+Visual timeline editor for wave configurations.
+
+**Features:**
+
+- Timeline view with phases and events
+- Drag-and-drop phase placement
+- Event markers (bosses, hordes) on timeline
+- Phase configuration sidebar
+- Event configuration sidebar
+- Live preview simulation (fast-forward through waves)
+- Export to JSON
+
+**Subtasks:**
+
+- [ ] Create WaveDesigner React component
+- [ ] Implement timeline visualization
+- [ ] Create phase editor sidebar
+- [ ] Create event editor sidebar
+- [ ] Implement drag-and-drop for phases/events
+- [ ] Add fast-forward preview simulation
+- [ ] Add export/import JSON functionality
+- [ ] Test with existing wave configs
+
+**Acceptance Criteria:**
+
+- Can visually create wave configurations
+- Timeline accurately represents game time
+- Preview simulation matches actual gameplay
+- Exported JSON works with WaveManager
+
+---
+
+#### Task 2.8.4: Implement Upgrade Path Designer Tool
+
+**Priority:** P2
+**Estimate:** 6 hours
+**Dependencies:** 2.8.1, 2.5.1
+**Status:** NOT STARTED
+
+**Description:**
+Tool for designing upgrade trees and balancing stat modifiers.
+
+**Features:**
+
+- Upgrade pool management (add/edit/remove upgrades)
+- Stat modifier configuration
+- Upgrade category/type organization
+- Balance visualization (stat growth curves)
+- Rarity/weight configuration
+- Export to JSON
+
+**Subtasks:**
+
+- [ ] Create UpgradeDesigner React component
+- [ ] Implement upgrade list management
+- [ ] Create stat modifier form
+- [ ] Add balance visualization charts
+- [ ] Implement rarity/weight configuration
+- [ ] Add export/import JSON functionality
+- [ ] Test with existing upgrade pool
+
+**Acceptance Criteria:**
+
+- Can create/edit upgrade definitions
+- Balance curves show stat progression clearly
+- Exported JSON works with leveling system
+
+---
+
+#### Task 2.8.5: Implement Weapon Designer Tool
+
+**Priority:** P2
+**Estimate:** 6 hours
+**Dependencies:** 2.8.1, 2.4.1
+**Status:** NOT STARTED
+
+**Description:**
+Tool for configuring weapon parameters and visual properties.
+
+**Features:**
+
+- Weapon config editing (damage, cooldown, projectile speed, etc.)
+- Projectile visual configuration (size, color, trail)
+- Fire pattern configuration (spread, burst, auto-aim)
+- Live preview with test target
+- Weapon level progression (stats per level)
+- Export to JSON
+
+**Subtasks:**
+
+- [ ] Create WeaponDesigner React component
+- [ ] Implement weapon config form
+- [ ] Create projectile visual editor
+- [ ] Add fire pattern configuration
+- [ ] Implement live preview canvas with target
+- [ ] Add level progression configuration
+- [ ] Add export/import JSON functionality
+- [ ] Test with existing weapon configs
+
+**Acceptance Criteria:**
+
+- Can create new weapon types visually
+- Preview accurately shows weapon behavior
+- Level progression displays correctly
+- Exported JSON works with weapon system
+
+---
+
+#### Task 2.8.6: Create Designer Tools Hub
+
+**Priority:** P2
+**Estimate:** 3 hours
+**Dependencies:** 2.8.2, 2.8.3, 2.8.4, 2.8.5
+**Status:** NOT STARTED
+
+**Description:**
+Central hub page linking all designer tools with shared utilities.
+
+**Features:**
+
+- Dashboard with links to all tools
+- Recent files/configs
+- Global config import/export (all game data)
+- Settings for preview canvas
+- Documentation links
+
+**Subtasks:**
+
+- [ ] Create DesignerHub page component
+- [ ] Add navigation to all tools
+- [ ] Implement recent configs storage (localStorage)
+- [ ] Add global import/export
+- [ ] Add preview settings panel
+- [ ] Add documentation/help section
+
+**Acceptance Criteria:**
+
+- Easy navigation between tools
+- Can export/import complete game configs
+- Recent work easily accessible
+- Documentation available
 
 ---
 
@@ -1816,18 +2050,21 @@ Monitor system after launch.
 - Deployment scripts working on Anvil
 - Wallet connection and token balance display implemented
 
-**Phase 2: Game Engine** - ✅ COMPLETE (13/13 tasks complete)
+**Phase 2: Game Engine** - 🔄 IN PROGRESS (18/19 tasks complete)
 
 - ✅ PixiJS setup, Input System, Scene Manager
 - ✅ Player entity with movement, health, invincibility
 - ✅ Camera following player in infinite arena
 - ✅ Enemy spawning and AI (Yuka steering behaviors)
-- ✅ Basic weapon system with auto-targeting
+- ✅ Basic weapon system with auto-targeting + range limiting
 - ✅ Collision detection (player-enemy, projectile-enemy)
 - ✅ Pickup system (XP gems with magnet attraction)
 - ✅ Level-up system with exponential XP scaling
 - ✅ Level-up UI with upgrade selection modal
 - ✅ HUD, Pause menu, Game over screen
+- ✅ Wave system types, WaveManager, EventExecutor, SpawnPatterns
+- ✅ Wave and enemy configurations (survival, easy, hard modes)
+- 🔄 GameScene integration with wave system (in progress)
 
 **Phase 3-6:** Not started
 
