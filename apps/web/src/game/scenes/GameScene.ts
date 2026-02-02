@@ -111,6 +111,10 @@ export class GameScene extends Scene {
   // Leveling
   private levelingSystem: LevelingSystem | null = null;
 
+  // Stats tracking
+  private enemiesKilled = 0;
+  private totalXPCollected = 0;
+
   // Game dimensions (set on resize)
   private width = 800;
   private height = 600;
@@ -120,6 +124,10 @@ export class GameScene extends Scene {
   }
 
   protected onEnter(): void {
+    // Reset stats
+    this.enemiesKilled = 0;
+    this.totalXPCollected = 0;
+
     this.createBackground();
     this.createGameContainer();
     this.createWorld();
@@ -249,7 +257,8 @@ export class GameScene extends Scene {
     if (this.yukaManager && this.gameContainer) {
       const deathResult = enemyDeathSystem(this.world, this.yukaManager);
 
-      // Spawn XP gems at death positions
+      // Track kills and spawn XP gems at death positions
+      this.enemiesKilled += deathResult.deaths.length;
       for (const death of deathResult.deaths) {
         createXPGem(this.world, this.gameContainer, death.position, death.xpValue);
       }
@@ -269,10 +278,11 @@ export class GameScene extends Scene {
 
     // Add collected XP to leveling system
     if (collectionResult.totalXP > 0 && this.levelingSystem) {
+      this.totalXPCollected += collectionResult.totalXP;
       const levelResult: LevelUpResult = this.levelingSystem.addXP(collectionResult.totalXP);
 
       if (levelResult.leveledUp) {
-        // Level up occurred - game will pause for upgrade selection in 2.5.2
+        // Level up occurred - game will pause for upgrade selection
         console.log(
           `Level up! Now level ${levelResult.newLevel} (gained ${levelResult.levelsGained} levels)`
         );
@@ -370,6 +380,27 @@ export class GameScene extends Scene {
    */
   isLevelingUp(): boolean {
     return this.levelingSystem?.isLevelingUp() ?? false;
+  }
+
+  /**
+   * Get total enemies killed this session
+   */
+  getEnemiesKilled(): number {
+    return this.enemiesKilled;
+  }
+
+  /**
+   * Get total XP collected this session
+   */
+  getTotalXPCollected(): number {
+    return this.totalXPCollected;
+  }
+
+  /**
+   * Get current XP toward next level
+   */
+  getCurrentXP(): number {
+    return this.levelingSystem?.getCurrentXP() ?? 0;
   }
 
   /**
