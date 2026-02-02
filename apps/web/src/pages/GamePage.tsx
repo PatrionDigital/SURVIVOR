@@ -141,8 +141,10 @@ export function GamePage() {
   // Track survival time and move player based on input (traditional mode)
   const handleUpdate = useCallback(
     (deltaMs: number, input: InputState) => {
-      // Update survival time (both modes)
-      setSurvivalTime((prev: number) => prev + deltaMs / 1000);
+      // Only update survival time when game is actually playing (not paused, not in level-up)
+      if (isPlaying && !isScenePaused && !isLevelUpOpen) {
+        setSurvivalTime((prev: number) => prev + deltaMs / 1000);
+      }
 
       // Check for level-up and update HUD stats (scene mode only)
       if (useSceneMode && sceneManagerRef.current) {
@@ -230,7 +232,7 @@ export function GamePage() {
         }
       }
     },
-    [setSurvivalTime, useSceneMode, isLevelUpOpen]
+    [setSurvivalTime, useSceneMode, isLevelUpOpen, isPlaying, isScenePaused]
   );
 
   // Called when engine is ready
@@ -332,17 +334,10 @@ export function GamePage() {
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-bold text-primary-400">Farcaster Survivors</h1>
         </div>
+        {/* Pause button moved to GameHUD for scene mode */}
         {isPlaying && !useSceneMode && (
           <button
             onClick={pauseGame}
-            className="text-gray-400 hover:text-white transition-colors text-sm"
-          >
-            Pause
-          </button>
-        )}
-        {isPlaying && useSceneMode && (
-          <button
-            onClick={handleScenePause}
             className="text-gray-400 hover:text-white transition-colors text-sm"
           >
             Pause
@@ -374,6 +369,7 @@ export function GamePage() {
             survivalTime={survivalTime}
             enemiesKilled={enemiesKilled}
             totalXP={totalXP}
+            onPause={handleScenePause}
           />
         )}
 

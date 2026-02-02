@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { GameHUD, GameHUDProps } from "./GameHUD";
 
 const defaultProps: GameHUDProps = {
@@ -135,6 +135,30 @@ describe("GameHUD", () => {
       render(<GameHUD {...defaultProps} level={99} />);
 
       expect(screen.getByText("Lv.99")).toBeInTheDocument();
+    });
+  });
+
+  describe("pause button", () => {
+    it("renders pause button when onPause is provided", () => {
+      const onPause = vi.fn();
+      render(<GameHUD {...defaultProps} onPause={onPause} />);
+
+      expect(screen.getByRole("button", { name: /pause/i })).toBeInTheDocument();
+    });
+
+    it("does not render pause button when onPause is not provided", () => {
+      render(<GameHUD {...defaultProps} />);
+
+      expect(screen.queryByRole("button", { name: /pause/i })).not.toBeInTheDocument();
+    });
+
+    it("calls onPause when pause button is clicked", () => {
+      const onPause = vi.fn();
+      render(<GameHUD {...defaultProps} onPause={onPause} />);
+
+      fireEvent.click(screen.getByRole("button", { name: /pause/i }));
+
+      expect(onPause).toHaveBeenCalledTimes(1);
     });
   });
 });

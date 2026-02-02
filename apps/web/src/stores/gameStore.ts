@@ -87,7 +87,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ...initialState,
   startGame: () => {
     clearAfkTimeout();
-    set({ isPlaying: true, isPaused: false });
+    // Reset survival time and stats when starting a new game
+    set({
+      isPlaying: true,
+      isPaused: false,
+      survivalTime: 0,
+      enemiesKilled: 0,
+      score: 0,
+      level: 1,
+    });
   },
   pauseGame: () => {
     clearAfkTimeout();

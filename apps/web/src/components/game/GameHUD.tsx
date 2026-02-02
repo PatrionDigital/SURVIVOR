@@ -8,6 +8,7 @@
  * - Survival time
  * - Enemies killed
  * - Total XP collected
+ * - Pause button
  */
 export interface GameHUDProps {
   health: { current: number; max: number };
@@ -18,6 +19,8 @@ export interface GameHUDProps {
   survivalTime: number;
   enemiesKilled: number;
   totalXP: number;
+  /** Callback when pause button is clicked */
+  onPause?: () => void;
 }
 
 /**
@@ -47,6 +50,7 @@ export function GameHUD({
   survivalTime,
   enemiesKilled,
   totalXP,
+  onPause,
 }: GameHUDProps) {
   const healthPercent = health.max > 0 ? (health.current / health.max) * 100 : 0;
   const healthColor = getHealthColor(healthPercent);
@@ -54,7 +58,7 @@ export function GameHUD({
   return (
     <div className="absolute top-0 left-0 right-0 p-3 pointer-events-none">
       <div className="flex flex-col gap-2">
-        {/* Top row: Health and Level */}
+        {/* Top row: Health, Level, and Pause button */}
         <div className="flex items-center gap-4">
           {/* Health bar */}
           <div className="flex items-center gap-2 flex-1 max-w-xs">
@@ -75,6 +79,20 @@ export function GameHUD({
           <div className="bg-primary-600/80 px-3 py-1 rounded-full border border-primary-400">
             <span className="text-sm font-bold text-white">Lv.{level}</span>
           </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Pause button */}
+          {onPause && (
+            <button
+              onClick={onPause}
+              className="pointer-events-auto bg-gray-800/80 hover:bg-gray-700 px-3 py-1 rounded-lg border border-gray-600 hover:border-gray-500 transition-colors"
+              title="Pause (ESC)"
+            >
+              <span className="text-sm text-gray-300 hover:text-white">⏸️ Pause</span>
+            </button>
+          )}
         </div>
 
         {/* Second row: XP bar */}
