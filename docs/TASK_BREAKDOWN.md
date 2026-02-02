@@ -771,82 +771,85 @@ UI for selecting level-up upgrades.
 
 ### 2.6 HUD & UI
 
-#### Task 2.6.1: Implement Game HUD
+#### Task 2.6.1: Implement Game HUD ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 2.2.1
+**Status:** COMPLETE
 
 **Description:**
 Heads-up display during gameplay.
 
 **Subtasks:**
 
-- [ ] Create HUD component
-- [ ] Display health bar
-- [ ] Display XP bar
-- [ ] Display timer (survival time)
-- [ ] Display level
-- [ ] Display weapon icons
-- [ ] Position HUD correctly on mobile/desktop
+- [x] Create HUD component
+- [x] Display health bar
+- [x] Display XP bar
+- [x] Display timer (survival time)
+- [x] Display level
+- [x] Display enemies killed count
+- [x] Position HUD correctly on mobile/desktop
 
 **Acceptance Criteria:**
 
-- All stats displayed clearly
-- Updates in real-time
-- Doesn't obstruct gameplay
+- ✅ All stats displayed clearly
+- ✅ Updates in real-time
+- ✅ Doesn't obstruct gameplay
 
 ---
 
-#### Task 2.6.2: Implement Pause Menu
+#### Task 2.6.2: Implement Pause Menu ✅
 
-**Priority:** P1  
-**Estimate:** 2 hours  
+**Priority:** P1
+**Estimate:** 2 hours
 **Dependencies:** 2.1.3
+**Status:** COMPLETE
 
 **Description:**
 Pause menu with resume and quit options.
 
 **Subtasks:**
 
-- [ ] Create PauseMenu component
-- [ ] Pause game on ESC/button
-- [ ] Display pause overlay
-- [ ] Resume and Quit buttons
-- [ ] Resume on click outside
+- [x] Create PauseMenu component
+- [x] Pause game on ESC/button
+- [x] Display pause overlay
+- [x] Resume and Quit buttons
+- [x] Resume on click outside
 
 **Acceptance Criteria:**
 
-- Game pauses correctly
-- Can resume or quit
-- Game state preserved
+- ✅ Game pauses correctly
+- ✅ Can resume or quit
+- ✅ Game state preserved
 
 ---
 
-#### Task 2.6.3: Implement Game Over Screen
+#### Task 2.6.3: Implement Game Over Screen ✅
 
-**Priority:** P0  
-**Estimate:** 3 hours  
+**Priority:** P0
+**Estimate:** 3 hours
 **Dependencies:** 2.1.3
+**Status:** COMPLETE
 
 **Description:**
 Show results when player dies.
 
 **Subtasks:**
 
-- [ ] Create GameOverScreen component
-- [ ] Display survival time
-- [ ] Display enemies killed
-- [ ] Display level reached
-- [ ] Display rewards earned
-- [ ] Play Again button
-- [ ] Share to Farcaster button
+- [x] Create GameOverScreen component
+- [x] Display survival time
+- [x] Display enemies killed
+- [x] Display level reached
+- [x] Display total XP collected
+- [x] Play Again button
+- [x] Share to Farcaster button
 
 **Acceptance Criteria:**
 
-- Shows all relevant stats
-- Can start new game
-- Can share results
+- ✅ Shows all relevant stats
+- ✅ Can start new game
+- ✅ Can share results
 
 ---
 
@@ -1618,7 +1621,7 @@ Monitor system after launch.
 - Deployment scripts working on Anvil
 - Wallet connection and token balance display implemented
 
-**Phase 2: Game Engine** - 🔄 IN PROGRESS (10/13 tasks complete)
+**Phase 2: Game Engine** - ✅ COMPLETE (13/13 tasks complete)
 
 - ✅ PixiJS setup, Input System, Scene Manager
 - ✅ Player entity with movement, health, invincibility
@@ -1629,7 +1632,7 @@ Monitor system after launch.
 - ✅ Pickup system (XP gems with magnet attraction)
 - ✅ Level-up system with exponential XP scaling
 - ✅ Level-up UI with upgrade selection modal
-- ⏳ HUD, Pause menu, Game over screen
+- ✅ HUD, Pause menu, Game over screen
 
 **Phase 3-6:** Not started
 
@@ -1638,7 +1641,7 @@ Monitor system after launch.
 | Phase | Focus            | Duration | Critical Path               | Status      |
 | ----- | ---------------- | -------- | --------------------------- | ----------- |
 | 1     | Infrastructure   | 2 weeks  | Monorepo, Tokens, Curves    | ✅ Complete |
-| 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | 🔄 ~77%     |
+| 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | ✅ Complete |
 | 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | Not started |
 | 4     | Backend          | 2 weeks  | API, Sessions, Rewards      | Not started |
 | 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | Not started |
