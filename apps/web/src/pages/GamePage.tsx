@@ -12,7 +12,7 @@ import {
   type Upgrade,
 } from "../game";
 import { useGameStore, useSettingsStore } from "../stores";
-import { LevelUpModal, GameHUD } from "../components/game";
+import { LevelUpModal, GameHUD, PauseMenu } from "../components/game";
 
 export function GamePage() {
   const { isPlaying, pauseGame, setSurvivalTime, playerPosition, setPlayerPosition, survivalTime } =
@@ -39,6 +39,9 @@ export function GamePage() {
   const [xpProgress, setXpProgress] = useState(0);
   const [currentXP, setCurrentXP] = useState(0);
   const [xpToNextLevel, setXpToNextLevel] = useState(100);
+
+  // Pause state for scene mode
+  const [isScenePaused, setIsScenePaused] = useState(false);
 
   // Keep ref in sync with store value
   useEffect(() => {
@@ -91,6 +94,49 @@ export function GamePage() {
       }
     }
   }, []);
+
+  // Handle pause for scene mode
+  const handleScenePause = useCallback(() => {
+    if (useSceneMode && isPlaying && !isLevelUpOpen && !isScenePaused) {
+      engineRef.current?.pause();
+      setIsScenePaused(true);
+    }
+  }, [useSceneMode, isPlaying, isLevelUpOpen, isScenePaused]);
+
+  // Handle resume for scene mode
+  const handleSceneResume = useCallback(() => {
+    if (isScenePaused) {
+      engineRef.current?.resume();
+      setIsScenePaused(false);
+    }
+  }, [isScenePaused]);
+
+  // Handle quit from pause menu
+  const handleQuit = useCallback(() => {
+    // Reset to menu scene
+    if (sceneManagerRef.current) {
+      sceneManagerRef.current.switchTo("menu");
+    }
+    setIsScenePaused(false);
+  }, []);
+
+  // ESC key to pause game (scene mode)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && useSceneMode && isPlaying && !isLevelUpOpen) {
+        if (isScenePaused) {
+          handleSceneResume();
+        } else {
+          handleScenePause();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [useSceneMode, isPlaying, isLevelUpOpen, isScenePaused, handleScenePause, handleSceneResume]);
 
   // Track survival time and move player based on input (traditional mode)
   const handleUpdate = useCallback(
@@ -294,7 +340,15 @@ export function GamePage() {
             Pause
           </button>
         )}
-        {(!isPlaying || useSceneMode) && <div className="w-12" />}
+        {isPlaying && useSceneMode && (
+          <button
+            onClick={handleScenePause}
+            className="text-gray-400 hover:text-white transition-colors text-sm"
+          >
+            Pause
+          </button>
+        )}
+        {!isPlaying && <div className="w-12" />}
       </div>
 
       {/* Game canvas container */}
@@ -330,6 +384,11 @@ export function GamePage() {
           choices={upgradeChoices}
           onSelectUpgrade={handleSelectUpgrade}
         />
+
+        {/* Pause menu (scene mode only) */}
+        {useSceneMode && (
+          <PauseMenu isOpen={isScenePaused} onResume={handleSceneResume} onQuit={handleQuit} />
+        )}
       </div>
     </div>
   );
