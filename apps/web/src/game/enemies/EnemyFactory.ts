@@ -63,10 +63,11 @@ export function createEnemy(
   vehicle.maxSpeed = effectiveSpeed;
   vehicle.maxForce = config.movement.maxForce;
   vehicle.mass = config.movement.mass;
-  // Set bounding radius for collision/separation (match sprite size)
-  vehicle.boundingRadius = effectiveRadius;
+  // Set bounding radius larger than visual radius to prevent overlap
+  // (separation triggers when vehicles are within combined bounding radii)
+  vehicle.boundingRadius = effectiveRadius * 2;
   // Set neighborhood radius for flocking behaviors to find nearby vehicles
-  vehicle.neighborhoodRadius = Math.max(150, effectiveRadius * 5);
+  vehicle.neighborhoodRadius = Math.max(200, effectiveRadius * 8);
   vehicle.updateNeighborhood = true;
 
   // Add flocking behaviors with weights from config
