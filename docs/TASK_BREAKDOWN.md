@@ -1559,33 +1559,38 @@ Test suite for RewardDistributor.
 
 ### 4.1 Database
 
-#### Task 4.1.1: Create Database Schema
+#### Task 4.1.1: Create Database Schema ✅
 
-**Priority:** P0  
-**Estimate:** 3 hours  
+**Priority:** P0
+**Estimate:** 3 hours
 **Dependencies:** 1.1.3
+**Status:** COMPLETE
 
 **Description:**
 Set up PostgreSQL schema in Supabase.
 
 **Subtasks:**
 
-- [ ] Create players table
-- [ ] Create game_sessions table
-- [ ] Create session_heartbeats table
-- [ ] Create daily_rewards table
-- [ ] Create achievements table
-- [ ] Create leaderboard_entries table
-- [ ] Create notification_tokens table
-- [ ] Create claim_nonces table
-- [ ] Add indexes
-- [ ] Add triggers
+- [x] Create players table
+- [x] Create game_sessions table
+- [x] Create session_heartbeats table
+- [x] Create daily_rewards table
+- [x] Create achievements table
+- [x] Create leaderboard_entries table
+- [x] Create notification_tokens table
+- [x] Create claim_nonces table
+- [x] Add indexes
+- [x] Add triggers
+- [x] Add RPC functions (update_player_stats, record_daily_reward, use_nonce)
+- [x] Add migration runner (db:migrate script)
+- [x] Add schema tests (44 tests)
 
 **Acceptance Criteria:**
 
-- All tables created
-- Indexes optimize queries
-- Foreign keys enforced
+- ✅ All tables created
+- ✅ Indexes optimize queries
+- ✅ Foreign keys enforced
+- ✅ RPC functions for common operations
 
 ---
 
