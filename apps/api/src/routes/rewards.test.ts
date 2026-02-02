@@ -39,7 +39,10 @@ afterAll(async () => {
   // Cleanup test data
   if (client && testPlayerId) {
     await client.query("DELETE FROM claim_nonces WHERE player_id = $1", [testPlayerId]);
-    await client.query("DELETE FROM session_heartbeats WHERE session_id IN (SELECT id FROM game_sessions WHERE player_id = $1)", [testPlayerId]);
+    await client.query(
+      "DELETE FROM session_heartbeats WHERE session_id IN (SELECT id FROM game_sessions WHERE player_id = $1)",
+      [testPlayerId]
+    );
     await client.query("DELETE FROM game_sessions WHERE player_id = $1", [testPlayerId]);
     await client.query("DELETE FROM players WHERE id = $1", [testPlayerId]);
   }
