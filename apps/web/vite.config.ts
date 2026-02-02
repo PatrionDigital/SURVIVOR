@@ -2,7 +2,7 @@ import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -13,6 +13,7 @@ export default defineConfig({
       "@stores": path.resolve(__dirname, "./src/stores"),
       "@lib": path.resolve(__dirname, "./src/lib"),
       "@types": path.resolve(__dirname, "./src/types"),
+      "@designer": path.resolve(__dirname, "./src/designer"),
     },
   },
   server: {
@@ -27,5 +28,14 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+        // Only include designer in development builds
+        ...(mode === "development" && {
+          designer: path.resolve(__dirname, "designer.html"),
+        }),
+      },
+    },
   },
-});
+}));
