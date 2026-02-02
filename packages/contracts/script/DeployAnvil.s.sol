@@ -35,14 +35,12 @@ contract DeployAnvil is Script {
     RewardDistributor public rewardDistributor;
 
     // Gear metadata
-    string[6] public gearNames =
-        ["Weapon Core", "Armor Plate", "Power Belt", "Combat Gloves", "Amulet", "Swift Boots"];
+    string[6] public gearNames = ["Weapon Core", "Armor Plate", "Power Belt", "Combat Gloves", "Amulet", "Swift Boots"];
     string[6] public gearSymbols = ["WEAPON", "ARMOR", "POWER", "GLOVES", "AMULET", "BOOTS"];
 
     function run() public {
         // Use Anvil's first default private key
-        uint256 deployerPrivateKey =
-            0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
+        uint256 deployerPrivateKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
 
         console.log("=== Anvil Local Deployment ===");
         console.log("Deployer:", DEPLOYER);
@@ -69,10 +67,10 @@ contract DeployAnvil is Script {
         console.log("3. Deploying BondingCurves...");
         for (uint256 i = 0; i < 6; i++) {
             bondingCurves[i] = new ERC20BondingCurve(
-                address(vscToken), // base token (VSC)
-                gearTokenAddresses[i], // gear token
-                DEPLOYER, // treasury (deployer for testing)
-                DEPLOYER // owner
+                address(vscToken),      // base token (VSC)
+                gearTokenAddresses[i],  // gear token
+                DEPLOYER,               // treasury (deployer for testing)
+                DEPLOYER                // owner
             );
             console.log("  ", gearSymbols[i], "Curve:", address(bondingCurves[i]));
         }
@@ -105,26 +103,23 @@ contract DeployAnvil is Script {
         maintenancePool.setGearStaking(address(gearStaking));
         console.log("   Linked GearStaking <-> MaintenancePool");
 
-        // 9. Mint tokens according to tokenomics allocation
-        console.log("9. Minting tokens (tokenomics allocation)...");
+        // 9. Mint test tokens
+        console.log("9. Minting test tokens...");
 
+        // Mint VSC to various addresses
         vscToken.addMinter(DEPLOYER);
+        vscToken.mint(TEST_USER, 100_000_000 * 1e18);
+        console.log("   Minted 100M VSC to test user");
 
-        // Gameplay Emissions: 42% = 42B VSC to RewardDistributor
-        // This is the source of all gameplay rewards players can claim
-        vscToken.mint(address(rewardDistributor), 42_000_000_000 * 1e18);
-        console.log("   Minted 42B VSC to RewardDistributor (42% gameplay emissions)");
+        vscToken.mint(address(rewardDistributor), 10_000_000 * 1e18);
+        console.log("   Minted 10M VSC to RewardDistributor");
 
         // Fund bonding curves with VSC liquidity for sell operations
-        // Each curve gets 100M VSC to allow users to sell tokens back
+        // Each curve gets 10M VSC to allow users to sell tokens
         for (uint256 i = 0; i < 6; i++) {
-            vscToken.mint(address(bondingCurves[i]), 100_000_000 * 1e18);
+            vscToken.mint(address(bondingCurves[i]), 10_000_000 * 1e18);
         }
-        console.log("   Funded each bonding curve with 100M VSC liquidity");
-
-        // NOTE: No VSC is minted to test user at TGE
-        // Players earn VSC through gameplay rewards only
-        console.log("   Players earn VSC through gameplay (no TGE allocation)");
+        console.log("   Funded each bonding curve with 10M VSC liquidity");
 
         // NOTE: Gear tokens are NOT pre-minted - users buy from bonding curve at low prices
         // Initial price starts at 1 VSC per token and grows quadratically with supply
