@@ -82,6 +82,9 @@ export function useGearStaking(): UseGearStakingReturn {
   const gearStakingAddress = networkAddresses.gearStaking || undefined;
   const gearAddresses = networkAddresses.gearTokens;
 
+  // Check if query should be enabled
+  const queryEnabled = isConnected && !!address && !!gearStakingAddress;
+
   // Get player stats from contract
   const {
     data: playerStatsRaw,
@@ -95,7 +98,7 @@ export function useGearStaking(): UseGearStakingReturn {
     functionName: "getPlayerStats",
     args: address ? [address] : undefined,
     query: {
-      enabled: isConnected && !!address && !!gearStakingAddress,
+      enabled: queryEnabled,
     },
   });
 
@@ -145,14 +148,15 @@ export function useGearStaking(): UseGearStakingReturn {
     },
   });
 
-  // Watch for new blocks to auto-refresh
-  const { data: blockNumber } = useBlockNumber({ watch: true });
+  // Watch for new blocks to auto-refresh (disabled during initial load to prevent loading loops)
+  const { data: blockNumber } = useBlockNumber({ watch: !statsLoading });
 
   useEffect(() => {
-    if (blockNumber && statsQueryKey) {
+    // Only invalidate if we're not currently loading and have data
+    if (blockNumber && statsQueryKey && !statsLoading && playerStatsRaw !== undefined) {
       queryClient.invalidateQueries({ queryKey: statsQueryKey });
     }
-  }, [blockNumber, queryClient, statsQueryKey]);
+  }, [blockNumber, queryClient, statsQueryKey, statsLoading, playerStatsRaw]);
 
   // Write contract hooks - wagmi for production
   const { writeContractAsync, isPending: wagmiIsPending } = useWriteContract();
@@ -171,7 +175,9 @@ export function useGearStaking(): UseGearStakingReturn {
 
   // Format player stats
   const stats: PlayerStats | null = useMemo(() => {
-    if (!playerStatsRaw) return null;
+    if (!playerStatsRaw) {
+      return null;
+    }
 
     const rawStats = playerStatsRaw as {
       stakedAmounts: readonly bigint[];

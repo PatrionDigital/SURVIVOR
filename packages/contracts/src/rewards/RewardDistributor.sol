@@ -59,12 +59,7 @@ contract RewardDistributor is Ownable2Step, Pausable, ReentrancyGuard {
     // ============ Events ============
 
     /// @notice Emitted when a reward is claimed
-    event RewardClaimed(
-        address indexed player,
-        uint256 amount,
-        uint8 rewardType,
-        uint256 nonce
-    );
+    event RewardClaimed(address indexed player, uint256 amount, uint8 rewardType, uint256 nonce);
 
     /// @notice Emitted when the authorized signer is updated
     event SignerUpdated(address indexed oldSigner, address indexed newSigner);
@@ -112,11 +107,7 @@ contract RewardDistributor is Ownable2Step, Pausable, ReentrancyGuard {
      * @param _vscToken VSC token contract address
      * @param _authorizedSigner Initial authorized signer address
      */
-    constructor(
-        address _owner,
-        address _vscToken,
-        address _authorizedSigner
-    ) Ownable(_owner) {
+    constructor(address _owner, address _vscToken, address _authorizedSigner) Ownable(_owner) {
         if (_vscToken == address(0)) revert ZeroAddress();
         if (_authorizedSigner == address(0)) revert ZeroAddress();
 
@@ -157,20 +148,12 @@ contract RewardDistributor is Ownable2Step, Pausable, ReentrancyGuard {
         if (dailyClaimedByPlayer[msg.sender][today] + amount > dailyPlayerCap) {
             revert DailyCapExceeded();
         }
-        if (globalDailyClaimed[today] + amount > globalDailyCap) {
-            revert DailyCapExceeded();
-        }
+        if (globalDailyClaimed[today] + amount > globalDailyCap) revert DailyCapExceeded();
 
         // Verify signature
         bytes32 messageHash = keccak256(
             abi.encodePacked(
-                msg.sender,
-                amount,
-                rewardType,
-                nonce,
-                expiry,
-                block.chainid,
-                address(this)
+                msg.sender, amount, rewardType, nonce, expiry, block.chainid, address(this)
             )
         );
         bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
@@ -324,11 +307,7 @@ contract RewardDistributor is Ownable2Step, Pausable, ReentrancyGuard {
      * @param to Recipient address
      * @param amount Amount to withdraw
      */
-    function emergencyWithdraw(
-        address token,
-        address to,
-        uint256 amount
-    ) external onlyOwner {
+    function emergencyWithdraw(address token, address to, uint256 amount) external onlyOwner {
         if (to == address(0)) revert ZeroAddress();
 
         bool success = IERC20(token).transfer(to, amount);

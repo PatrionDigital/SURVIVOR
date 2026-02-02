@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   GameCanvas,
@@ -7,16 +7,23 @@ import {
   InputState,
   SceneManager,
   GameScene,
-  ResultScene,
   GameResults,
   type Upgrade,
 } from "../game";
 import { useGameStore } from "../stores";
-import { LevelUpModal, GameHUD, PauseMenu } from "../components/game";
+import {
+  LevelUpModal,
+  GameHUD,
+  PauseMenu,
+  GameOverScreen,
+  type RewardData,
+} from "../components/game";
+import { useGameSession } from "../hooks";
 
 export function GamePage() {
   const { isPlaying, endGame, setSurvivalTime, playerPosition, setPlayerPosition, survivalTime } =
     useGameStore();
+  const { isAuthenticated, sessionId, startGameSession, endGameSession } = useGameSession();
 
   const engineRef = useRef<GameEngine | null>(null);
   const sceneManagerRef = useRef<SceneManager | null>(null);
@@ -46,8 +53,23 @@ export function GamePage() {
   // Pause state
   const [isPaused, setIsPaused] = useState(false);
 
+  // Game over state
+  const [showGameOver, setShowGameOver] = useState(false);
+  const [gameOverStats, setGameOverStats] = useState<{
+    survivalTime: number;
+    enemiesKilled: number;
+    levelReached: number;
+    totalXP: number;
+  } | null>(null);
+  const [rewardData, setRewardData] = useState<RewardData | null>(null);
+
+  const navigate = useNavigate();
+
   // Track if difficulty has been increased (after 1 min or first upgrade)
   const difficultyIncreasedRef = useRef(false);
+
+  // Track if session has been started for current game
+  const sessionStartedRef = useRef(false);
 
   // Save player position before unmount (for persistence across navigation)
   useEffect(() => {
@@ -147,58 +169,132 @@ export function GamePage() {
     };
   }, [isPlaying, isLevelUpOpen, isPaused, handlePause, handleResume]);
 
-  // Handle victory - transition to result scene with victory flag
-  const handleVictory = useCallback(() => {
+  // Start backend session when game starts
+  useEffect(() => {
+    if (isPlaying && isAuthenticated && !sessionStartedRef.current) {
+      sessionStartedRef.current = true;
+      startGameSession().then((id) => {
+        if (id) {
+          console.log("Backend session started:", id);
+        } else {
+          console.warn("Failed to start backend session, rewards may not be available");
+        }
+      });
+    }
+  }, [isPlaying, isAuthenticated, startGameSession]);
+
+  // Handle victory - show game over screen with victory bonus
+  const handleVictory = useCallback(async () => {
     if (!sceneManagerRef.current) return;
 
     const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
-    const resultScene = sceneManagerRef.current.getScene("result") as ResultScene | undefined;
 
-    if (gameScene && resultScene) {
-      // Gather final stats with victory bonus
-      const results: GameResults = {
+    if (gameScene) {
+      // Calculate score with victory bonus
+      const score = (totalXP * 10 + enemiesKilled * 5) * 2;
+
+      // Set game over stats immediately for display
+      setGameOverStats({
         survivalTime,
-        score: (totalXP * 10 + enemiesKilled * 5) * 2, // Double score for victory
         enemiesKilled,
-        level: currentLevel,
-        victory: true,
-      };
+        levelReached: currentLevel,
+        totalXP,
+      });
 
-      // Set results and transition to result scene
-      resultScene.setResults(results);
+      // End game state and show overlay
       endGame();
-      sceneManagerRef.current.switchTo("result");
+      setShowGameOver(true);
 
-      // Reset difficulty flag for next game
+      // Try to get signed reward from backend (async, non-blocking UI)
+      if (sessionId) {
+        const reward = await endGameSession(score, currentLevel, enemiesKilled, totalXP);
+        if (reward) {
+          setRewardData(reward);
+        }
+      }
+
+      // Reset flags for next game
       difficultyIncreasedRef.current = false;
+      sessionStartedRef.current = false;
     }
-  }, [survivalTime, totalXP, enemiesKilled, currentLevel, endGame]);
+  }, [survivalTime, totalXP, enemiesKilled, currentLevel, endGame, sessionId, endGameSession]);
 
-  // Handle player death - transition to result scene
-  const handlePlayerDeath = useCallback(() => {
+  // Handle player death - show game over screen with reward
+  const handlePlayerDeath = useCallback(async () => {
     if (!sceneManagerRef.current) return;
 
     const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
-    const resultScene = sceneManagerRef.current.getScene("result") as ResultScene | undefined;
 
-    if (gameScene && resultScene) {
-      // Gather final stats
-      const results: GameResults = {
+    if (gameScene) {
+      // Calculate score
+      const score = totalXP * 10 + enemiesKilled * 5;
+
+      // Set game over stats immediately for display
+      setGameOverStats({
         survivalTime,
-        score: totalXP * 10 + enemiesKilled * 5,
         enemiesKilled,
-        level: currentLevel,
-      };
+        levelReached: currentLevel,
+        totalXP,
+      });
 
-      // Set results and transition to result scene
-      resultScene.setResults(results);
+      // End game state and show overlay
       endGame();
-      sceneManagerRef.current.switchTo("result");
+      setShowGameOver(true);
 
-      // Reset difficulty flag for next game
+      // Try to get signed reward from backend (async, non-blocking UI)
+      if (sessionId) {
+        const reward = await endGameSession(score, currentLevel, enemiesKilled, totalXP);
+        if (reward) {
+          setRewardData(reward);
+        }
+      }
+
+      // Reset flags for next game
       difficultyIncreasedRef.current = false;
+      sessionStartedRef.current = false;
     }
-  }, [survivalTime, totalXP, enemiesKilled, currentLevel, endGame]);
+  }, [survivalTime, totalXP, enemiesKilled, currentLevel, endGame, sessionId, endGameSession]);
+
+  // Handle play again from game over screen
+  const handlePlayAgain = useCallback(async () => {
+    setShowGameOver(false);
+    setGameOverStats(null);
+    setRewardData(null);
+
+    // Force scene reset by transitioning through menu scene
+    // This ensures proper cleanup via onExit() and reinitialization via onEnter()
+    if (sceneManagerRef.current) {
+      await sceneManagerRef.current.transitionTo("menu", { duration: 0 });
+      await sceneManagerRef.current.transitionTo("game", { duration: 0 });
+    }
+
+    // Start new game in store (this will trigger the session start effect)
+    sessionStartedRef.current = false;
+    useGameStore.getState().startGame();
+  }, []);
+
+  // Handle share from game over screen
+  const handleShare = useCallback(() => {
+    // TODO: Implement Farcaster sharing
+    const text = `I survived ${Math.floor(survivalTime / 60)}:${String(Math.floor(survivalTime % 60)).padStart(2, "0")} and killed ${enemiesKilled} enemies in Farcaster Survivors!`;
+    console.log("Share:", text);
+    // For now, copy to clipboard
+    navigator.clipboard.writeText(text);
+    alert("Score copied to clipboard!");
+  }, [survivalTime, enemiesKilled]);
+
+  // Handle quit from game over screen
+  const handleGameOverQuit = useCallback(() => {
+    setShowGameOver(false);
+    setGameOverStats(null);
+    setRewardData(null);
+    navigate("/");
+  }, [navigate]);
+
+  // Handle reward claimed
+  const handleRewardClaimed = useCallback(() => {
+    console.log("Reward claimed successfully!");
+  }, []);
 
   // Track survival time and update HUD stats
   const handleUpdate = useCallback(
@@ -361,6 +457,22 @@ export function GamePage() {
           onQuit={handleQuit}
           upgrades={appliedUpgrades}
         />
+
+        {/* Game over screen overlay */}
+        {gameOverStats && (
+          <GameOverScreen
+            isOpen={showGameOver}
+            survivalTime={gameOverStats.survivalTime}
+            enemiesKilled={gameOverStats.enemiesKilled}
+            levelReached={gameOverStats.levelReached}
+            totalXP={gameOverStats.totalXP}
+            rewardData={rewardData}
+            onPlayAgain={handlePlayAgain}
+            onShare={handleShare}
+            onQuit={handleGameOverQuit}
+            onRewardClaimed={handleRewardClaimed}
+          />
+        )}
       </div>
     </div>
   );

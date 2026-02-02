@@ -49,18 +49,11 @@ contract RewardDistributorTest is Test {
     ) internal view returns (bytes memory) {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
-                player,
-                amount,
-                rewardType,
-                nonce,
-                expiry,
-                block.chainid,
-                address(distributor)
+                player, amount, rewardType, nonce, expiry, block.chainid, address(distributor)
             )
         );
-        bytes32 ethSignedMessageHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash)
-        );
+        bytes32 ethSignedMessageHash =
+            keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPrivateKey, ethSignedMessageHash);
         return abi.encodePacked(r, s, v);
     }
@@ -316,7 +309,8 @@ contract RewardDistributorTest is Test {
         uint256 expiry = block.timestamp + 1 hours;
 
         for (uint8 rewardType = 0; rewardType <= 3; rewardType++) {
-            bytes memory signature = _createSignature(player1, amount, rewardType, rewardType + 1, expiry);
+            bytes memory signature =
+                _createSignature(player1, amount, rewardType, rewardType + 1, expiry);
 
             vm.prank(player1);
             distributor.claim(amount, rewardType, rewardType + 1, expiry, signature);

@@ -31,15 +31,15 @@ contract GearStaking is Ownable2Step, Pausable, ReentrancyGuard {
     // ============ Constants ============
     uint8 public constant NUM_SLOTS = 6;
     uint256 public constant STAKE_FEE_BPS = 500; // 5% fee on stake
-    uint256 public constant BPS_DENOMINATOR = 10000;
+    uint256 public constant BPS_DENOMINATOR = 10_000;
     uint256 public constant MAINTENANCE_BONUS_BPS = 5000; // 50% bonus when maintenance active
 
     // Tier thresholds (in token units, not wei)
     uint256 public constant TIER_COMMON = 1;
     uint256 public constant TIER_UNCOMMON = 100;
     uint256 public constant TIER_RARE = 1000;
-    uint256 public constant TIER_EPIC = 10000;
-    uint256 public constant TIER_LEGENDARY = 100000;
+    uint256 public constant TIER_EPIC = 10_000;
+    uint256 public constant TIER_LEGENDARY = 100_000;
 
     // ============ Immutables ============
     // Gear token addresses for each slot
@@ -81,14 +81,13 @@ contract GearStaking is Ownable2Step, Pausable, ReentrancyGuard {
     /**
      * @notice Initialize GearStaking contract
      * @param initialOwner Owner address
-     * @param _gearTokens Array of 6 gear token addresses [WEAPON, ARMOR, POWER, GLOVES, AMULET, BOOTS]
+     * @param _gearTokens Array of 6 gear token addresses [WEAPON, ARMOR, POWER, GLOVES, AMULET,
+     * BOOTS]
      * @param _treasury Treasury address for fee collection
      */
-    constructor(
-        address initialOwner,
-        address[6] memory _gearTokens,
-        address _treasury
-    ) Ownable(initialOwner) {
+    constructor(address initialOwner, address[6] memory _gearTokens, address _treasury)
+        Ownable(initialOwner)
+    {
         if (_treasury == address(0)) revert ZeroAddress();
 
         // Validate all gear tokens are set
@@ -120,9 +119,7 @@ contract GearStaking is Ownable2Step, Pausable, ReentrancyGuard {
         token.safeTransferFrom(msg.sender, address(this), amountAfterFee);
 
         // Transfer fee to treasury
-        if (fee > 0) {
-            token.safeTransferFrom(msg.sender, treasury, fee);
-        }
+        if (fee > 0) token.safeTransferFrom(msg.sender, treasury, fee);
 
         // Update staked amount
         stakedAmounts[msg.sender][slot] += amountAfterFee;
@@ -298,9 +295,7 @@ contract GearStaking is Ownable2Step, Pausable, ReentrancyGuard {
             abi.encodeWithSignature("getMaintenanceStatus(address)", player)
         );
 
-        if (success && data.length >= 32) {
-            return abi.decode(data, (bool));
-        }
+        if (success && data.length >= 32) return abi.decode(data, (bool));
 
         return false;
     }
