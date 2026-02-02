@@ -32,6 +32,10 @@ export function GamePage() {
   const [upgradeChoices, setUpgradeChoices] = useState<Upgrade[]>([]);
   const [currentLevel, setCurrentLevel] = useState(1);
 
+  // HUD stats
+  const [enemiesKilled, setEnemiesKilled] = useState(0);
+  const [totalXP, setTotalXP] = useState(0);
+
   // Keep ref in sync with store value
   useEffect(() => {
     showJoystickRef.current = showVirtualJoystick;
@@ -77,6 +81,9 @@ export function GamePage() {
         gameScene.applyUpgrade(upgrade);
         setIsLevelUpOpen(false);
         setUpgradeChoices([]);
+
+        // Resume game after selecting upgrade
+        engineRef.current?.resume();
       }
     }
   }, []);
@@ -87,15 +94,24 @@ export function GamePage() {
       // Update survival time (both modes)
       setSurvivalTime((prev: number) => prev + deltaMs / 1000);
 
-      // Check for level-up (scene mode only)
-      if (useSceneMode && sceneManagerRef.current && !isLevelUpOpen) {
+      // Check for level-up and update HUD stats (scene mode only)
+      if (useSceneMode && sceneManagerRef.current) {
         const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
-        if (gameScene?.isLevelingUp()) {
-          const level = gameScene.getPlayerLevel();
-          const choices = gameScene.getUpgradeChoices(3);
-          setCurrentLevel(level);
-          setUpgradeChoices(choices);
-          setIsLevelUpOpen(true);
+        if (gameScene) {
+          // Update HUD stats
+          setEnemiesKilled(gameScene.getEnemiesKilled());
+          setTotalXP(gameScene.getTotalXPCollected());
+          setCurrentLevel(gameScene.getPlayerLevel());
+
+          // Check for level-up
+          if (!isLevelUpOpen && gameScene.isLevelingUp()) {
+            const choices = gameScene.getUpgradeChoices(3);
+            setUpgradeChoices(choices);
+            setIsLevelUpOpen(true);
+
+            // Pause game while selecting upgrade
+            engineRef.current?.pause();
+          }
         }
       }
 
@@ -259,8 +275,15 @@ export function GamePage() {
             Scenes: {useSceneMode ? "ON" : "OFF"}
           </button>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <span className="text-sm text-gray-400">Time: {Math.floor(survivalTime)}s</span>
+          {useSceneMode && (
+            <>
+              <span className="text-sm text-yellow-400">⚔️ Kills: {enemiesKilled}</span>
+              <span className="text-sm text-cyan-400">✨ XP: {totalXP}</span>
+              <span className="text-sm text-green-400">⭐ Lv.{currentLevel}</span>
+            </>
+          )}
           <h1 className="text-lg font-bold text-primary-400">Farcaster Survivors</h1>
         </div>
         {isPlaying && !useSceneMode && (

@@ -61,6 +61,24 @@ export function GameCanvas({
   const inputRef = useRef<InputSystem | null>(null);
   const sceneManagerRef = useRef<SceneManager | null>(null);
 
+  // Store callbacks in refs to avoid re-initializing engine when they change
+  const onUpdateRef = useRef(onUpdate);
+  const onReadyRef = useRef(onReady);
+  const onGameEndRef = useRef(onGameEnd);
+
+  // Keep refs in sync with latest callbacks
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+  }, [onUpdate]);
+
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
+
+  useEffect(() => {
+    onGameEndRef.current = onGameEnd;
+  }, [onGameEnd]);
+
   // Game store state
   const { isPlaying, isPaused, startGame, pauseGame, resumeGame, endGame } = useGameStore();
 
@@ -154,8 +172,8 @@ export function GameCanvas({
           // Add scene update to engine loop
           engine.onUpdate((deltaMs) => {
             sceneManager?.update(deltaMs);
-            if (onUpdate) {
-              onUpdate(deltaMs, input.getState());
+            if (onUpdateRef.current) {
+              onUpdateRef.current(deltaMs, input.getState());
             }
           });
 
@@ -167,16 +185,16 @@ export function GameCanvas({
           engine.start();
         } else {
           // Traditional mode - just register update callback
-          if (onUpdate) {
-            engine.onUpdate((deltaMs) => {
-              onUpdate(deltaMs, input.getState());
-            });
-          }
+          engine.onUpdate((deltaMs) => {
+            if (onUpdateRef.current) {
+              onUpdateRef.current(deltaMs, input.getState());
+            }
+          });
         }
 
         // Notify ready
-        if (onReady) {
-          onReady(engine, input, sceneManager);
+        if (onReadyRef.current) {
+          onReadyRef.current(engine, input, sceneManager);
         }
       } catch (error) {
         // Ignore errors if cancelled (expected during Strict Mode cleanup)
@@ -207,17 +225,7 @@ export function GameCanvas({
       // User can resume or quit when returning
       pauseGame();
     };
-  }, [
-    backgroundColor,
-    handleResize,
-    onReady,
-    onUpdate,
-    pauseGame,
-    useScenes,
-    startGame,
-    endGame,
-    onGameEnd,
-  ]);
+  }, [backgroundColor, handleResize, pauseGame, useScenes, startGame, endGame]);
 
   // Sync game state with engine and input (only in traditional mode)
   useEffect(() => {
