@@ -137,6 +137,21 @@ export class SpawningSystem {
   }
 
   /**
+   * Update spawning configuration at runtime
+   * @param updates - Partial config updates to apply
+   */
+  updateConfig(updates: Partial<SpawningConfig>): void {
+    this.config = { ...this.config, ...updates };
+  }
+
+  /**
+   * Get the current configuration
+   */
+  getConfig(): SpawningConfig {
+    return { ...this.config };
+  }
+
+  /**
    * Spawn a single enemy at a random position outside the viewport
    */
   private spawnEnemy(

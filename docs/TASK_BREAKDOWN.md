@@ -853,6 +853,201 @@ Show results when player dies.
 
 ---
 
+### 2.7 Wave System
+
+#### Task 2.7.1: Design Wave System Architecture
+
+**Priority:** P1
+**Estimate:** 4 hours
+**Dependencies:** 2.3.2
+**Status:** PLANNED
+
+**Description:**
+Create data-driven wave system with time-based phases and timed events.
+
+**Research Sources:**
+- [Phaser Wave Survival Game Guide](https://codepal.ai/chat/query/GJNz60fC/building-wave-survival-game-phaser) - EnemySpawner pattern
+- [Phaser Forum - Wave Spawning](https://phaser.discourse.group/t/how-to-spawn-enemies-in-waves/6054) - Timer events
+- [HoloCure Wiki](https://holocure.wiki.gg/wiki/Stage) - Event system patterns
+- [Vampire Survivors Wiki](https://vampire-survivors.fandom.com/wiki/Timed_Enemy_Spawn) - Time-based progression
+
+**Key Design Decisions:**
+- Time-based phases (not discrete waves) - matches Vampire Survivors style
+- JSON-configurable wave definitions
+- Timed events for bosses, hordes, special spawns
+- Global difficulty scaling on top of phase modifiers
+- Kill screen system for survival limit
+
+**Subtasks:**
+
+- [ ] Create wave system types (WaveConfig, WavePhase, TimedEvent, etc.)
+- [ ] Create WaveConfigRegistry (load JSON configs)
+- [ ] Create type validation functions
+- [ ] Write unit tests for types
+
+**Acceptance Criteria:**
+
+- Types fully defined with documentation
+- Registry loads and validates JSON configs
+- 100% test coverage for validation logic
+
+---
+
+#### Task 2.7.2: Implement WaveManager
+
+**Priority:** P1
+**Estimate:** 6 hours
+**Dependencies:** 2.7.1
+**Status:** NOT STARTED
+
+**Description:**
+Core orchestrator that tracks game time and provides spawn parameters.
+
+**Subtasks:**
+
+- [ ] Create WaveManager class
+- [ ] Implement phase tracking based on game time
+- [ ] Implement weighted random enemy selection from pool
+- [ ] Implement global scaling calculations
+- [ ] Implement stat modifier aggregation (phase + global)
+- [ ] Create getSpawnParameters() for SpawningSystem integration
+- [ ] Write comprehensive unit tests
+
+**Acceptance Criteria:**
+
+- Phase transitions happen at correct times
+- Enemy selection respects weights and time gates
+- Scaling math is accurate
+- 100% test coverage
+
+---
+
+#### Task 2.7.3: Implement EventSystem
+
+**Priority:** P1
+**Estimate:** 4 hours
+**Dependencies:** 2.7.1
+**Status:** NOT STARTED
+
+**Description:**
+Handle timed events like bosses, hordes, and special spawns.
+
+**Subtasks:**
+
+- [ ] Create EventSystem class
+- [ ] Implement event triggering at timestamps
+- [ ] Implement event repetition (repeatInterval, maxRepeats)
+- [ ] Implement warning system for upcoming events
+- [ ] Integrate event spawning with SpawningSystem
+- [ ] Write unit tests
+
+**Acceptance Criteria:**
+
+- Events trigger at correct times
+- Repeating events work correctly
+- Warnings appear before events
+- 100% test coverage
+
+---
+
+#### Task 2.7.4: Implement Spawn Patterns
+
+**Priority:** P1
+**Estimate:** 3 hours
+**Dependencies:** 2.7.2
+**Status:** NOT STARTED
+
+**Description:**
+Add spawn position patterns for variety in enemy appearance.
+
+**Patterns to implement:**
+- `random` - Current behavior (random edge position)
+- `cluster` - Group near single random point
+- `ring` - Circle around player
+- `line` - Line formation from one edge
+- `edge` - All from same random edge (for hordes)
+
+**Subtasks:**
+
+- [ ] Create SpawnPatterns.ts with pattern calculations
+- [ ] Integrate patterns into SpawningSystem
+- [ ] Update EnemyFactory to accept stat modifiers
+- [ ] Write unit tests for each pattern
+
+**Acceptance Criteria:**
+
+- All 5 patterns work correctly
+- Enemies spawn in expected formations
+- Performance acceptable with many spawns
+
+---
+
+#### Task 2.7.5: Create Wave Configurations
+
+**Priority:** P1
+**Estimate:** 4 hours
+**Dependencies:** 2.7.2, 2.7.3, 2.7.4
+**Status:** NOT STARTED
+
+**Description:**
+Create JSON configurations and additional enemy types.
+
+**New Enemy Types:**
+- `fast.json` - Fast but weak enemy
+- `tank.json` - Slow but tanky enemy
+- `elite_basic.json` - Elite variant with more HP
+- `boss_slime.json` - First mini-boss
+
+**Wave Configurations:**
+- `survival.json` - Main 20-minute survival mode
+- 3 phases: early (0-3min), mid (3-10min), late (10-20min)
+- Events: Horde every 2min, mini-boss at 3min, final boss at 19min
+
+**Subtasks:**
+
+- [ ] Create new enemy type configs
+- [ ] Create survival wave config with phases
+- [ ] Configure timed events (hordes, bosses)
+- [ ] Balance test the configuration
+- [ ] Create difficulty variants (easy, hard)
+
+**Acceptance Criteria:**
+
+- All configs load without errors
+- Gameplay feels balanced and engaging
+- Boss encounters are challenging but fair
+
+---
+
+#### Task 2.7.6: GameScene Integration
+
+**Priority:** P1
+**Estimate:** 4 hours
+**Dependencies:** 2.7.2, 2.7.3, 2.7.5
+**Status:** NOT STARTED
+
+**Description:**
+Integrate wave system into GameScene and UI.
+
+**Subtasks:**
+
+- [ ] Load wave config during scene initialization
+- [ ] Create and update WaveManager each frame
+- [ ] Pass stat modifiers to enemy creation
+- [ ] Handle event spawning separately from regular spawns
+- [ ] Display event warnings in HUD
+- [ ] Handle kill screen (20min survival limit)
+- [ ] Add boss health bar to HUD
+
+**Acceptance Criteria:**
+
+- Full wave progression works end-to-end
+- Events trigger and spawn correctly
+- UI shows warnings and boss health
+- Performance acceptable throughout
+
+---
+
 ---
 
 ## Phase 3: Meta-Progression (Weeks 5-6)

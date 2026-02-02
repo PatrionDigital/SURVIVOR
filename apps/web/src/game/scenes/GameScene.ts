@@ -417,6 +417,26 @@ export class GameScene extends Scene {
   }
 
   /**
+   * Check if player is dead (health <= 0)
+   */
+  isPlayerDead(): boolean {
+    if (!this.playerEntity?.health) return false;
+    return this.playerEntity.health.current <= 0;
+  }
+
+  /**
+   * Update spawning system configuration
+   * @param updates - Partial config updates to apply
+   */
+  updateSpawningConfig(updates: {
+    baseSpawnInterval?: number;
+    minSpawnInterval?: number;
+    maxEnemies?: number;
+  }): void {
+    this.spawningSystem?.updateConfig(updates);
+  }
+
+  /**
    * Get XP required for next level
    */
   getXPToNextLevel(): number {
