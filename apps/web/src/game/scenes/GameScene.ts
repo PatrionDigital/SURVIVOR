@@ -33,6 +33,7 @@ import {
   pickupCollectionSystem,
   DEFAULT_PICKUP_CONFIG,
 } from "../pickups";
+import { LevelingSystem, type LevelUpResult } from "../leveling";
 
 /**
  * GameScene - Main gameplay scene
@@ -102,6 +103,9 @@ export class GameScene extends Scene {
   private enemyRegistry: EnemyTypeRegistry | null = null;
   private spawningSystem: SpawningSystem | null = null;
 
+  // Leveling
+  private levelingSystem: LevelingSystem | null = null;
+
   // Game dimensions (set on resize)
   private width = 800;
   private height = 600;
@@ -118,6 +122,7 @@ export class GameScene extends Scene {
     this.createPlayer();
     this.createWeaponSystem();
     this.createEnemySystems();
+    this.createLevelingSystem();
   }
 
   protected onExit(): void {
@@ -166,6 +171,7 @@ export class GameScene extends Scene {
     this.yukaManager = null;
     this.enemyRegistry = null;
     this.spawningSystem = null;
+    this.levelingSystem = null;
   }
 
   protected onUpdate(deltaMs: number): void {
@@ -256,9 +262,16 @@ export class GameScene extends Scene {
       DEFAULT_PICKUP_CONFIG
     );
 
-    // TODO: Add collected XP to player stats
-    if (collectionResult.totalXP > 0) {
-      // Future: this.playerStats.addXP(collectionResult.totalXP);
+    // Add collected XP to leveling system
+    if (collectionResult.totalXP > 0 && this.levelingSystem) {
+      const levelResult: LevelUpResult = this.levelingSystem.addXP(collectionResult.totalXP);
+
+      if (levelResult.leveledUp) {
+        // Level up occurred - game will pause for upgrade selection in 2.5.2
+        console.log(
+          `Level up! Now level ${levelResult.newLevel} (gained ${levelResult.levelsGained} levels)`
+        );
+      }
     }
 
     // 13. Update background to follow camera
@@ -327,6 +340,34 @@ export class GameScene extends Scene {
   }
 
   /**
+   * Get the leveling system (for UI access)
+   */
+  getLevelingSystem(): LevelingSystem | null {
+    return this.levelingSystem;
+  }
+
+  /**
+   * Get current player level
+   */
+  getPlayerLevel(): number {
+    return this.levelingSystem?.getLevel() ?? 1;
+  }
+
+  /**
+   * Get XP progress toward next level (0-100)
+   */
+  getXPProgressPercent(): number {
+    return this.levelingSystem?.getProgressPercent() ?? 0;
+  }
+
+  /**
+   * Check if player is in level-up state (has pending upgrades)
+   */
+  isLevelingUp(): boolean {
+    return this.levelingSystem?.isLevelingUp() ?? false;
+  }
+
+  /**
    * Damage the player (triggers invincibility frames)
    * @param amount - Damage amount
    * @returns true if player took damage, false if invincible
@@ -359,6 +400,10 @@ export class GameScene extends Scene {
       this.gameContainer,
       DEFAULT_WEAPON_CONFIG
     );
+  }
+
+  private createLevelingSystem(): void {
+    this.levelingSystem = new LevelingSystem();
   }
 
   private createEnemySystems(): void {
