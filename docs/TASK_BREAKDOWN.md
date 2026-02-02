@@ -713,56 +713,59 @@ XP gems and other pickups.
 
 ---
 
-### 2.5 Leveling
+### 2.5 Leveling ✅
 
-#### Task 2.5.1: Implement Level-Up System
+#### Task 2.5.1: Implement Level-Up System ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 2.4.3
+**Status:** COMPLETE
 
 **Description:**
 Level up when XP threshold reached.
 
 **Subtasks:**
 
-- [ ] Track XP and level in game state
-- [ ] Calculate XP thresholds per level
-- [ ] Trigger level-up event
-- [ ] Pause game during level-up
-- [ ] Generate random choices (3 options)
-- [ ] Apply selected upgrade
+- [x] Track XP and level in game state (LevelingSystem class)
+- [x] Calculate XP thresholds per level (exponential: base * 1.2^(level-1))
+- [x] Trigger level-up event (pendingLevelUps queue)
+- [x] Pause game during level-up (GameEngine.pause() on modal open)
+- [x] Generate random choices (3 options) (generateUpgradeChoices)
+- [x] Apply selected upgrade (applyUpgrade + consumeLevelUp)
 
 **Acceptance Criteria:**
 
-- Level up triggers at correct XP
-- Game pauses during selection
-- Selected upgrade applied correctly
+- ✅ Level up triggers at correct XP (100 base, 1.2x scaling)
+- ✅ Game pauses during selection
+- ✅ Selected upgrade applied correctly
 
 ---
 
-#### Task 2.5.2: Implement Level-Up UI
+#### Task 2.5.2: Implement Level-Up UI ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 2.5.1
+**Status:** COMPLETE
 
 **Description:**
 UI for selecting level-up upgrades.
 
 **Subtasks:**
 
-- [ ] Create LevelUpModal component
-- [ ] Display 3 upgrade choices
-- [ ] Show upgrade descriptions
-- [ ] Handle selection
-- [ ] Close modal and resume game
+- [x] Create LevelUpModal component (React with Tailwind)
+- [x] Display 3 upgrade choices (grid layout)
+- [x] Show upgrade descriptions (name, description, stat changes)
+- [x] Handle selection (keyboard/click/touch)
+- [x] Close modal and resume game (GameEngine.resume())
 
 **Acceptance Criteria:**
 
-- Modal appears on level up
-- Choices are clearly displayed
-- Selection works on touch and click
+- ✅ Modal appears on level up
+- ✅ Choices are clearly displayed
+- ✅ Selection works on touch and click
+- ✅ Keyboard navigation (1-3 keys, Enter)
 
 ---
 
@@ -1615,7 +1618,7 @@ Monitor system after launch.
 - Deployment scripts working on Anvil
 - Wallet connection and token balance display implemented
 
-**Phase 2: Game Engine** - 🔄 IN PROGRESS (8/13 tasks complete)
+**Phase 2: Game Engine** - 🔄 IN PROGRESS (10/13 tasks complete)
 
 - ✅ PixiJS setup, Input System, Scene Manager
 - ✅ Player entity with movement, health, invincibility
@@ -1624,7 +1627,9 @@ Monitor system after launch.
 - ✅ Basic weapon system with auto-targeting
 - ✅ Collision detection (player-enemy, projectile-enemy)
 - ✅ Pickup system (XP gems with magnet attraction)
-- ⏳ Level-up system, HUD, Pause menu, Game over screen
+- ✅ Level-up system with exponential XP scaling
+- ✅ Level-up UI with upgrade selection modal
+- ⏳ HUD, Pause menu, Game over screen
 
 **Phase 3-6:** Not started
 
@@ -1633,7 +1638,7 @@ Monitor system after launch.
 | Phase | Focus            | Duration | Critical Path               | Status      |
 | ----- | ---------------- | -------- | --------------------------- | ----------- |
 | 1     | Infrastructure   | 2 weeks  | Monorepo, Tokens, Curves    | ✅ Complete |
-| 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | 🔄 ~62%     |
+| 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | 🔄 ~77%     |
 | 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | Not started |
 | 4     | Backend          | 2 weeks  | API, Sessions, Rewards      | Not started |
 | 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | Not started |
