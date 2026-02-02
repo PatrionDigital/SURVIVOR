@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Graphics } from "pixi.js";
 import {
   GameCanvas,
@@ -9,8 +9,10 @@ import {
   SceneManager,
   GameScene,
   GameResults,
+  type Upgrade,
 } from "../game";
 import { useGameStore, useSettingsStore } from "../stores";
+import { LevelUpModal } from "../components/game";
 
 export function GamePage() {
   const { isPlaying, pauseGame, setSurvivalTime, playerPosition, setPlayerPosition, survivalTime } =
@@ -24,6 +26,11 @@ export function GamePage() {
   const joystickKnobRef = useRef<Graphics | null>(null);
   const inputRef = useRef<InputSystem | null>(null);
   const showJoystickRef = useRef(showVirtualJoystick);
+
+  // Level-up state
+  const [isLevelUpOpen, setIsLevelUpOpen] = useState(false);
+  const [upgradeChoices, setUpgradeChoices] = useState<Upgrade[]>([]);
+  const [currentLevel, setCurrentLevel] = useState(1);
 
   // Keep ref in sync with store value
   useEffect(() => {
@@ -62,11 +69,35 @@ export function GamePage() {
   const JOYSTICK_BASE_RADIUS = 60;
   const JOYSTICK_KNOB_RADIUS = 25;
 
+  // Handle upgrade selection from level-up modal
+  const handleSelectUpgrade = useCallback((upgrade: Upgrade) => {
+    if (sceneManagerRef.current) {
+      const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
+      if (gameScene) {
+        gameScene.applyUpgrade(upgrade);
+        setIsLevelUpOpen(false);
+        setUpgradeChoices([]);
+      }
+    }
+  }, []);
+
   // Track survival time and move player based on input (traditional mode)
   const handleUpdate = useCallback(
     (deltaMs: number, input: InputState) => {
       // Update survival time (both modes)
       setSurvivalTime((prev: number) => prev + deltaMs / 1000);
+
+      // Check for level-up (scene mode only)
+      if (useSceneMode && sceneManagerRef.current && !isLevelUpOpen) {
+        const gameScene = sceneManagerRef.current.getScene("game") as GameScene | undefined;
+        if (gameScene?.isLevelingUp()) {
+          const level = gameScene.getPlayerLevel();
+          const choices = gameScene.getUpgradeChoices(3);
+          setCurrentLevel(level);
+          setUpgradeChoices(choices);
+          setIsLevelUpOpen(true);
+        }
+      }
 
       // Move player based on input (traditional mode only)
       if (!useSceneMode) {
@@ -129,7 +160,7 @@ export function GamePage() {
         }
       }
     },
-    [setSurvivalTime, useSceneMode]
+    [setSurvivalTime, useSceneMode, isLevelUpOpen]
   );
 
   // Called when engine is ready
@@ -253,6 +284,14 @@ export function GamePage() {
           useScenes={useSceneMode}
           className="w-full h-full"
           backgroundColor={0x0a0a1a}
+        />
+
+        {/* Level-up modal */}
+        <LevelUpModal
+          isOpen={isLevelUpOpen}
+          level={currentLevel}
+          choices={upgradeChoices}
+          onSelectUpgrade={handleSelectUpgrade}
         />
       </div>
     </div>

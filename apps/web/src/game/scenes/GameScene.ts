@@ -33,7 +33,12 @@ import {
   pickupCollectionSystem,
   DEFAULT_PICKUP_CONFIG,
 } from "../pickups";
-import { LevelingSystem, type LevelUpResult } from "../leveling";
+import {
+  LevelingSystem,
+  generateUpgradeChoices,
+  type LevelUpResult,
+  type Upgrade,
+} from "../leveling";
 
 /**
  * GameScene - Main gameplay scene
@@ -365,6 +370,35 @@ export class GameScene extends Scene {
    */
   isLevelingUp(): boolean {
     return this.levelingSystem?.isLevelingUp() ?? false;
+  }
+
+  /**
+   * Get upgrade choices for the current level-up
+   * @param count - Number of choices to generate (default 3)
+   * @returns Array of upgrade choices
+   */
+  getUpgradeChoices(count: number = 3): Upgrade[] {
+    return generateUpgradeChoices(count);
+  }
+
+  /**
+   * Apply an upgrade and consume one pending level-up
+   * @param upgrade - The upgrade to apply
+   * @returns true if upgrade was applied, false if no pending level-ups
+   */
+  applyUpgrade(upgrade: Upgrade): boolean {
+    if (!this.levelingSystem) return false;
+
+    // Consume one pending level-up
+    const consumed = this.levelingSystem.consumeLevelUp();
+    if (!consumed) return false;
+
+    // TODO: Apply upgrade effects to actual game systems
+    // For now, just log it - actual stat application will be implemented
+    // when player stats system is fully integrated
+    console.log(`Applied upgrade: ${upgrade.name} (${upgrade.description})`);
+
+    return true;
   }
 
   /**

@@ -11,3 +11,7 @@ export type { GameResults } from "./scenes";
 
 // Re-export SceneManager for direct access
 export type { Scene as SceneType } from "./SceneManager";
+
+// Leveling system exports
+export type { Upgrade, UpgradeType, PlayerStats } from "./leveling";
+export { generateUpgradeChoices } from "./leveling";
