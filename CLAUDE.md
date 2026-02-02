@@ -6,21 +6,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Farcaster Survivors is a crypto-native bullet heaven game built as a Farcaster Mini App on Base L2. Players control a character with auto-attacking weapons, survive waves of enemies, and progress through gear-based meta-progression tied to on-chain tokens.
 
-**Status:** Pre-implementation. Only specification documents exist in `docs/`. Implementation follows the task breakdown in `docs/TASK_BREAKDOWN.md`.
+**Status:** Development. Specification documents exist in `docs/`. Implementation follows the task breakdown in `docs/TASK_BREAKDOWN.md`.
 
 ## Mandatory Workflow (ALWAYS FOLLOW)
 
 **Before writing any code:**
 
 1. Never work on `main` branch - create a feature branch first (`git checkout -b feature/...`)
-2. Check Context7 MCP for up-to-date library documentation
-3. For smart contracts, always check OpenZeppelin docs for latest patterns and security practices
+2. Never mix features in a single branch. Always create a new feature branch for every task.
+3. Check Context7 MCP for up-to-date library documentation
+4. For smart contracts, always check OpenZeppelin docs for latest patterns and security practices
 
-**Development process:** 4. Use Test-Driven Development - write tests BEFORE implementation code 5. Run all local tests before committing - all must pass 6. Fix all linter errors before committing - zero tolerance
+**Development process:**
 
-**Committing and versioning:** 7. Bump version using semantic versioning (`npm version patch|minor|major`) on every update 8. Commit only when tests pass and linter is clean
+1. Use Test-Driven Development - write tests BEFORE implementation code
+2. Run all local tests before committing - all must pass
+3. Fix all linter errors before committing - zero tolerance
 
-**Pull requests and deployment:** 9. Never merge a PR until all GitHub CI actions pass 10. For Vercel deployments, preview builds for the branch must pass checks before merging
+**Committing and versioning:**
+
+1. Bump version using semantic versioning (`npm version patch|minor|major`) on every update
+2. Commit only when tests pass and linter is clean
+3. Update `TASKS_BREAKDOWN` with completed tasks marked Complete
+
+**Pull requests and deployment:**
+
+1. Never merge a PR until all GitHub CI actions pass
+2. For Vercel deployments, preview builds for the branch must pass checks before merging
 
 ## Tech Stack
 
@@ -67,7 +79,7 @@ pnpm typecheck
 
 ## Monorepo Structure
 
-```
+```bash
 apps/
   web/                    # React game client (PixiJS)
   api/                    # Fastify backend
@@ -159,4 +171,4 @@ Use semantic versioning with `npm version` and bump version on every commit.
 
 ## Repository
 
-https://github.com/PatrionDigital/SURVIVOR.git
+[https://github.com/PatrionDigital/SURVIVOR.git]
