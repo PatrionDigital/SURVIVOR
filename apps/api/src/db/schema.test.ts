@@ -334,10 +334,7 @@ describe("Data Operations", () => {
       return; // Skip if no DB or player not created
     }
 
-    await client.query("SELECT record_daily_reward($1, $2)", [
-      testPlayerId,
-      "500000000000000000",
-    ]);
+    await client.query("SELECT record_daily_reward($1, $2)", [testPlayerId, "500000000000000000"]);
 
     const result = await client.query("SELECT * FROM get_daily_rewards_summary($1)", [
       testPlayerId,
