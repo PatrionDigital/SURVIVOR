@@ -128,9 +128,7 @@ export function DesignerHub({ onNavigate }: DesignerHubProps) {
         {/* Welcome header */}
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-2">Designer Tools Hub</h1>
-          <p className="text-gray-400">
-            Create, edit, and balance game content with live previews
-          </p>
+          <p className="text-gray-400">Create, edit, and balance game content with live previews</p>
         </div>
 
         {/* Tool cards */}
@@ -157,27 +155,19 @@ export function DesignerHub({ onNavigate }: DesignerHubProps) {
           <h2 className="text-lg font-semibold mb-4">Current Configurations</h2>
           <div className="grid grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400">
-                {Object.keys(enemies).length}
-              </div>
+              <div className="text-3xl font-bold text-cyan-400">{Object.keys(enemies).length}</div>
               <div className="text-sm text-gray-400">Enemies</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400">
-                {Object.keys(waves).length}
-              </div>
+              <div className="text-3xl font-bold text-cyan-400">{Object.keys(waves).length}</div>
               <div className="text-sm text-gray-400">Waves</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400">
-                {upgrades.length}
-              </div>
+              <div className="text-3xl font-bold text-cyan-400">{upgrades.length}</div>
               <div className="text-sm text-gray-400">Upgrades</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400">
-                {Object.keys(weapons).length}
-              </div>
+              <div className="text-3xl font-bold text-cyan-400">{Object.keys(weapons).length}</div>
               <div className="text-sm text-gray-400">Weapons</div>
             </div>
           </div>
@@ -223,20 +213,20 @@ export function DesignerHub({ onNavigate }: DesignerHubProps) {
           <h2 className="text-lg font-semibold mb-4">Getting Started</h2>
           <div className="space-y-3 text-sm text-gray-400">
             <p>
-              <strong className="text-gray-300">1. Load existing configs</strong> - Click "Load from Game Files"
-              to import the current game configurations as a starting point.
+              <strong className="text-gray-300">1. Load existing configs</strong> - Click "Load from
+              Game Files" to import the current game configurations as a starting point.
             </p>
             <p>
-              <strong className="text-gray-300">2. Edit and preview</strong> - Use the individual designers
-              to modify enemies, waves, upgrades, and weapons with live previews.
+              <strong className="text-gray-300">2. Edit and preview</strong> - Use the individual
+              designers to modify enemies, waves, upgrades, and weapons with live previews.
             </p>
             <p>
-              <strong className="text-gray-300">3. Export your changes</strong> - Export individual configs
-              or all configs at once to JSON files.
+              <strong className="text-gray-300">3. Export your changes</strong> - Export individual
+              configs or all configs at once to JSON files.
             </p>
             <p>
-              <strong className="text-gray-300">4. Apply to game</strong> - Copy exported JSON files to
-              the <code className="bg-gray-700 px-1 rounded">public/data/</code> directory.
+              <strong className="text-gray-300">4. Apply to game</strong> - Copy exported JSON files
+              to the <code className="bg-gray-700 px-1 rounded">public/data/</code> directory.
             </p>
           </div>
         </div>

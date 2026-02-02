@@ -420,6 +420,37 @@ Display $VSC and gear token balances.
 
 ---
 
+#### Task 1.4.3: Implement Market Page with Bonding Curve Trading ✅
+
+**Priority:** P1
+**Estimate:** 6 hours
+**Dependencies:** 1.3.1, 1.4.2
+**Status:** COMPLETE
+
+**Description:**
+Create Market page UI for trading gear tokens on bonding curves with price visualization.
+
+**Subtasks:**
+
+- [x] Create BondingCurveChart component (Recharts AreaChart with price formula visualization)
+- [x] Create MarketCard component (trading interface with buy/sell modes, slippage controls)
+- [x] Create MarketPage with all 6 gear markets in responsive grid
+- [x] Create useBondingCurve hook (prices, supplies, allowances, buy/sell actions)
+- [x] Add VSC and gear token approval flows
+- [x] Add Market route and navigation link
+- [x] Fix Recharts ResponsiveContainer warning (initialDimension prop)
+- [x] Add global polyfill for buffer (web3 dependencies)
+
+**Acceptance Criteria:**
+
+- ✅ All 6 gear markets displayed with bonding curve charts
+- ✅ Buy/sell interface with slippage controls (0.5%, 1%, 2%, 5%)
+- ✅ Token approvals work correctly
+- ✅ Current price/supply position shown on chart
+- ✅ Market overview stats displayed (VSC balance, holdings, total value)
+
+---
+
 ---
 
 ## Phase 2: Game Engine (Weeks 3-4)
@@ -866,12 +897,14 @@ Show results when player dies.
 Create data-driven wave system with time-based phases and timed events.
 
 **Research Sources:**
+
 - [Phaser Wave Survival Game Guide](https://codepal.ai/chat/query/GJNz60fC/building-wave-survival-game-phaser) - EnemySpawner pattern
 - [Phaser Forum - Wave Spawning](https://phaser.discourse.group/t/how-to-spawn-enemies-in-waves/6054) - Timer events
 - [HoloCure Wiki](https://holocure.wiki.gg/wiki/Stage) - Event system patterns
 - [Vampire Survivors Wiki](https://vampire-survivors.fandom.com/wiki/Timed_Enemy_Spawn) - Time-based progression
 
 **Key Design Decisions:**
+
 - Time-based phases (not discrete waves) - matches Vampire Survivors style
 - JSON-configurable wave definitions
 - Timed events for bosses, hordes, special spawns
@@ -961,6 +994,7 @@ Handle timed events like bosses, hordes, and special spawns.
 Add spawn position patterns for variety in enemy appearance.
 
 **Patterns implemented:**
+
 - `random` - Current behavior (random edge position)
 - `cluster` - Group near single random point
 - `ring` - Circle around player
@@ -993,12 +1027,14 @@ Add spawn position patterns for variety in enemy appearance.
 Create JSON configurations and additional enemy types.
 
 **New Enemy Types:**
+
 - `fast.json` - Fast but weak enemy
 - `tank.json` - Slow but tanky enemy
 - `elite_basic.json` - Elite variant with more HP
 - `boss_slime.json` - First mini-boss
 
 **Wave Configurations:**
+
 - `survival.json` - Main 20-minute survival mode
 - `easy.json` - Easier difficulty variant
 - `hard.json` - Harder difficulty variant
@@ -2044,12 +2080,13 @@ Monitor system after launch.
 
 ### Current Progress
 
-**Phase 1: Infrastructure** - ✅ COMPLETE (15/15 tasks)
+**Phase 1: Infrastructure** - ✅ COMPLETE (16/16 tasks)
 
 - All monorepo setup complete
 - VSCToken, GearToken, BondingCurve contracts implemented and tested
 - Deployment scripts working on Anvil
 - Wallet connection and token balance display implemented
+- Market page with bonding curve trading UI for all 6 gear tokens
 
 **Phase 2: Game Engine** - ✅ COMPLETE (19/19 tasks)
 

@@ -2,7 +2,8 @@ import { useReadContract, useAccount, useBlockNumber } from "wagmi";
 import { formatUnits } from "viem";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CONTRACT_ADDRESSES, vscTokenAbi, VSC_TOKEN_DECIMALS } from "@survivor/sdk";
+import { vscTokenAbi, VSC_TOKEN_DECIMALS } from "@survivor/sdk";
+import { getNetworkAddresses } from "@/lib/contracts";
 
 export interface UseVSCTokenReturn {
   balance: bigint | undefined;
@@ -20,9 +21,10 @@ export function useVSCToken(): UseVSCTokenReturn {
   const { address, isConnected } = useAccount();
   const queryClient = useQueryClient();
 
-  // Get the VSC token address based on chain
-  // For now, use testnet addresses (will be configured via env)
-  const vscTokenAddress = CONTRACT_ADDRESSES.testnet.vscToken;
+  // Get the VSC token address based on environment
+  // Auto-selects anvil in local dev, testnet otherwise
+  const networkAddresses = getNetworkAddresses();
+  const vscTokenAddress = networkAddresses.vscToken;
 
   // Read balance
   const {

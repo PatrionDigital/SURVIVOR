@@ -2,7 +2,8 @@ import { useReadContracts, useAccount, useBlockNumber } from "wagmi";
 import { formatUnits } from "viem";
 import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CONTRACT_ADDRESSES, gearTokenAbi, GEAR_TOKEN_SYMBOLS } from "@survivor/sdk";
+import { gearTokenAbi, GEAR_TOKEN_SYMBOLS } from "@survivor/sdk";
+import { getNetworkAddresses } from "@/lib/contracts";
 
 export type GearSlot = keyof typeof GEAR_TOKEN_SYMBOLS;
 
@@ -33,8 +34,9 @@ export function useGearTokens(): UseGearTokensReturn {
   const { address, isConnected } = useAccount();
   const queryClient = useQueryClient();
 
-  // Get gear token addresses
-  const gearAddresses = CONTRACT_ADDRESSES.testnet.gearTokens;
+  // Get gear token addresses (auto-selects anvil in local dev, testnet otherwise)
+  const networkAddresses = getNetworkAddresses();
+  const gearAddresses = networkAddresses.gearTokens;
 
   // Build multicall contracts array
   const contracts = useMemo(() => {

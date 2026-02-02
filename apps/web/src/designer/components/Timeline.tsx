@@ -159,7 +159,17 @@ export function Timeline({
       const newTime = xToTime(x, width);
       onTimeChange(Math.max(0, Math.min(totalDuration, newTime)));
     },
-    [currentTime, events, phases, timeToX, xToTime, totalDuration, onTimeChange, onPhaseSelect, onEventSelect]
+    [
+      currentTime,
+      events,
+      phases,
+      timeToX,
+      xToTime,
+      totalDuration,
+      onTimeChange,
+      onPhaseSelect,
+      onEventSelect,
+    ]
   );
 
   const handleMouseMove = useCallback(
@@ -208,7 +218,10 @@ export function Timeline({
       onMouseLeave={handleMouseUp}
     >
       {/* Time markers */}
-      <svg className="absolute inset-0 pointer-events-none" style={{ width: "100%", height: "100%" }}>
+      <svg
+        className="absolute inset-0 pointer-events-none"
+        style={{ width: "100%", height: "100%" }}
+      >
         {containerRef.current &&
           timeMarkers.map((t) => {
             const x = timeToX(t, containerRef.current!.offsetWidth);
@@ -247,12 +260,8 @@ export function Timeline({
             >
               <div className="px-2 py-1 text-xs font-medium truncate">{phase.name}</div>
               {/* Resize handles */}
-              <div
-                className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/20"
-              />
-              <div
-                className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/20"
-              />
+              <div className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/20" />
+              <div className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize hover:bg-white/20" />
             </div>
           );
         })}
@@ -273,9 +282,7 @@ export function Timeline({
               style={{ left: x, top: EVENT_ROW_TOP }}
               title={`${event.type}: ${event.id} @ ${formatTime(event.triggerTime)}`}
             >
-              <div
-                className={`text-xl ${isSelected ? "ring-2 ring-cyan-400 rounded-full" : ""}`}
-              >
+              <div className={`text-xl ${isSelected ? "ring-2 ring-cyan-400 rounded-full" : ""}`}>
                 {icon}
               </div>
             </div>

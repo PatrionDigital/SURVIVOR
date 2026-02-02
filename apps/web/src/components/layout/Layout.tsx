@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { path: "/", label: "Home" },
   { path: "/game", label: "Play" },
   { path: "/leaderboard", label: "Leaderboard" },
+  { path: "/market", label: "Market" },
   { path: "/staking", label: "Staking" },
   { path: "/profile", label: "Profile" },
 ];

@@ -1,7 +1,12 @@
 import type { WaveConfig, WavePhase, TimedEvent } from "./types";
 import { WaveConfigRegistry } from "./WaveConfigRegistry";
 import { WaveManager, type PhaseChangeCallback, type EventCallback } from "./WaveManager";
-import { EventExecutor, type SpawnCommand, type EventWarning, type WarningCallback } from "./EventExecutor";
+import {
+  EventExecutor,
+  type SpawnCommand,
+  type EventWarning,
+  type WarningCallback,
+} from "./EventExecutor";
 
 /**
  * Spawn configuration derived from wave system

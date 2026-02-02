@@ -106,9 +106,7 @@ describe("WaveConfigRegistry", () => {
     });
 
     it("should throw error for unknown id", () => {
-      expect(() => registry.getOrThrow("unknown")).toThrow(
-        "Wave config 'unknown' not found"
-      );
+      expect(() => registry.getOrThrow("unknown")).toThrow("Wave config 'unknown' not found");
     });
   });
 

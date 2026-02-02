@@ -1,9 +1,18 @@
 import { Link } from "react-router-dom";
-import { useGearStaking, useMaintenancePool, useWallet } from "@/hooks";
+import {
+  useGearStaking,
+  useMaintenancePool,
+  useWallet,
+  useBondingCurve,
+  useVSCToken,
+} from "@/hooks";
+import type { GearSlot } from "@/hooks/useBondingCurve";
 import { GearSlotCard, MaintenanceBar } from "@/components/meta";
 
 export function StakingPage() {
   const { isConnected } = useWallet();
+
+  // Staking hooks
   const {
     stats,
     isLoading: stakingLoading,
@@ -13,6 +22,7 @@ export function StakingPage() {
     isPending: stakingPending,
   } = useGearStaking();
 
+  // Maintenance pool hooks
   const {
     data: maintenanceData,
     isLoading: maintenanceLoading,
@@ -22,8 +32,33 @@ export function StakingPage() {
     isPending: maintenancePending,
   } = useMaintenancePool();
 
-  const isLoading = stakingLoading || maintenanceLoading;
-  const isPending = stakingPending || maintenancePending;
+  // Bonding curve hooks
+  const {
+    curves,
+    isLoading: curvesLoading,
+    buy,
+    sell,
+    approveVsc,
+    vscAllowance,
+    isPending: curvePending,
+  } = useBondingCurve();
+
+  // VSC token balance
+  const { formattedBalance: vscBalance } = useVSCToken();
+
+  const isLoading = stakingLoading || maintenanceLoading || curvesLoading;
+  const isPending = stakingPending || maintenancePending || curvePending;
+
+  // Get current price for a slot
+  const getCurvePrice = (slot: string): string | undefined => {
+    const curve = curves.find((c) => c.slot === slot);
+    return curve?.formattedPrice;
+  };
+
+  // Get VSC allowance for a slot's bonding curve
+  const getVscAllowance = (slot: string): bigint => {
+    return vscAllowance(slot as GearSlot);
+  };
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
@@ -32,7 +67,7 @@ export function StakingPage() {
         <div>
           <h1 className="text-2xl font-bold text-primary-400">Gear Staking</h1>
           <p className="text-gray-400 text-sm mt-1">
-            Stake gear tokens to boost your in-game stats. Higher stakes = bigger bonuses!
+            Stake gear tokens to boost your in-game stats. Buy and sell gear on the bonding curve!
           </p>
         </div>
         <Link to="/" className="text-gray-400 hover:text-white transition-colors">
@@ -62,6 +97,14 @@ export function StakingPage() {
                   <p className="text-gray-400 text-sm">Total Power</p>
                   <p className="text-3xl font-bold text-white">
                     {Number(stats.formattedTotalPower).toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-gray-400 text-sm">VSC Balance</p>
+                  <p className="text-xl font-bold text-game-xp">
+                    {Number(vscBalance).toLocaleString(undefined, {
                       maximumFractionDigits: 2,
                     })}
                   </p>
@@ -101,7 +144,13 @@ export function StakingPage() {
                 onStake={stake}
                 onUnstake={unstake}
                 onApprove={approveGear}
-                isPending={stakingPending}
+                onBuy={buy}
+                onSell={sell}
+                onApproveVsc={approveVsc}
+                currentPrice={getCurvePrice(slotData.slot)}
+                vscBalance={vscBalance}
+                vscAllowance={getVscAllowance(slotData.slot)}
+                isPending={isPending}
                 disabled={isPending}
               />
             ))}
@@ -109,27 +158,30 @@ export function StakingPage() {
 
           {/* Info section */}
           <div className="mt-8 bg-gray-800 rounded-lg p-6">
-            <h2 className="text-lg font-bold text-white mb-4">How Staking Works</h2>
-            <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <h2 className="text-lg font-bold text-white mb-4">How It Works</h2>
+            <div className="grid md:grid-cols-4 gap-4 text-sm">
               <div>
-                <h3 className="font-medium text-cyan-400 mb-2">Gear Tokens</h3>
+                <h3 className="font-medium text-cyan-400 mb-2">Buy Gear</h3>
                 <p className="text-gray-400">
-                  Each gear type provides different stat bonuses. Stake more tokens to increase your
-                  power and unlock higher tiers.
+                  Use VSC to buy gear tokens on the bonding curve. Price increases as supply grows.
                 </p>
               </div>
               <div>
-                <h3 className="font-medium text-cyan-400 mb-2">Power Calculation</h3>
+                <h3 className="font-medium text-cyan-400 mb-2">Stake Gear</h3>
                 <p className="text-gray-400">
-                  Power = sqrt(staked amount). Higher tiers unlock at 100, 1K, 10K, and 100K tokens
-                  staked.
+                  Stake gear tokens for stat bonuses. Higher tiers unlock at 100, 1K, 10K, 100K.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-medium text-cyan-400 mb-2">Sell Gear</h3>
+                <p className="text-gray-400">
+                  Sell gear tokens back to the curve for VSC. Price decreases as supply shrinks.
                 </p>
               </div>
               <div>
                 <h3 className="font-medium text-cyan-400 mb-2">Maintenance</h3>
                 <p className="text-gray-400">
-                  Keep your maintenance pool above 100% threshold for a +50% total power bonus.
-                  Decay is 1% per week.
+                  Keep maintenance above 100% for +50% total power. Decay is 1% per week.
                 </p>
               </div>
             </div>
@@ -137,7 +189,7 @@ export function StakingPage() {
 
           {/* Fee info */}
           <div className="mt-4 text-center text-xs text-gray-500">
-            <p>5% fee on staking goes to treasury. No fee on unstaking.</p>
+            <p>Buy: 2% fee | Sell: 3% fee | Stake: 5% fee | Unstake: No fee</p>
           </div>
         </>
       )}

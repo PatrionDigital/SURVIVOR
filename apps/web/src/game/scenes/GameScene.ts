@@ -39,12 +39,7 @@ import {
   type LevelUpResult,
   type Upgrade,
 } from "../leveling";
-import {
-  WaveController,
-  type WaveConfig,
-  type TimedEvent,
-  type EventWarning,
-} from "../waves";
+import { WaveController, type WaveConfig, type TimedEvent, type EventWarning } from "../waves";
 import { createEnemy, type EnemyStatModifiers } from "../enemies";
 
 /**

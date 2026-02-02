@@ -118,8 +118,8 @@ export function MaintenanceBar({
               isHealthy
                 ? "bg-gradient-to-r from-green-500 to-green-400"
                 : data.percentage >= 50
-                ? "bg-gradient-to-r from-yellow-500 to-yellow-400"
-                : "bg-gradient-to-r from-red-500 to-red-400"
+                  ? "bg-gradient-to-r from-yellow-500 to-yellow-400"
+                  : "bg-gradient-to-r from-red-500 to-red-400"
             }`}
             style={{ width: `${progressWidth}%` }}
           />
@@ -164,7 +164,8 @@ export function MaintenanceBar({
             <div className="bg-gray-900 rounded p-3">
               <p className="text-xs text-gray-400">Pending Decay</p>
               <p className="font-bold text-orange-400">
-                -{Number(data.formattedPendingDecay).toLocaleString(undefined, {
+                -
+                {Number(data.formattedPendingDecay).toLocaleString(undefined, {
                   maximumFractionDigits: 4,
                 })}
               </p>
@@ -254,10 +255,10 @@ export function MaintenanceBar({
             {isPending
               ? "Processing..."
               : needsApproval
-              ? "Approve VSC"
-              : mode === "deposit"
-              ? "Deposit VSC"
-              : "Withdraw VSC"}
+                ? "Approve VSC"
+                : mode === "deposit"
+                  ? "Deposit VSC"
+                  : "Withdraw VSC"}
           </button>
 
           {/* Info text */}

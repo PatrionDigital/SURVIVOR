@@ -4,6 +4,10 @@ import { defineConfig } from "vite";
 
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  define: {
+    // Polyfill for buffer - needed by some web3 dependencies (bn.js)
+    global: "globalThis",
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

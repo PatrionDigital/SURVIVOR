@@ -20,3 +20,6 @@ export type {
 
 export { useMaintenancePool } from "./useMaintenancePool";
 export type { MaintenanceData, UseMaintenancePoolReturn } from "./useMaintenancePool";
+
+export { useBondingCurve } from "./useBondingCurve";
+export type { BondingCurveData, UseBondingCurveReturn } from "./useBondingCurve";

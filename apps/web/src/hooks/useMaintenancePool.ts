@@ -8,7 +8,8 @@ import {
 import { formatUnits, parseUnits } from "viem";
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CONTRACT_ADDRESSES, maintenancePoolAbi, vscTokenAbi } from "@survivor/sdk";
+import { maintenancePoolAbi, vscTokenAbi } from "@survivor/sdk";
+import { getNetworkAddresses } from "@/lib/contracts";
 
 const VSC_DECIMALS = 18;
 
@@ -48,9 +49,10 @@ export function useMaintenancePool(): UseMaintenancePoolReturn {
   const queryClient = useQueryClient();
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
 
-  // Contract addresses
-  const maintenancePoolAddress = CONTRACT_ADDRESSES.testnet.maintenancePool || undefined;
-  const vscTokenAddress = CONTRACT_ADDRESSES.testnet.vscToken || undefined;
+  // Contract addresses (auto-selects anvil in local dev, testnet otherwise)
+  const networkAddresses = getNetworkAddresses();
+  const maintenancePoolAddress = networkAddresses.maintenancePool || undefined;
+  const vscTokenAddress = networkAddresses.vscToken || undefined;
 
   // Build multicall contracts
   const contracts = useMemo(() => {
@@ -203,8 +205,7 @@ export function useMaintenancePool(): UseMaintenancePoolReturn {
   // Approve tokens for maintenance pool
   const approve = useCallback(
     async (amount: string) => {
-      if (!vscTokenAddress || !maintenancePoolAddress)
-        throw new Error("Token not configured");
+      if (!vscTokenAddress || !maintenancePoolAddress) throw new Error("Token not configured");
       const parsedAmount = parseUnits(amount, VSC_DECIMALS);
 
       const hash = await writeContractAsync({

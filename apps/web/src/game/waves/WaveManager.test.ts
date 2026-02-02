@@ -313,9 +313,7 @@ describe("WaveManager", () => {
       manager.update(31000); // Trigger first-horde event
 
       expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "first-horde" })
-      );
+      expect(callback).toHaveBeenCalledWith(expect.objectContaining({ id: "first-horde" }));
     });
   });
 });
