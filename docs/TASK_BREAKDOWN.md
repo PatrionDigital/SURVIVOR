@@ -1594,29 +1594,31 @@ Set up PostgreSQL schema in Supabase.
 
 ---
 
-#### Task 4.1.2: Implement Database Queries
+#### Task 4.1.2: Implement Database Queries ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 4.1.1
+**Status:** COMPLETE
 
 **Description:**
 Create typed database query functions.
 
 **Subtasks:**
 
-- [ ] Player CRUD operations
-- [ ] Session CRUD operations
-- [ ] Heartbeat operations
-- [ ] Daily rewards operations
-- [ ] Leaderboard queries
-- [ ] Nonce tracking
+- [x] Player CRUD operations
+- [x] Session CRUD operations
+- [x] Heartbeat operations
+- [x] Daily rewards operations
+- [x] Leaderboard queries
+- [x] Nonce tracking
 
 **Acceptance Criteria:**
 
-- All queries work correctly
-- Type-safe with Zod validation
-- Efficient query patterns
+- ✅ All queries work correctly
+- ✅ Type-safe with TypeScript interfaces
+- ✅ Efficient query patterns
+- ✅ 71 tests passing
 
 ---
 
