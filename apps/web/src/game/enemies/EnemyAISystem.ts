@@ -7,7 +7,7 @@ import type { GameWorld } from "../ecs/World";
  * This system:
  * 1. Updates the Yuka EntityManager (runs steering behaviors)
  * 2. Syncs Yuka Vehicle positions/velocities back to ECS components
- * 3. Switches behaviors based on player proximity (flocking <-> seeking)
+ * 3. Updates seek target to track player position
  *
  * @param world - ECS world
  * @param yukaManager - Yuka EntityManager
@@ -25,7 +25,7 @@ export function enemyAISystem(
 
   // Sync each enemy entity
   for (const entity of world.with("enemy")) {
-    const { vehicle, config } = entity.enemy!;
+    const { vehicle } = entity.enemy!;
 
     // Sync position from Yuka to ECS
     if (entity.position) {
@@ -39,27 +39,9 @@ export function enemyAISystem(
       entity.velocity.vy = vehicle.velocity.y;
     }
 
-    // Update behavior based on player proximity
-    if (playerPosition && entity.position) {
-      const dx = playerPosition.x - entity.position.x;
-      const dy = playerPosition.y - entity.position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance <= config.vision.range) {
-        // Player in range - switch to seeking
-        if (entity.enemy!.currentBehavior !== "seeking") {
-          entity.enemy!.currentBehavior = "seeking";
-          setSeekingBehavior(vehicle, true);
-        }
-        // Always update seek target to track player movement
-        updateSeekTarget(vehicle, playerPosition);
-      } else {
-        // Player out of range - switch to flocking
-        if (entity.enemy!.currentBehavior !== "flocking") {
-          entity.enemy!.currentBehavior = "flocking";
-          setSeekingBehavior(vehicle, false);
-        }
-      }
+    // Always update seek target to chase player (survivor gameplay)
+    if (playerPosition) {
+      updateSeekTarget(vehicle, playerPosition);
     }
   }
 }
@@ -74,16 +56,6 @@ function findSeekBehavior(vehicle: Vehicle): SeekBehavior | null {
     }
   }
   return null;
-}
-
-/**
- * Enable or disable seeking behavior
- */
-function setSeekingBehavior(vehicle: Vehicle, active: boolean): void {
-  const seekBehavior = findSeekBehavior(vehicle);
-  if (seekBehavior) {
-    seekBehavior.active = active;
-  }
 }
 
 /**

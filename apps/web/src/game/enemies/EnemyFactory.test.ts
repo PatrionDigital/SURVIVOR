@@ -92,7 +92,7 @@ describe("EnemyFactory", () => {
       expect(entity.enemy).toBeDefined();
       expect(entity.enemy!.vehicle).toBeDefined();
       expect(entity.enemy!.config).toBe(mockConfig);
-      expect(entity.enemy!.currentBehavior).toBe("flocking");
+      expect(entity.enemy!.currentBehavior).toBe("seeking");
     });
 
     it("should configure Yuka Vehicle with movement settings", () => {

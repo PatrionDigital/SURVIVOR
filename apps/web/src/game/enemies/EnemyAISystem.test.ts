@@ -57,7 +57,7 @@ describe("EnemyAISystem", () => {
         enemy: {
           vehicle,
           config: mockConfig,
-          currentBehavior: "flocking",
+          currentBehavior: "seeking",
         },
       });
 
@@ -81,7 +81,7 @@ describe("EnemyAISystem", () => {
         enemy: {
           vehicle,
           config: mockConfig,
-          currentBehavior: "flocking",
+          currentBehavior: "seeking",
         },
       });
 
@@ -96,8 +96,8 @@ describe("EnemyAISystem", () => {
     });
   });
 
-  describe("Behavior switching", () => {
-    it("should switch to seeking when player is in range", () => {
+  describe("Player tracking", () => {
+    it("should not change behavior state (enemies always seek)", () => {
       const vehicle = new Vehicle();
       vehicle.position.set(100, 100, 0);
 
@@ -107,70 +107,24 @@ describe("EnemyAISystem", () => {
         enemy: {
           vehicle,
           config: mockConfig,
-          currentBehavior: "flocking",
+          currentBehavior: "seeking",
         },
       });
 
       yukaManager.add(vehicle);
 
-      // Player at 200, 100 - distance is 100, within vision range 250
       const playerPos = { x: 200, y: 100 };
-
       enemyAISystem(world, yukaManager, 16, playerPos);
 
+      // Behavior state should remain unchanged
       expect(entity.enemy!.currentBehavior).toBe("seeking");
     });
 
-    it("should stay in flocking when player is out of range", () => {
+    it("should not crash when no player position provided", () => {
       const vehicle = new Vehicle();
       vehicle.position.set(0, 0, 0);
 
-      const entity = world.add({
-        position: { x: 0, y: 0 },
-        velocity: { vx: 0, vy: 0 },
-        enemy: {
-          vehicle,
-          config: mockConfig,
-          currentBehavior: "flocking",
-        },
-      });
-
-      yukaManager.add(vehicle);
-
-      // Player at 500, 500 - distance is ~707, outside vision range 250
-      const playerPos = { x: 500, y: 500 };
-
-      enemyAISystem(world, yukaManager, 16, playerPos);
-
-      expect(entity.enemy!.currentBehavior).toBe("flocking");
-    });
-
-    it("should stay in flocking when no player position provided", () => {
-      const vehicle = new Vehicle();
-      vehicle.position.set(0, 0, 0);
-
-      const entity = world.add({
-        position: { x: 0, y: 0 },
-        velocity: { vx: 0, vy: 0 },
-        enemy: {
-          vehicle,
-          config: mockConfig,
-          currentBehavior: "flocking",
-        },
-      });
-
-      yukaManager.add(vehicle);
-
-      enemyAISystem(world, yukaManager, 16, null);
-
-      expect(entity.enemy!.currentBehavior).toBe("flocking");
-    });
-
-    it("should switch back to flocking when player leaves range", () => {
-      const vehicle = new Vehicle();
-      vehicle.position.set(0, 0, 0);
-
-      const entity = world.add({
+      world.add({
         position: { x: 0, y: 0 },
         velocity: { vx: 0, vy: 0 },
         enemy: {
@@ -182,12 +136,8 @@ describe("EnemyAISystem", () => {
 
       yukaManager.add(vehicle);
 
-      // Player far away
-      const playerPos = { x: 1000, y: 1000 };
-
-      enemyAISystem(world, yukaManager, 16, playerPos);
-
-      expect(entity.enemy!.currentBehavior).toBe("flocking");
+      // Should not throw when player position is null
+      expect(() => enemyAISystem(world, yukaManager, 16, null)).not.toThrow();
     });
   });
 
@@ -205,7 +155,7 @@ describe("EnemyAISystem", () => {
         enemy: {
           vehicle: vehicle1,
           config: mockConfig,
-          currentBehavior: "flocking",
+          currentBehavior: "seeking",
         },
       });
 
@@ -215,7 +165,7 @@ describe("EnemyAISystem", () => {
         enemy: {
           vehicle: vehicle2,
           config: mockConfig,
-          currentBehavior: "flocking",
+          currentBehavior: "seeking",
         },
       });
 
@@ -240,7 +190,7 @@ describe("EnemyAISystem", () => {
         enemy: {
           vehicle,
           config: mockConfig,
-          currentBehavior: "flocking",
+          currentBehavior: "seeking",
         },
       });
 
@@ -258,7 +208,7 @@ describe("EnemyAISystem", () => {
         enemy: {
           vehicle,
           config: mockConfig,
-          currentBehavior: "flocking",
+          currentBehavior: "seeking",
         },
       });
 

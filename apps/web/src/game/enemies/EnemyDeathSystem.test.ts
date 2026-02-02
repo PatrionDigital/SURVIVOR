@@ -99,6 +99,89 @@ describe("EnemyDeathSystem", () => {
     });
   });
 
+  describe("Death positions", () => {
+    it("should return death position and XP value for killed enemy", () => {
+      const vehicle = new Vehicle();
+      const graphics = new Graphics();
+      yukaManager.add(vehicle);
+
+      world.add({
+        position: { x: 150, y: 250 },
+        health: { current: 0, max: 30 },
+        sprite: { graphics },
+        enemy: {
+          vehicle,
+          config: mockConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      const result = enemyDeathSystem(world, yukaManager);
+
+      expect(result.deaths).toHaveLength(1);
+      expect(result.deaths[0].position.x).toBe(150);
+      expect(result.deaths[0].position.y).toBe(250);
+      expect(result.deaths[0].xpValue).toBe(10);
+    });
+
+    it("should return multiple death positions", () => {
+      const vehicle1 = new Vehicle();
+      const graphics1 = new Graphics();
+      yukaManager.add(vehicle1);
+
+      const vehicle2 = new Vehicle();
+      const graphics2 = new Graphics();
+      yukaManager.add(vehicle2);
+
+      world.add({
+        position: { x: 100, y: 100 },
+        health: { current: 0, max: 30 },
+        sprite: { graphics: graphics1 },
+        enemy: {
+          vehicle: vehicle1,
+          config: mockConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      world.add({
+        position: { x: 300, y: 400 },
+        health: { current: 0, max: 30 },
+        sprite: { graphics: graphics2 },
+        enemy: {
+          vehicle: vehicle2,
+          config: mockConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      const result = enemyDeathSystem(world, yukaManager);
+
+      expect(result.deaths).toHaveLength(2);
+    });
+
+    it("should not include positions for living enemies", () => {
+      const vehicle = new Vehicle();
+      const graphics = new Graphics();
+      yukaManager.add(vehicle);
+
+      world.add({
+        position: { x: 100, y: 100 },
+        health: { current: 15, max: 30 },
+        sprite: { graphics },
+        enemy: {
+          vehicle,
+          config: mockConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      const result = enemyDeathSystem(world, yukaManager);
+
+      expect(result.deaths).toHaveLength(0);
+    });
+  });
+
   describe("XP rewards", () => {
     it("should return XP value for killed enemy", () => {
       const vehicle = new Vehicle();
