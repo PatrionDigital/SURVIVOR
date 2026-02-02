@@ -84,6 +84,7 @@ interface LocalDbSelectBuilder {
 
 interface LocalDbInsertBuilder {
   select: () => LocalDbSelectBuilder;
+  then: <T>(resolve: (result: { data: null; error: Error | null }) => T) => Promise<T>;
 }
 
 interface LocalDbUpdateBuilder {
@@ -106,9 +107,28 @@ function getLocalDbClient(): LocalDbQueryBuilder {
         const paramNames = Object.keys(params);
         const paramValues = Object.values(params);
         const placeholders = paramNames.map((_, i) => `$${i + 1}`).join(", ");
-        const query = `SELECT ${fnName}(${placeholders})`;
-        const result = await pool.query(query, paramValues);
-        return { data: result.rows[0], error: null };
+        // Try table-returning function first (SELECT * FROM fn())
+        const tableQuery = `SELECT * FROM ${fnName}(${placeholders})`;
+        let result;
+        try {
+          result = await pool.query(tableQuery, paramValues);
+          // If single row with multiple columns, return the row
+          if (result.rows.length === 1 && Object.keys(result.rows[0]).length > 1) {
+            return { data: result.rows[0], error: null };
+          }
+          // If multiple rows, return array
+          if (result.rows.length > 1) {
+            return { data: result.rows, error: null };
+          }
+        } catch {
+          // Fall back to scalar function (SELECT fn())
+          const scalarQuery = `SELECT ${fnName}(${placeholders})`;
+          result = await pool.query(scalarQuery, paramValues);
+        }
+        // Extract scalar value from row object (e.g., { function_name: value } -> value)
+        const row = result.rows[0];
+        const data = row ? Object.values(row)[0] : null;
+        return { data, error: null };
       } catch (err) {
         return { data: null, error: err as Error };
       }
@@ -202,6 +222,19 @@ function createInsertBuilder(
         }
       },
     }),
+    // Direct then for await without .select()
+    then: async (resolve) => {
+      try {
+        const columns = Object.keys(data);
+        const values = Object.values(data);
+        const placeholders = columns.map((_, i) => `$${i + 1}`).join(", ");
+        const query = `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})`;
+        await pool.query(query, values);
+        return resolve({ data: null, error: null });
+      } catch (err) {
+        return resolve({ data: null, error: err as Error });
+      }
+    },
   };
 }
 
