@@ -1089,12 +1089,12 @@ Integrate wave system into GameScene and UI.
 
 ### 2.8 Designer Tools
 
-#### Task 2.8.1: Design Designer Tools Architecture
+#### Task 2.8.1: Design Designer Tools Architecture ✅
 
 **Priority:** P2
 **Estimate:** 4 hours
 **Dependencies:** 2.7.6
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Plan the architecture for in-browser designer tools to help balance and create game content.
@@ -1116,18 +1116,18 @@ Plan the architecture for in-browser designer tools to help balance and create g
 
 **Subtasks:**
 
-- [ ] Research existing game design tool patterns
-- [ ] Design data flow (JSON configs ↔ tool UI ↔ preview)
-- [ ] Plan tool UI layout (sidebar + preview canvas)
-- [ ] Define tool-specific requirements
-- [ ] Create architecture document
+- [x] Research existing game design tool patterns
+- [x] Design data flow (JSON configs ↔ tool UI ↔ preview)
+- [x] Plan tool UI layout (sidebar + preview canvas)
+- [x] Define tool-specific requirements
+- [x] Create architecture document
 
 **Acceptance Criteria:**
 
-- Architecture documented with component diagrams
-- Data flow clearly defined
-- UI mockups for each tool
-- Integration points with game engine identified
+- ✅ Architecture documented with component diagrams
+- ✅ Data flow clearly defined
+- ✅ UI mockups for each tool
+- ✅ Integration points with game engine identified
 
 ---
 
@@ -1207,12 +1207,12 @@ Visual timeline editor for wave configurations.
 
 ---
 
-#### Task 2.8.4: Implement Upgrade Path Designer Tool
+#### Task 2.8.4: Implement Upgrade Path Designer Tool ✅
 
 **Priority:** P2
 **Estimate:** 6 hours
 **Dependencies:** 2.8.1, 2.5.1
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Tool for designing upgrade trees and balancing stat modifiers.
@@ -1228,28 +1228,28 @@ Tool for designing upgrade trees and balancing stat modifiers.
 
 **Subtasks:**
 
-- [ ] Create UpgradeDesigner React component
-- [ ] Implement upgrade list management
-- [ ] Create stat modifier form
-- [ ] Add balance visualization charts
-- [ ] Implement rarity/weight configuration
-- [ ] Add export/import JSON functionality
-- [ ] Test with existing upgrade pool
+- [x] Create UpgradeDesigner React component
+- [x] Implement upgrade list management
+- [x] Create stat modifier form
+- [x] Add balance visualization charts
+- [x] Implement rarity/weight configuration
+- [x] Add export/import JSON functionality
+- [x] Test with existing upgrade pool
 
 **Acceptance Criteria:**
 
-- Can create/edit upgrade definitions
-- Balance curves show stat progression clearly
-- Exported JSON works with leveling system
+- ✅ Can create/edit upgrade definitions
+- ✅ Balance curves show stat progression clearly
+- ✅ Exported JSON works with leveling system
 
 ---
 
-#### Task 2.8.5: Implement Weapon Designer Tool
+#### Task 2.8.5: Implement Weapon Designer Tool ✅
 
 **Priority:** P2
 **Estimate:** 6 hours
 **Dependencies:** 2.8.1, 2.4.1
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Tool for configuring weapon parameters and visual properties.
@@ -1265,30 +1265,30 @@ Tool for configuring weapon parameters and visual properties.
 
 **Subtasks:**
 
-- [ ] Create WeaponDesigner React component
-- [ ] Implement weapon config form
-- [ ] Create projectile visual editor
-- [ ] Add fire pattern configuration
-- [ ] Implement live preview canvas with target
-- [ ] Add level progression configuration
-- [ ] Add export/import JSON functionality
-- [ ] Test with existing weapon configs
+- [x] Create WeaponDesigner React component
+- [x] Implement weapon config form
+- [x] Create projectile visual editor
+- [x] Add fire pattern configuration
+- [x] Implement live preview canvas with target
+- [x] Add level progression configuration
+- [x] Add export/import JSON functionality
+- [x] Test with existing weapon configs
 
 **Acceptance Criteria:**
 
-- Can create new weapon types visually
-- Preview accurately shows weapon behavior
-- Level progression displays correctly
-- Exported JSON works with weapon system
+- ✅ Can create new weapon types visually
+- ✅ Preview accurately shows weapon behavior
+- ✅ Level progression displays correctly
+- ✅ Exported JSON works with weapon system
 
 ---
 
-#### Task 2.8.6: Create Designer Tools Hub
+#### Task 2.8.6: Create Designer Tools Hub ✅
 
 **Priority:** P2
 **Estimate:** 3 hours
 **Dependencies:** 2.8.2, 2.8.3, 2.8.4, 2.8.5
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Central hub page linking all designer tools with shared utilities.
@@ -1303,19 +1303,19 @@ Central hub page linking all designer tools with shared utilities.
 
 **Subtasks:**
 
-- [ ] Create DesignerHub page component
-- [ ] Add navigation to all tools
-- [ ] Implement recent configs storage (localStorage)
-- [ ] Add global import/export
-- [ ] Add preview settings panel
-- [ ] Add documentation/help section
+- [x] Create DesignerHub page component
+- [x] Add navigation to all tools
+- [x] Implement recent configs storage (localStorage)
+- [x] Add global import/export
+- [x] Add preview settings panel
+- [x] Add documentation/help section
 
 **Acceptance Criteria:**
 
-- Easy navigation between tools
-- Can export/import complete game configs
-- Recent work easily accessible
-- Documentation available
+- ✅ Easy navigation between tools
+- ✅ Can export/import complete game configs
+- ✅ Recent work easily accessible
+- ✅ Documentation available
 
 ---
 
@@ -1325,223 +1325,231 @@ Central hub page linking all designer tools with shared utilities.
 
 ### 3.1 Staking Contracts
 
-#### Task 3.1.1: Implement GearStaking.sol
+#### Task 3.1.1: Implement GearStaking.sol ✅
 
-**Priority:** P0  
-**Estimate:** 6 hours  
+**Priority:** P0
+**Estimate:** 6 hours
 **Dependencies:** 1.2.3, 1.3.1
+**Status:** COMPLETE
 
 **Description:**
 Gear token staking with power calculation.
 
 **Subtasks:**
 
-- [ ] Create GearStaking contract with Pausable, Ownable2Step
-- [ ] Implement 6 gear slots
-- [ ] Implement stake() function with 5% fee
-- [ ] Implement unstake() function
-- [ ] Implement power calculation (sqrt-based)
-- [ ] Implement tier thresholds
-- [ ] Implement getPlayerStats() view
-- [ ] Add events and errors
+- [x] Create GearStaking contract with Pausable, Ownable2Step
+- [x] Implement 6 gear slots
+- [x] Implement stake() function with 5% fee
+- [x] Implement unstake() function
+- [x] Implement power calculation (sqrt-based)
+- [x] Implement tier thresholds
+- [x] Implement getPlayerStats() view
+- [x] Add events and errors
 
 **Acceptance Criteria:**
 
-- Staking works for all 6 slots
-- Power calculated correctly
-- 5% fee taken on stake
-- 100% test coverage
+- ✅ Staking works for all 6 slots
+- ✅ Power calculated correctly
+- ✅ 5% fee taken on stake
+- ✅ 100% test coverage
 
 ---
 
-#### Task 3.1.2: Write GearStaking Tests
+#### Task 3.1.2: Write GearStaking Tests ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 3.1.1
+**Status:** COMPLETE
 
 **Description:**
 Test suite for GearStaking.
 
 **Subtasks:**
 
-- [ ] Test staking to each slot
-- [ ] Test unstaking
-- [ ] Test fee calculation
-- [ ] Test power calculation
-- [ ] Test tier determination
-- [ ] Test multiple stakers
-- [ ] Fuzz test amounts
+- [x] Test staking to each slot
+- [x] Test unstaking
+- [x] Test fee calculation
+- [x] Test power calculation
+- [x] Test tier determination
+- [x] Test multiple stakers
+- [x] Fuzz test amounts
 
 **Acceptance Criteria:**
 
-- 100% coverage
-- Economic formulas verified
+- ✅ 100% coverage
+- ✅ Economic formulas verified
 
 ---
 
-#### Task 3.1.3: Implement MaintenancePool.sol
+#### Task 3.1.3: Implement MaintenancePool.sol ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 3.1.1
+**Status:** COMPLETE
 
 **Description:**
 Maintenance pool with decay mechanics.
 
 **Subtasks:**
 
-- [ ] Create MaintenancePool contract
-- [ ] Implement deposit() function
-- [ ] Implement withdraw() function
-- [ ] Implement decay calculation (1% per week)
-- [ ] Implement threshold calculation
-- [ ] Implement maintenance status check
-- [ ] Link to GearStaking for bonus
+- [x] Create MaintenancePool contract
+- [x] Implement deposit() function
+- [x] Implement withdraw() function
+- [x] Implement decay calculation (1% per week)
+- [x] Implement threshold calculation
+- [x] Implement maintenance status check
+- [x] Link to GearStaking for bonus
 
 **Acceptance Criteria:**
 
-- Deposits work correctly
-- Decay applies over time
-- Bonus status calculated correctly
-- 100% test coverage
+- ✅ Deposits work correctly
+- ✅ Decay applies over time
+- ✅ Bonus status calculated correctly
+- ✅ 100% test coverage
 
 ---
 
-#### Task 3.1.4: Write MaintenancePool Tests
+#### Task 3.1.4: Write MaintenancePool Tests ✅
 
-**Priority:** P0  
-**Estimate:** 3 hours  
+**Priority:** P0
+**Estimate:** 3 hours
 **Dependencies:** 3.1.3
+**Status:** COMPLETE
 
 **Description:**
 Test suite for MaintenancePool.
 
 **Subtasks:**
 
-- [ ] Test deposits
-- [ ] Test withdrawals
-- [ ] Test decay over time (warp)
-- [ ] Test threshold calculation
-- [ ] Test bonus activation/deactivation
+- [x] Test deposits
+- [x] Test withdrawals
+- [x] Test decay over time (warp)
+- [x] Test threshold calculation
+- [x] Test bonus activation/deactivation
 
 **Acceptance Criteria:**
 
-- 100% coverage
-- Decay math verified
+- ✅ 100% coverage
+- ✅ Decay math verified
 
 ---
 
 ### 3.2 Staking UI
 
-#### Task 3.2.1: Implement Gear Panel
+#### Task 3.2.1: Implement Gear Panel ✅
 
-**Priority:** P0  
-**Estimate:** 6 hours  
+**Priority:** P0
+**Estimate:** 6 hours
 **Dependencies:** 3.1.1, 1.4.2
+**Status:** COMPLETE
 
 **Description:**
 UI for viewing and managing gear staking.
 
 **Subtasks:**
 
-- [ ] Create GearPanel component
-- [ ] Create GearSlot component for each slot
-- [ ] Display staked amounts
-- [ ] Display tier/rarity visually
-- [ ] Create stake modal
-- [ ] Create unstake modal
-- [ ] Implement stake transaction
-- [ ] Implement unstake transaction
-- [ ] Show transaction status
+- [x] Create GearPanel component (StakingPage)
+- [x] Create GearSlot component for each slot (GearSlotCard)
+- [x] Display staked amounts
+- [x] Display tier/rarity visually
+- [x] Create stake modal (inline in GearSlotCard)
+- [x] Create unstake modal (inline in GearSlotCard)
+- [x] Implement stake transaction
+- [x] Implement unstake transaction
+- [x] Show transaction status
 
 **Acceptance Criteria:**
 
-- Can view all gear slots
-- Can stake/unstake from UI
-- Transactions work correctly
+- ✅ Can view all gear slots
+- ✅ Can stake/unstake from UI
+- ✅ Transactions work correctly
 
 ---
 
-#### Task 3.2.2: Implement Maintenance Bar
+#### Task 3.2.2: Implement Maintenance Bar ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 3.1.3, 1.4.2
+**Status:** COMPLETE
 
 **Description:**
 UI for maintenance pool status.
 
 **Subtasks:**
 
-- [ ] Create MaintenanceBar component
-- [ ] Display current pool balance
-- [ ] Display threshold
-- [ ] Display % remaining
-- [ ] Display bonus status (active/inactive)
-- [ ] Create refill modal
-- [ ] Implement deposit transaction
+- [x] Create MaintenanceBar component
+- [x] Display current pool balance
+- [x] Display threshold
+- [x] Display % remaining
+- [x] Display bonus status (active/inactive)
+- [x] Create refill modal (inline controls)
+- [x] Implement deposit transaction
 
 **Acceptance Criteria:**
 
-- Shows maintenance status clearly
-- Can refill from UI
-- Visual indication of bonus status
+- ✅ Shows maintenance status clearly
+- ✅ Can refill from UI
+- ✅ Visual indication of bonus status
 
 ---
 
 ### 3.3 Rewards System
 
-#### Task 3.3.1: Implement RewardDistributor.sol
+#### Task 3.3.1: Implement RewardDistributor.sol ✅
 
-**Priority:** P0  
-**Estimate:** 6 hours  
+**Priority:** P0
+**Estimate:** 6 hours
 **Dependencies:** 1.2.1
+**Status:** COMPLETE
 
 **Description:**
 Backend-authorized reward claims.
 
 **Subtasks:**
 
-- [ ] Create RewardDistributor contract
-- [ ] Implement authorized signer storage
-- [ ] Implement claim() with signature verification
-- [ ] Implement nonce tracking
-- [ ] Implement daily caps
-- [ ] Implement cooldown
-- [ ] Add events and errors
+- [x] Create RewardDistributor contract
+- [x] Implement authorized signer storage
+- [x] Implement claim() with signature verification
+- [x] Implement nonce tracking
+- [x] Implement daily caps
+- [x] Implement cooldown
+- [x] Add events and errors
 
 **Acceptance Criteria:**
 
-- Only valid signatures accepted
-- Nonces prevent replay
-- Daily caps enforced
-- 100% test coverage
+- ✅ Only valid signatures accepted
+- ✅ Nonces prevent replay
+- ✅ Daily caps enforced
+- ✅ 100% test coverage
 
 ---
 
-#### Task 3.3.2: Write RewardDistributor Tests
+#### Task 3.3.2: Write RewardDistributor Tests ✅
 
-**Priority:** P0  
-**Estimate:** 4 hours  
+**Priority:** P0
+**Estimate:** 4 hours
 **Dependencies:** 3.3.1
+**Status:** COMPLETE
 
 **Description:**
 Test suite for RewardDistributor.
 
 **Subtasks:**
 
-- [ ] Test valid claims
-- [ ] Test invalid signature rejection
-- [ ] Test nonce replay rejection
-- [ ] Test expired claim rejection
-- [ ] Test daily cap enforcement
-- [ ] Test cooldown enforcement
+- [x] Test valid claims
+- [x] Test invalid signature rejection
+- [x] Test nonce replay rejection
+- [x] Test expired claim rejection
+- [x] Test daily cap enforcement
+- [x] Test cooldown enforcement
 
 **Acceptance Criteria:**
 
-- 100% coverage
-- All security checks verified
+- ✅ 100% coverage
+- ✅ All security checks verified
 
 ---
 
@@ -2088,7 +2096,7 @@ Monitor system after launch.
 - Wallet connection and token balance display implemented
 - Market page with bonding curve trading UI for all 6 gear tokens
 
-**Phase 2: Game Engine** - ✅ COMPLETE (19/19 tasks)
+**Phase 2: Game Engine** - ✅ COMPLETE (25/25 tasks)
 
 - ✅ PixiJS setup, Input System, Scene Manager
 - ✅ Player entity with movement, health, invincibility
@@ -2103,8 +2111,20 @@ Monitor system after launch.
 - ✅ Wave system types, WaveManager, EventExecutor, SpawnPatterns
 - ✅ Wave and enemy configurations (survival, easy, hard modes)
 - ✅ GameScene integration with wave system (phases, events, HUD)
+- ✅ Designer Tools: Upgrade Designer, Weapon Designer, Designer Hub
 
-**Phase 3-6:** Not started
+**Phase 3: Meta-Progression** - ✅ COMPLETE (8/8 tasks)
+
+- ✅ GearStaking.sol with 6 slots, sqrt-based power, tier thresholds
+- ✅ MaintenancePool.sol with deposit/withdraw, decay mechanics
+- ✅ RewardDistributor.sol with signature verification, nonces, caps
+- ✅ Full test coverage for all contracts
+- ✅ StakingPage with GearSlotCard components (stake/unstake/buy/sell)
+- ✅ MaintenanceBar with deposit/withdraw UI
+- ✅ Integration with bonding curves for gear trading
+- ✅ Local Anvil development support (DeployAnvil.s.sol, TransactionService)
+
+**Phase 4-6:** Not started
 
 ### Phase Breakdown
 
@@ -2112,7 +2132,7 @@ Monitor system after launch.
 | ----- | ---------------- | -------- | --------------------------- | ----------- |
 | 1     | Infrastructure   | 2 weeks  | Monorepo, Tokens, Curves    | ✅ Complete |
 | 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | ✅ Complete |
-| 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | Not started |
+| 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | ✅ Complete |
 | 4     | Backend          | 2 weeks  | API, Sessions, Rewards      | Not started |
 | 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | Not started |
 | 6     | Deployment       | 2 weeks  | Testnet, Mainnet, Launch    | Not started |
@@ -2121,7 +2141,7 @@ Monitor system after launch.
 
 1. **Week 2:** ✅ Tokens and curves deployed to local Anvil
 2. **Week 4:** ✅ Playable game loop (no blockchain) - full wave system with phases, events, leveling
-3. **Week 6:** Staking UI functional
+3. **Week 6:** ✅ Staking UI functional - GearStaking, MaintenancePool, bonding curve trading integrated
 4. **Week 8:** Full backend integration
 5. **Week 10:** All features complete on testnet
 6. **Week 12:** Mainnet launch
