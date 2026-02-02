@@ -88,4 +88,20 @@ export async function getRateLimitCount(key: string): Promise<number> {
   return count ? parseInt(count, 10) : 0;
 }
 
+// Token blocklist operations for logout
+export async function addToTokenBlocklist(
+  tokenId: string,
+  expiresInSeconds: number
+): Promise<void> {
+  const client = getRedisClient();
+  // Store blocked token with TTL matching token expiry
+  await client.setex(`blocklist:${tokenId}`, expiresInSeconds, "1");
+}
+
+export async function isTokenBlocked(tokenId: string): Promise<boolean> {
+  const client = getRedisClient();
+  const exists = await client.exists(`blocklist:${tokenId}`);
+  return exists === 1;
+}
+
 export { redis };

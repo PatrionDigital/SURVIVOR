@@ -1624,31 +1624,32 @@ Create typed database query functions.
 
 ### 4.2 API Routes
 
-#### Task 4.2.1: Implement Auth Routes 🔄
+#### Task 4.2.1: Implement Auth Routes ✅
 
 **Priority:** P0
 **Estimate:** 4 hours
 **Dependencies:** 1.1.3
-**Status:** IN PROGRESS
+**Status:** COMPLETE
 
 **Description:**
 Authentication endpoints.
 
 **Subtasks:**
 
-- [ ] POST /api/auth/verify - Farcaster SIWF
-- [ ] POST /api/auth/refresh - Token refresh
-- [ ] POST /api/auth/logout - End session
-- [x] Implement JWT generation
-- [x] Test all endpoints
+- [x] POST /api/auth/verify - Farcaster SIWF signature verification
+- [x] POST /api/auth/refresh - Token refresh with old token revocation
+- [x] POST /api/auth/logout - End session with token blocklist
+- [x] Implement JWT generation with unique JTI
+- [x] Test all endpoints (10 tests)
 - [x] POST /api/auth/dev - Development auth (bypasses SIWF)
 
 **Acceptance Criteria:**
 
-- Can authenticate with Farcaster
+- ✅ Can authenticate with Farcaster (SIWF signature verification)
 - ✅ JWT tokens work correctly
-- Refresh flow works
+- ✅ Refresh flow works with token revocation
 - ✅ Dev auth works for local testing
+- ✅ Token blocklist via Redis for logout
 
 ---
 

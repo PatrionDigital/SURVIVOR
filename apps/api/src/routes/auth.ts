@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { authVerifySchema, validateRequest, addressSchema } from "../lib/validation.js";
-import { generateTokens } from "../lib/auth.js";
+import { generateTokens, verifySIWFSignature, revokeToken } from "../lib/auth.js";
 import { getSupabaseClient } from "../lib/db.js";
 
 // Schema for dev-only auth (no signature required)
@@ -78,10 +78,22 @@ export async function authRoutes(fastify: FastifyInstance) {
       });
     }
 
-    const { walletAddress, farcasterFid, farcasterUsername } = validation.data;
+    const { message, signature, walletAddress, farcasterFid, farcasterUsername } = validation.data;
 
-    // TODO: Verify SIWF signature
-    // For now, we'll trust the wallet address and create/update the player
+    // Verify the SIWF signature
+    const isValid = await verifySIWFSignature(
+      message,
+      signature as `0x${string}`,
+      walletAddress as `0x${string}`
+    );
+
+    if (!isValid) {
+      fastify.log.warn(`[Auth] Invalid signature for wallet: ${walletAddress}`);
+      return reply.status(401).send({
+        error: "Authentication Failed",
+        message: "Invalid signature",
+      });
+    }
 
     const supabase = getSupabaseClient();
 
@@ -111,6 +123,8 @@ export async function authRoutes(fastify: FastifyInstance) {
       farcasterFid: player.farcaster_fid,
     });
 
+    fastify.log.info(`[Auth] Player authenticated: ${player.id}`);
+
     return reply.send({
       token: accessToken,
       expiresAt,
@@ -130,6 +144,11 @@ export async function authRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = request.user;
 
+      // Revoke the old token
+      if (user.jti && user.exp) {
+        await revokeToken(user.jti, user.exp);
+      }
+
       // Generate new token
       const { accessToken, expiresAt } = generateTokens(fastify, {
         playerId: user.playerId,
@@ -144,12 +163,19 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   );
 
-  // POST /api/auth/logout - Invalidate session (placeholder)
+  // POST /api/auth/logout - Invalidate session by revoking token
   fastify.post(
     "/logout",
     { preHandler: [fastify.authenticate] },
-    async (_request: FastifyRequest, reply: FastifyReply) => {
-      // TODO: Add token to blocklist in Redis if needed
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const user = request.user;
+
+      // Add token to blocklist
+      if (user.jti && user.exp) {
+        await revokeToken(user.jti, user.exp);
+        fastify.log.info(`[Auth] Token revoked for player: ${user.playerId}`);
+      }
+
       return reply.send({ success: true });
     }
   );
