@@ -3,6 +3,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useSiwfAuth } from "@/lib/siwfAuth";
 import { usePlayerStore } from "@/stores/playerStore";
 import { useMiniApp } from "./useMiniApp";
+import { isLocalDev } from "@/lib/wagmi";
 
 export type ConnectionState = "disconnected" | "connecting" | "connected" | "error";
 
@@ -21,6 +22,7 @@ export interface UseWalletReturn {
   pfpUrl: string | null;
   isInMiniApp: boolean;
   isMiniAppReady: boolean;
+  isLocalDev: boolean;
 
   // Actions
   connect: () => void;
@@ -34,6 +36,7 @@ export interface UseWalletReturn {
  * Hook for wallet connection that integrates wagmi with Farcaster Mini App SDK
  * and Sign In With Farcaster (SIWF) for browser-based authentication.
  *
+ * - In local dev: auto-connects Anvil wallet (second default account)
  * - In Mini App context: auto-connects wallet via farcasterMiniApp connector
  * - In browser context: uses SIWF for authentication (persisted via localStorage)
  */
@@ -55,26 +58,59 @@ export function useWallet(): UseWalletReturn {
   // Zustand store
   const { connect: storeConnect, disconnect: storeDisconnect, fid: storeFid } = usePlayerStore();
 
-  // Get the Farcaster Mini App connector
-  const miniAppConnector = connectors[0];
+  // Get the first connector (mock in local dev, farcasterMiniApp in prod)
+  const primaryConnector = connectors[0];
 
   // Determine effective connection state
+  // In local dev: use wagmi connection with mock connector
   // In Mini App: use wagmi connection
   // In browser: use SIWF auth (persisted via localStorage)
-  const isConnected = isInMiniApp ? wagmiIsConnected : siwfAuthenticated;
-  const address = isInMiniApp ? wagmiAddress : (siwfUser?.custody ?? undefined);
+  const isConnected = isLocalDev || isInMiniApp ? wagmiIsConnected : siwfAuthenticated;
+  const address = isLocalDev || isInMiniApp ? wagmiAddress : (siwfUser?.custody ?? undefined);
 
-  // Auto-connect when in mini app context and ready
+  // Expected Anvil address (second default account)
+  const ANVIL_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
+  // Auto-connect in local dev mode or mini app context
   useEffect(() => {
-    if (isInMiniApp && isMiniAppReady && miniAppConnector && !wagmiIsConnected && !isPending) {
-      wagmiConnect({ connector: miniAppConnector });
+    if (isLocalDev && primaryConnector && !isPending) {
+      // In local dev, if not connected OR connected to wrong address, reconnect
+      const wrongAddress =
+        wagmiIsConnected && wagmiAddress?.toLowerCase() !== ANVIL_ADDRESS.toLowerCase();
+      if (!wagmiIsConnected || wrongAddress) {
+        if (wrongAddress) {
+          console.log("[useWallet] Wrong address detected, reconnecting to Anvil...", {
+            current: wagmiAddress,
+            expected: ANVIL_ADDRESS,
+          });
+          wagmiDisconnect();
+        }
+        wagmiConnect({ connector: primaryConnector });
+      }
+    } else if (isInMiniApp && isMiniAppReady && primaryConnector && !wagmiIsConnected && !isPending) {
+      wagmiConnect({ connector: primaryConnector });
     }
-  }, [isInMiniApp, isMiniAppReady, miniAppConnector, wagmiIsConnected, isPending, wagmiConnect]);
+  }, [
+    isLocalDev,
+    isInMiniApp,
+    isMiniAppReady,
+    primaryConnector,
+    wagmiIsConnected,
+    wagmiAddress,
+    isPending,
+    wagmiConnect,
+    wagmiDisconnect,
+  ]);
 
   // Sync connection state with playerStore
   useEffect(() => {
     if (isConnected && address) {
-      const userFid = isInMiniApp ? (context?.user?.fid ?? null) : (siwfUser?.fid ?? null);
+      // In local dev, use a mock FID (12345 for testing)
+      const userFid = isLocalDev
+        ? 12345
+        : isInMiniApp
+          ? (context?.user?.fid ?? null)
+          : (siwfUser?.fid ?? null);
       storeConnect(address, userFid ?? 0);
     } else if (!isConnected) {
       storeDisconnect();
@@ -89,23 +125,25 @@ export function useWallet(): UseWalletReturn {
     storeDisconnect,
   ]);
 
-  // Connect function (only used for Mini App context)
-  // In browser context, auth-kit's SignInButton handles the SIWF flow
+  // Connect function
+  // In local dev: connects Anvil wallet
+  // In Mini App: connects via farcasterMiniApp connector
+  // In browser: auth-kit's SignInButton handles the SIWF flow
   const connect = useCallback(() => {
-    if (isInMiniApp && miniAppConnector && !wagmiIsConnected && !isPending) {
-      wagmiConnect({ connector: miniAppConnector });
+    if ((isLocalDev || isInMiniApp) && primaryConnector && !wagmiIsConnected && !isPending) {
+      wagmiConnect({ connector: primaryConnector });
     }
-  }, [isInMiniApp, miniAppConnector, wagmiIsConnected, isPending, wagmiConnect]);
+  }, [primaryConnector, wagmiIsConnected, isPending, wagmiConnect]);
 
   // Disconnect function
   const disconnect = useCallback(() => {
-    if (isInMiniApp) {
+    if (isLocalDev || isInMiniApp) {
       wagmiDisconnect();
     } else {
       siwfSignOut();
     }
     storeDisconnect();
-  }, [isInMiniApp, wagmiDisconnect, siwfSignOut, storeDisconnect]);
+  }, [wagmiDisconnect, siwfSignOut, storeDisconnect]);
 
   // Determine connection state
   const getConnectionState = (): ConnectionState => {
@@ -115,8 +153,17 @@ export function useWallet(): UseWalletReturn {
     return "disconnected";
   };
 
-  // Get user profile data from Mini App context or SIWF user
+  // Get user profile data from Mini App context, SIWF user, or local dev mock
   const getUserProfile = () => {
+    // In local dev, return mock user data
+    if (isLocalDev) {
+      return {
+        fid: 12345,
+        username: "anvil-dev",
+        displayName: "Anvil Developer",
+        pfpUrl: null,
+      };
+    }
     if (isInMiniApp && context?.user) {
       return {
         fid: context.user.fid,
@@ -159,6 +206,7 @@ export function useWallet(): UseWalletReturn {
     pfpUrl: userProfile.pfpUrl,
     isInMiniApp,
     isMiniAppReady,
+    isLocalDev,
 
     connect,
     disconnect,

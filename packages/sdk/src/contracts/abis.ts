@@ -443,3 +443,119 @@ export const rewardDistributorAbi = [
     ],
   },
 ] as const;
+
+// ERC20BondingCurve ABI - for buying/selling gear tokens with VSC
+export const bondingCurveAbi = [
+  // Read functions
+  {
+    type: "function",
+    name: "baseToken",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "token",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getCurrentPrice",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getSpotPrice",
+    inputs: [{ name: "supply", type: "uint256" }],
+    outputs: [{ name: "price", type: "uint256" }],
+    stateMutability: "pure",
+  },
+  {
+    type: "function",
+    name: "calculateBuyReturn",
+    inputs: [{ name: "baseAmount", type: "uint256" }],
+    outputs: [
+      { name: "tokensOut", type: "uint256" },
+      { name: "fee", type: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "calculateSellReturn",
+    inputs: [{ name: "tokenAmount", type: "uint256" }],
+    outputs: [
+      { name: "baseOut", type: "uint256" },
+      { name: "fee", type: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "buyFeeBps",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "sellFeeBps",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "treasury",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  // Write functions
+  {
+    type: "function",
+    name: "buy",
+    inputs: [
+      { name: "baseAmount", type: "uint256" },
+      { name: "minTokensOut", type: "uint256" },
+    ],
+    outputs: [{ name: "tokensReceived", type: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "sell",
+    inputs: [
+      { name: "tokenAmount", type: "uint256" },
+      { name: "minBaseOut", type: "uint256" },
+    ],
+    outputs: [{ name: "baseReceived", type: "uint256" }],
+    stateMutability: "nonpayable",
+  },
+  // Events
+  {
+    type: "event",
+    name: "TokensBought",
+    inputs: [
+      { name: "buyer", type: "address", indexed: true },
+      { name: "baseAmount", type: "uint256", indexed: false },
+      { name: "tokensReceived", type: "uint256", indexed: false },
+      { name: "fee", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "TokensSold",
+    inputs: [
+      { name: "seller", type: "address", indexed: true },
+      { name: "tokenAmount", type: "uint256", indexed: false },
+      { name: "baseReceived", type: "uint256", indexed: false },
+      { name: "fee", type: "uint256", indexed: false },
+    ],
+  },
+] as const;
