@@ -9,7 +9,11 @@
     "coverage": "forge coverage",
     "lint": "forge fmt --check",
     "format": "forge fmt",
-    "clean": "forge clean && rm -rf node_modules .turbo"
+    "clean": "forge clean && rm -rf node_modules .turbo",
+    "deploy:anvil": "forge script script/DeployAnvil.s.sol --rpc-url http://localhost:8545 --broadcast",
+    "deploy:anvil:output": "./script/deploy-local.sh",
+    "addresses:anvil": "./script/extract-addresses.sh anvil",
+    "addresses:sepolia": "./script/extract-addresses.sh sepolia"
   },
   "devDependencies": {}
 }

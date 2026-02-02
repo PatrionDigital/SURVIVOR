@@ -1131,12 +1131,12 @@ Plan the architecture for in-browser designer tools to help balance and create g
 
 ---
 
-#### Task 2.8.2: Implement Enemy Designer Tool
+#### Task 2.8.2: Implement Enemy Designer Tool ✅
 
 **Priority:** P2
 **Estimate:** 6 hours
 **Dependencies:** 2.8.1, 2.3.1
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Visual tool for creating and editing enemy configurations.
@@ -1151,28 +1151,28 @@ Visual tool for creating and editing enemy configurations.
 
 **Subtasks:**
 
-- [ ] Create EnemyDesigner React component
-- [ ] Implement enemy config form with validation
-- [ ] Create preview canvas with single enemy spawn
-- [ ] Implement AI behavior visualization
-- [ ] Add export/import JSON functionality
-- [ ] Test with existing enemy types
+- [x] Create EnemyDesigner React component
+- [x] Implement enemy config form with validation
+- [x] Create preview canvas with single enemy spawn
+- [x] Implement AI behavior visualization
+- [x] Add export/import JSON functionality
+- [x] Test with existing enemy types
 
 **Acceptance Criteria:**
 
-- Can create new enemy types visually
-- Can edit existing enemy configs
-- Preview shows enemy behavior accurately
-- Exported JSON works in game
+- ✅ Can create new enemy types visually
+- ✅ Can edit existing enemy configs
+- ✅ Preview shows enemy behavior accurately
+- ✅ Exported JSON works in game
 
 ---
 
-#### Task 2.8.3: Implement Wave Designer Tool
+#### Task 2.8.3: Implement Wave Designer Tool ✅
 
 **Priority:** P2
 **Estimate:** 8 hours
 **Dependencies:** 2.8.1, 2.7.2
-**Status:** NOT STARTED
+**Status:** COMPLETE
 
 **Description:**
 Visual timeline editor for wave configurations.
@@ -1189,21 +1189,21 @@ Visual timeline editor for wave configurations.
 
 **Subtasks:**
 
-- [ ] Create WaveDesigner React component
-- [ ] Implement timeline visualization
-- [ ] Create phase editor sidebar
-- [ ] Create event editor sidebar
-- [ ] Implement drag-and-drop for phases/events
-- [ ] Add fast-forward preview simulation
-- [ ] Add export/import JSON functionality
-- [ ] Test with existing wave configs
+- [x] Create WaveDesigner React component
+- [x] Implement timeline visualization
+- [x] Create phase editor sidebar
+- [x] Create event editor sidebar
+- [x] Implement drag-and-drop for phases/events
+- [x] Add fast-forward preview simulation
+- [x] Add export/import JSON functionality
+- [x] Test with existing wave configs
 
 **Acceptance Criteria:**
 
-- Can visually create wave configurations
-- Timeline accurately represents game time
-- Preview simulation matches actual gameplay
-- Exported JSON works with WaveManager
+- ✅ Can visually create wave configurations
+- ✅ Timeline accurately represents game time
+- ✅ Preview simulation matches actual gameplay
+- ✅ Exported JSON works with WaveManager
 
 ---
 

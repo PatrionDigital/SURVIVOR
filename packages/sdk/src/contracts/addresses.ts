@@ -57,28 +57,29 @@ export const CONTRACT_ADDRESSES = {
   // Anvil Local (Chain ID: 31337)
   // NOTE: These addresses are deterministic based on deployment order.
   // If you reset Anvil or change deployment order, run DeployAnvil.s.sol again.
+  // Last updated: 2026-02-02
   anvil: {
-    vscToken: "0x3155755b79aA083bd953911C92705B7aA82a18F9" as `0x${string}`,
-    gearStaking: "0x6F6f570F45833E249e27022648a26F4076F48f78" as `0x${string}`,
-    maintenancePool: "0xCA8c8688914e0F7096c920146cd0Ad85cD7Ae8b9" as `0x${string}`,
-    rewardDistributor: "0xB0f05d25e41FbC2b52013099ED9616f1206Ae21B" as `0x${string}`,
+    vscToken: "0x5FbDB2315678afecb367f032d93F642f64180aa3" as `0x${string}`,
+    gearStaking: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c" as `0x${string}`,
+    maintenancePool: "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d" as `0x${string}`,
+    rewardDistributor: "0x59b670e9fA9D0A427751Af201D676719a970857b" as `0x${string}`,
     globalUpgradeNFT: "" as `0x${string}`,
     earlyAdopterNFT: "" as `0x${string}`,
     gearTokens: {
-      weapon: "0x5bf5b11053e734690269C6B9D438F8C9d48F528A" as `0x${string}`,
-      armor: "0xffa7CA1AEEEbBc30C874d32C7e22F052BbEa0429" as `0x${string}`,
-      power: "0x3aAde2dCD2Df6a8cAc689EE797591b2913658659" as `0x${string}`,
-      gloves: "0xab16A69A5a8c12C732e0DEFF4BE56A70bb64c926" as `0x${string}`,
-      amulet: "0xE3011A37A904aB90C8881a99BD1F6E21401f1522" as `0x${string}`,
-      boots: "0x1f10F3Ba7ACB61b2F50B9d6DdCf91a6f787C0E82" as `0x${string}`,
+      weapon: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512" as `0x${string}`,
+      armor: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0" as `0x${string}`,
+      power: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9" as `0x${string}`,
+      gloves: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9" as `0x${string}`,
+      amulet: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707" as `0x${string}`,
+      boots: "0x0165878A594ca255338adfa4d48449f69242Eb8F" as `0x${string}`,
     },
     bondingCurves: {
-      weapon: "0x457cCf29090fe5A24c19c1bc95F492168C0EaFdb" as `0x${string}`,
-      armor: "0x525C7063E7C20997BaaE9bDa922159152D0e8417" as `0x${string}`,
-      power: "0x38a024C0b412B9d1db8BC398140D00F5Af3093D4" as `0x${string}`,
-      gloves: "0x5fc748f1FEb28d7b76fa1c6B07D8ba2d5535177c" as `0x${string}`,
-      amulet: "0xB82008565FdC7e44609fA118A4a681E92581e680" as `0x${string}`,
-      boots: "0x2a810409872AfC346F9B5b26571Fd6eC42EA4849" as `0x${string}`,
+      weapon: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853" as `0x${string}`,
+      armor: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6" as `0x${string}`,
+      power: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318" as `0x${string}`,
+      gloves: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788" as `0x${string}`,
+      amulet: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e" as `0x${string}`,
+      boots: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0" as `0x${string}`,
     },
   },
 } as const;
