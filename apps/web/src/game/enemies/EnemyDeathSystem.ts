@@ -2,6 +2,16 @@ import { EntityManager } from "yuka";
 import type { GameWorld, Entity } from "../ecs/World";
 
 /**
+ * Information about a single enemy death
+ */
+export interface EnemyDeath {
+  /** Position where enemy died */
+  position: { x: number; y: number };
+  /** XP value of the enemy */
+  xpValue: number;
+}
+
+/**
  * Result of enemy death processing
  */
 export interface DeathResult {
@@ -9,6 +19,8 @@ export interface DeathResult {
   killedCount: number;
   /** Total XP earned from killed enemies */
   totalXP: number;
+  /** Details of each enemy death (position and XP) */
+  deaths: EnemyDeath[];
 }
 
 /**
@@ -27,6 +39,7 @@ export function enemyDeathSystem(world: GameWorld, yukaManager: EntityManager): 
   const result: DeathResult = {
     killedCount: 0,
     totalXP: 0,
+    deaths: [],
   };
 
   // Collect dead enemies first (can't modify while iterating)
@@ -41,8 +54,17 @@ export function enemyDeathSystem(world: GameWorld, yukaManager: EntityManager): 
     // Check if dead
     if (entity.health.current <= 0) {
       deadEnemies.push(entity);
+      const xpValue = entity.enemy!.config.combat.xpValue;
       result.killedCount++;
-      result.totalXP += entity.enemy!.config.combat.xpValue;
+      result.totalXP += xpValue;
+
+      // Record death position for pickup spawning
+      if (entity.position) {
+        result.deaths.push({
+          position: { x: entity.position.x, y: entity.position.y },
+          xpValue,
+        });
+      }
     }
   }
 

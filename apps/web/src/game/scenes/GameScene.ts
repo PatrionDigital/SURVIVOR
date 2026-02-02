@@ -26,6 +26,13 @@ import {
   enemyDeathSystem,
   destroyEnemy,
 } from "../enemies";
+import {
+  createXPGem,
+  destroyPickup,
+  pickupAttractionSystem,
+  pickupCollectionSystem,
+  DEFAULT_PICKUP_CONFIG,
+} from "../pickups";
 
 /**
  * GameScene - Main gameplay scene
@@ -135,6 +142,13 @@ export class GameScene extends Scene {
       }
     }
 
+    // Clean up pickups
+    if (this.world) {
+      for (const entity of this.world.with("pickup")) {
+        destroyPickup(this.world, entity);
+      }
+    }
+
     // Clean up background
     if (this.backgroundGraphics) {
       this.backgroundGraphics.destroy();
@@ -220,15 +234,37 @@ export class GameScene extends Scene {
     // Clean up consumed projectiles
     this.cleanupConsumedProjectiles();
 
-    // 10. Enemy death (check for dead enemies, award XP)
-    if (this.yukaManager) {
-      enemyDeathSystem(this.world, this.yukaManager);
+    // 10. Enemy death (check for dead enemies, spawn XP gems)
+    if (this.yukaManager && this.gameContainer) {
+      const deathResult = enemyDeathSystem(this.world, this.yukaManager);
+
+      // Spawn XP gems at death positions
+      for (const death of deathResult.deaths) {
+        createXPGem(this.world, this.gameContainer, death.position, death.xpValue);
+      }
     }
 
-    // 11. Update background to follow camera
+    // 11. Pickup attraction (magnet effect)
+    const playerPos = this.playerEntity?.position ?? null;
+    pickupAttractionSystem(this.world, deltaMs, playerPos, DEFAULT_PICKUP_CONFIG);
+
+    // 12. Pickup collection
+    const collectionResult = pickupCollectionSystem(
+      this.world,
+      deltaMs,
+      playerPos,
+      DEFAULT_PICKUP_CONFIG
+    );
+
+    // TODO: Add collected XP to player stats
+    if (collectionResult.totalXP > 0) {
+      // Future: this.playerStats.addXP(collectionResult.totalXP);
+    }
+
+    // 13. Update background to follow camera
     this.updateBackground();
 
-    // 12. Render with camera offset
+    // 14. Render with camera offset
     renderSystem(this.world, this.camera, this.width, this.height);
   }
 
@@ -331,20 +367,25 @@ export class GameScene extends Scene {
     // Create Yuka EntityManager for AI steering
     this.yukaManager = new EntityManager();
 
-    // Create enemy type registry and load basic enemy
+    // Create enemy type registry
     this.enemyRegistry = new EnemyTypeRegistry();
-    this.enemyRegistry.load("basic").catch((err) => {
-      console.warn("Failed to load basic enemy config:", err);
-    });
 
-    // Create spawning system
-    this.spawningSystem = new SpawningSystem(
-      this.world,
-      this.yukaManager,
-      this.gameContainer,
-      this.enemyRegistry,
-      DEFAULT_SPAWNING_CONFIG
-    );
+    // Load enemy configs, then create spawning system
+    // Using async IIFE since onEnter is synchronous
+    (async () => {
+      await this.enemyRegistry!.load("basic");
+
+      // Create spawning system after configs are loaded
+      this.spawningSystem = new SpawningSystem(
+        this.world!,
+        this.yukaManager!,
+        this.gameContainer!,
+        this.enemyRegistry!,
+        DEFAULT_SPAWNING_CONFIG
+      );
+    })().catch((err) => {
+      console.warn("Failed to initialize enemy systems:", err);
+    });
   }
 
   private cleanupConsumedProjectiles(): void {

@@ -1,6 +1,7 @@
 import { World } from "miniplex";
 import type { Position, Velocity, Health, Invincibility, Sprite, EnemyAI } from "./components";
 import type { Projectile } from "../combat/types";
+import type { Pickup } from "../pickups/types";
 
 /**
  * Entity type for the game ECS
@@ -17,6 +18,7 @@ export type Entity = {
   playerControlled?: boolean;
   enemy?: EnemyAI;
   projectile?: Projectile;
+  pickup?: Pickup;
 };
 
 /**
