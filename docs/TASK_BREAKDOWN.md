@@ -728,7 +728,7 @@ Level up when XP threshold reached.
 **Subtasks:**
 
 - [x] Track XP and level in game state (LevelingSystem class)
-- [x] Calculate XP thresholds per level (exponential: base * 1.2^(level-1))
+- [x] Calculate XP thresholds per level (exponential: base \* 1.2^(level-1))
 - [x] Trigger level-up event (pendingLevelUps queue)
 - [x] Pause game during level-up (GameEngine.pause() on modal open)
 - [x] Generate random choices (3 options) (generateUpgradeChoices)

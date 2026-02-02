@@ -1,0 +1,118 @@
+/**
+ * GameHUD - Heads-up display during gameplay
+ *
+ * Displays:
+ * - Health bar with color coding
+ * - XP bar with progress
+ * - Player level
+ * - Survival time
+ * - Enemies killed
+ * - Total XP collected
+ */
+export interface GameHUDProps {
+  health: { current: number; max: number };
+  level: number;
+  xpProgress: number;
+  currentXP: number;
+  xpToNextLevel: number;
+  survivalTime: number;
+  enemiesKilled: number;
+  totalXP: number;
+}
+
+/**
+ * Format seconds as mm:ss
+ */
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+/**
+ * Get health bar color based on health percentage
+ */
+function getHealthColor(percent: number): string {
+  if (percent > 50) return "bg-green-500";
+  if (percent > 25) return "bg-yellow-500";
+  return "bg-red-500";
+}
+
+export function GameHUD({
+  health,
+  level,
+  xpProgress,
+  currentXP,
+  xpToNextLevel,
+  survivalTime,
+  enemiesKilled,
+  totalXP,
+}: GameHUDProps) {
+  const healthPercent = health.max > 0 ? (health.current / health.max) * 100 : 0;
+  const healthColor = getHealthColor(healthPercent);
+
+  return (
+    <div className="absolute top-0 left-0 right-0 p-3 pointer-events-none">
+      <div className="flex flex-col gap-2">
+        {/* Top row: Health and Level */}
+        <div className="flex items-center gap-4">
+          {/* Health bar */}
+          <div className="flex items-center gap-2 flex-1 max-w-xs">
+            <span className="text-xs font-bold text-red-400 w-6">HP</span>
+            <div className="flex-1 h-4 bg-gray-800/80 rounded-full overflow-hidden border border-gray-600">
+              <div
+                data-testid="health-bar-fill"
+                className={`h-full ${healthColor} transition-all duration-300`}
+                style={{ width: `${healthPercent}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-300 w-16 text-right">
+              {health.current}/{health.max}
+            </span>
+          </div>
+
+          {/* Level badge */}
+          <div className="bg-primary-600/80 px-3 py-1 rounded-full border border-primary-400">
+            <span className="text-sm font-bold text-white">Lv.{level}</span>
+          </div>
+        </div>
+
+        {/* Second row: XP bar */}
+        <div className="flex items-center gap-2 max-w-xs">
+          <span className="text-xs font-bold text-cyan-400 w-6">XP</span>
+          <div className="flex-1 h-3 bg-gray-800/80 rounded-full overflow-hidden border border-gray-600">
+            <div
+              data-testid="xp-bar-fill"
+              className="h-full bg-cyan-500 transition-all duration-300"
+              style={{ width: `${xpProgress}%` }}
+            />
+          </div>
+          <span className="text-xs text-gray-300 w-16 text-right">
+            {currentXP}/{xpToNextLevel}
+          </span>
+        </div>
+
+        {/* Third row: Stats */}
+        <div className="flex items-center gap-4 text-sm">
+          {/* Timer */}
+          <div className="flex items-center gap-1 bg-gray-800/60 px-2 py-1 rounded">
+            <span className="text-gray-400">⏱️</span>
+            <span className="text-white font-mono">{formatTime(survivalTime)}</span>
+          </div>
+
+          {/* Kills */}
+          <div className="flex items-center gap-1 bg-gray-800/60 px-2 py-1 rounded">
+            <span className="text-yellow-400">⚔️</span>
+            <span className="text-white font-mono">{enemiesKilled}</span>
+          </div>
+
+          {/* Total XP */}
+          <div className="flex items-center gap-1 bg-gray-800/60 px-2 py-1 rounded">
+            <span className="text-cyan-400">✨</span>
+            <span className="text-white font-mono">{totalXP}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -404,6 +404,26 @@ export class GameScene extends Scene {
   }
 
   /**
+   * Get player health stats
+   */
+  getPlayerHealth(): { current: number; max: number } {
+    if (!this.playerEntity?.health) {
+      return { current: 100, max: 100 };
+    }
+    return {
+      current: this.playerEntity.health.current,
+      max: this.playerEntity.health.max,
+    };
+  }
+
+  /**
+   * Get XP required for next level
+   */
+  getXPToNextLevel(): number {
+    return this.levelingSystem?.getXPToNextLevel() ?? 100;
+  }
+
+  /**
    * Get upgrade choices for the current level-up
    * @param count - Number of choices to generate (default 3)
    * @returns Array of upgrade choices

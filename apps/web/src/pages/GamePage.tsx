@@ -12,7 +12,7 @@ import {
   type Upgrade,
 } from "../game";
 import { useGameStore, useSettingsStore } from "../stores";
-import { LevelUpModal } from "../components/game";
+import { LevelUpModal, GameHUD } from "../components/game";
 
 export function GamePage() {
   const { isPlaying, pauseGame, setSurvivalTime, playerPosition, setPlayerPosition, survivalTime } =
@@ -35,6 +35,10 @@ export function GamePage() {
   // HUD stats
   const [enemiesKilled, setEnemiesKilled] = useState(0);
   const [totalXP, setTotalXP] = useState(0);
+  const [health, setHealth] = useState({ current: 100, max: 100 });
+  const [xpProgress, setXpProgress] = useState(0);
+  const [currentXP, setCurrentXP] = useState(0);
+  const [xpToNextLevel, setXpToNextLevel] = useState(100);
 
   // Keep ref in sync with store value
   useEffect(() => {
@@ -102,6 +106,10 @@ export function GamePage() {
           setEnemiesKilled(gameScene.getEnemiesKilled());
           setTotalXP(gameScene.getTotalXPCollected());
           setCurrentLevel(gameScene.getPlayerLevel());
+          setHealth(gameScene.getPlayerHealth());
+          setXpProgress(gameScene.getXPProgressPercent());
+          setCurrentXP(gameScene.getCurrentXP());
+          setXpToNextLevel(gameScene.getXPToNextLevel());
 
           // Check for level-up
           if (!isLevelUpOpen && gameScene.isLevelingUp()) {
@@ -275,15 +283,7 @@ export function GamePage() {
             Scenes: {useSceneMode ? "ON" : "OFF"}
           </button>
         </div>
-        <div className="flex items-center gap-6">
-          <span className="text-sm text-gray-400">Time: {Math.floor(survivalTime)}s</span>
-          {useSceneMode && (
-            <>
-              <span className="text-sm text-yellow-400">⚔️ Kills: {enemiesKilled}</span>
-              <span className="text-sm text-cyan-400">✨ XP: {totalXP}</span>
-              <span className="text-sm text-green-400">⭐ Lv.{currentLevel}</span>
-            </>
-          )}
+        <div className="flex items-center gap-4">
           <h1 className="text-lg font-bold text-primary-400">Farcaster Survivors</h1>
         </div>
         {isPlaying && !useSceneMode && (
@@ -308,6 +308,20 @@ export function GamePage() {
           className="w-full h-full"
           backgroundColor={0x0a0a1a}
         />
+
+        {/* Game HUD overlay (scene mode only) */}
+        {useSceneMode && isPlaying && (
+          <GameHUD
+            health={health}
+            level={currentLevel}
+            xpProgress={xpProgress}
+            currentXP={currentXP}
+            xpToNextLevel={xpToNextLevel}
+            survivalTime={survivalTime}
+            enemiesKilled={enemiesKilled}
+            totalXP={totalXP}
+          />
+        )}
 
         {/* Level-up modal */}
         <LevelUpModal
