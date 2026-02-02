@@ -85,8 +85,7 @@ export class LevelingSystem {
    * Uses exponential scaling: base * scalingFactor^(level-1)
    */
   getXPThreshold(level: number): number {
-    const threshold =
-      this.config.baseXPThreshold * Math.pow(this.config.scalingFactor, level - 1);
+    const threshold = this.config.baseXPThreshold * Math.pow(this.config.scalingFactor, level - 1);
     return Math.floor(threshold);
   }
 
@@ -116,10 +115,7 @@ export class LevelingSystem {
     let levelsGained = 0;
 
     // Process level ups while we have enough XP and haven't hit max
-    while (
-      this.level < this.config.maxLevel &&
-      this.currentXP >= this.getXPThreshold(this.level)
-    ) {
+    while (this.level < this.config.maxLevel && this.currentXP >= this.getXPThreshold(this.level)) {
       const threshold = this.getXPThreshold(this.level);
       this.currentXP -= threshold;
       this.level++;
