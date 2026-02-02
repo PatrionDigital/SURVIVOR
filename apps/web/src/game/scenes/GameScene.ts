@@ -61,13 +61,13 @@ const GRID_LINE_COLOR = 0x0f3460; // Grid lines
 const DEFAULT_WEAPON_CONFIG: WeaponConfig = {
   id: "basic-blaster",
   name: "Basic Blaster",
-  damage: 10,
-  cooldown: 500, // Fire every 500ms
-  projectileSpeed: 400, // Pixels per second
+  damage: 25, // Increased for faster kills (4 hits to kill basic enemy)
+  cooldown: 300, // Fire every 300ms (faster)
+  projectileSpeed: 500, // Pixels per second (faster projectiles)
   projectileLifetime: 2000, // 2 seconds
   visual: {
     color: 0x00ffff, // Cyan projectiles
-    radius: 5,
+    radius: 6, // Slightly larger for visibility
   },
   projectilesPerShot: 1,
   spreadAngle: 0,

@@ -317,15 +317,9 @@ function setupSceneTransitions(
   sceneManager: SceneManager,
   input: InputSystem,
   startGame: () => void,
-  endGame: () => void,
-  onGameEnd?: (results: GameResults) => void
+  _endGame: () => void, // Will be used when player death is implemented
+  _onGameEnd?: (results: GameResults) => void // Will be used when player death is implemented
 ): void {
-  // Track game state for demo purposes
-  let gameStartTime = 0;
-  let enemiesKilled = 0;
-  let score = 0;
-  let level = 1;
-
   const handleTap = async (e: PointerEvent) => {
     // Only handle primary button (touch or left click)
     if (e.button !== 0) return;
@@ -337,67 +331,20 @@ function setupSceneTransitions(
       await sceneManager.transitionTo("game", { duration: 200 });
       input.enable();
       startGame();
-      gameStartTime = performance.now();
-      // Reset game stats
-      enemiesKilled = 0;
-      score = 0;
-      level = 1;
     } else if (currentScene === "result") {
       // Tap to play again - go back to game
       await sceneManager.transitionTo("game", { duration: 200 });
       input.enable();
       startGame();
-      gameStartTime = performance.now();
-      // Reset game stats
-      enemiesKilled = 0;
-      score = 0;
-      level = 1;
     }
     // In game scene, taps are handled by the game (player movement)
   };
 
   container.addEventListener("pointerup", handleTap);
 
-  // For demo: end game after 10 seconds and show result
-  // In a real game, this would be triggered by player death
-  const demoInterval = setInterval(() => {
-    if (sceneManager.currentSceneName === "game" && gameStartTime > 0) {
-      const elapsed = (performance.now() - gameStartTime) / 1000;
-
-      // Demo: simulate progression
-      score = Math.floor(elapsed * 100);
-      enemiesKilled = Math.floor(elapsed * 2);
-      level = Math.floor(elapsed / 15) + 1;
-
-      // End game after 30 seconds for demo
-      if (elapsed >= 30) {
-        const results: GameResults = {
-          survivalTime: elapsed,
-          score,
-          enemiesKilled,
-          level,
-        };
-
-        // Set results and transition to result scene
-        const resultScene = sceneManager.getScene("result") as ResultScene | undefined;
-        resultScene?.setResults(results);
-
-        sceneManager.transitionTo("result", { duration: 200 });
-        input.disable();
-        endGame();
-        gameStartTime = 0;
-
-        if (onGameEnd) {
-          onGameEnd(results);
-        }
-      }
-    }
-  }, 1000);
-
   // Clean up on unmount (handled by effect cleanup)
   // Store cleanup function on container for later removal
   (container as HTMLElement & { _sceneCleanup?: () => void })._sceneCleanup = () => {
     container.removeEventListener("pointerup", handleTap);
-    clearInterval(demoInterval);
   };
 }
