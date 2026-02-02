@@ -123,9 +123,7 @@ describe("PickupAttractionSystem", () => {
       pickupAttractionSystem(world, 16, playerPos, DEFAULT_PICKUP_CONFIG);
 
       // Velocity magnitude should equal attractionSpeed
-      const speed = Math.sqrt(
-        pickup.velocity!.vx ** 2 + pickup.velocity!.vy ** 2
-      );
+      const speed = Math.sqrt(pickup.velocity!.vx ** 2 + pickup.velocity!.vy ** 2);
       expect(speed).toBeCloseTo(DEFAULT_PICKUP_CONFIG.attractionSpeed, 0);
     });
 
@@ -151,9 +149,7 @@ describe("PickupAttractionSystem", () => {
       expect(pickup.velocity!.vy).toBeLessThan(0);
 
       // Velocity magnitude should still equal attractionSpeed
-      const speed = Math.sqrt(
-        pickup.velocity!.vx ** 2 + pickup.velocity!.vy ** 2
-      );
+      const speed = Math.sqrt(pickup.velocity!.vx ** 2 + pickup.velocity!.vy ** 2);
       expect(speed).toBeCloseTo(DEFAULT_PICKUP_CONFIG.attractionSpeed, 0);
     });
   });
