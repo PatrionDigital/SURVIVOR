@@ -1,7 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { LevelUpModal } from "./LevelUpModal";
 import type { Upgrade } from "@/game/leveling";
+
+// Selection feedback delay used in the component
+const SELECTION_FEEDBACK_DELAY = 150;
 
 const mockUpgrades: Upgrade[] = [
   {
@@ -75,7 +78,15 @@ describe("LevelUpModal", () => {
   });
 
   describe("Interaction", () => {
-    it("should call onSelectUpgrade when clicking an upgrade", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("should call onSelectUpgrade when clicking an upgrade after feedback delay", () => {
       const onSelectUpgrade = vi.fn();
       render(
         <LevelUpModal
@@ -87,6 +98,14 @@ describe("LevelUpModal", () => {
       );
 
       fireEvent.click(screen.getByText("Sharp Bullets"));
+
+      // Should not be called immediately
+      expect(onSelectUpgrade).not.toHaveBeenCalled();
+
+      // Advance past feedback delay
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
 
       expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[0]);
     });
@@ -103,6 +122,10 @@ describe("LevelUpModal", () => {
       );
 
       fireEvent.click(screen.getByText("Vitality"));
+
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
 
       expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[2]);
     });
@@ -121,6 +144,10 @@ describe("LevelUpModal", () => {
       const firstChoice = screen.getByText("Sharp Bullets").closest("button");
       fireEvent.keyDown(firstChoice!, { key: "Enter" });
 
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
+
       expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[0]);
     });
 
@@ -136,6 +163,10 @@ describe("LevelUpModal", () => {
       );
 
       fireEvent.keyDown(document, { key: "1" });
+
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
 
       expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[0]);
     });
@@ -153,6 +184,10 @@ describe("LevelUpModal", () => {
 
       fireEvent.keyDown(document, { key: "2" });
 
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
+
       expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[1]);
     });
 
@@ -169,6 +204,10 @@ describe("LevelUpModal", () => {
 
       fireEvent.keyDown(document, { key: "3" });
 
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
+
       expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[2]);
     });
 
@@ -184,6 +223,10 @@ describe("LevelUpModal", () => {
       );
 
       fireEvent.keyDown(document, { key: "1" });
+
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
 
       expect(onSelectUpgrade).not.toHaveBeenCalled();
     });
@@ -202,7 +245,64 @@ describe("LevelUpModal", () => {
       fireEvent.keyDown(document, { key: "4" });
       fireEvent.keyDown(document, { key: "0" });
 
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
+
       expect(onSelectUpgrade).not.toHaveBeenCalled();
+    });
+
+    it("should show visual feedback immediately on selection", () => {
+      render(
+        <LevelUpModal isOpen={true} level={2} choices={mockUpgrades} onSelectUpgrade={vi.fn()} />
+      );
+
+      const firstButton = screen.getByText("Sharp Bullets").closest("button");
+      fireEvent.click(firstButton!);
+
+      // Button should have selected styling (scale and primary color)
+      expect(firstButton).toHaveClass("scale-[1.02]");
+      expect(firstButton).toHaveClass("bg-primary-600");
+    });
+
+    it("should disable other options during selection", () => {
+      render(
+        <LevelUpModal isOpen={true} level={2} choices={mockUpgrades} onSelectUpgrade={vi.fn()} />
+      );
+
+      fireEvent.click(screen.getByText("Sharp Bullets"));
+
+      // Other buttons should be disabled
+      const secondButton = screen.getByText("Quick Trigger").closest("button");
+      const thirdButton = screen.getByText("Vitality").closest("button");
+
+      expect(secondButton).toBeDisabled();
+      expect(thirdButton).toBeDisabled();
+    });
+
+    it("should prevent multiple selections", () => {
+      const onSelectUpgrade = vi.fn();
+      render(
+        <LevelUpModal
+          isOpen={true}
+          level={2}
+          choices={mockUpgrades}
+          onSelectUpgrade={onSelectUpgrade}
+        />
+      );
+
+      // Try to select multiple times rapidly
+      fireEvent.keyDown(document, { key: "1" });
+      fireEvent.keyDown(document, { key: "2" });
+      fireEvent.keyDown(document, { key: "3" });
+
+      act(() => {
+        vi.advanceTimersByTime(SELECTION_FEEDBACK_DELAY);
+      });
+
+      // Should only call once with the first selection
+      expect(onSelectUpgrade).toHaveBeenCalledTimes(1);
+      expect(onSelectUpgrade).toHaveBeenCalledWith(mockUpgrades[0]);
     });
   });
 
