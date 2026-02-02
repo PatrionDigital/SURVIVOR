@@ -9,3 +9,14 @@ export type { UseVSCTokenReturn } from "./useVSCToken";
 
 export { useGearTokens } from "./useGearTokens";
 export type { GearSlot, GearTokenBalance, UseGearTokensReturn } from "./useGearTokens";
+
+export { useGearStaking, TIER_NAMES, TIER_COLORS } from "./useGearStaking";
+export type {
+  GearSlotIndex,
+  GearSlotData,
+  PlayerStats,
+  UseGearStakingReturn,
+} from "./useGearStaking";
+
+export { useMaintenancePool } from "./useMaintenancePool";
+export type { MaintenanceData, UseMaintenancePoolReturn } from "./useMaintenancePool";

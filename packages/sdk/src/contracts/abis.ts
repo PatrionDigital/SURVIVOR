@@ -86,3 +86,360 @@ export const vscTokenAbi = [
 
 // GearToken ABI - same as ERC20 for balance reading
 export const gearTokenAbi = erc20Abi;
+
+// GearStaking ABI - for staking gear tokens
+export const gearStakingAbi = [
+  // Read functions
+  {
+    type: "function",
+    name: "stakedAmounts",
+    inputs: [
+      { name: "player", type: "address" },
+      { name: "slot", type: "uint8" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getGearPower",
+    inputs: [
+      { name: "player", type: "address" },
+      { name: "slot", type: "uint8" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getTotalPower",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getTotalStaked",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getTier",
+    inputs: [{ name: "stakedAmount", type: "uint256" }],
+    outputs: [{ name: "", type: "uint8" }],
+    stateMutability: "pure",
+  },
+  {
+    type: "function",
+    name: "getPlayerStats",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [
+      {
+        name: "",
+        type: "tuple",
+        components: [
+          { name: "stakedAmounts", type: "uint256[6]" },
+          { name: "slotPowers", type: "uint256[6]" },
+          { name: "totalPower", type: "uint256" },
+          { name: "maintenanceActive", type: "bool" },
+        ],
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "gearTokens",
+    inputs: [{ name: "slot", type: "uint256" }],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "treasury",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "maintenancePool",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  // Write functions
+  {
+    type: "function",
+    name: "stake",
+    inputs: [
+      { name: "slot", type: "uint8" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "unstake",
+    inputs: [
+      { name: "slot", type: "uint8" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  // Events
+  {
+    type: "event",
+    name: "TokensStaked",
+    inputs: [
+      { name: "player", type: "address", indexed: true },
+      { name: "slot", type: "uint8", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "fee", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "TokensUnstaked",
+    inputs: [
+      { name: "player", type: "address", indexed: true },
+      { name: "slot", type: "uint8", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+    ],
+  },
+] as const;
+
+// MaintenancePool ABI - for maintenance deposits
+export const maintenancePoolAbi = [
+  // Read functions
+  {
+    type: "function",
+    name: "getPoolBalance",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getThreshold",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getMaintenanceStatus",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getMaintenancePercentage",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getPendingDecay",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getRawMaintenanceData",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [
+      { name: "balance", type: "uint256" },
+      { name: "lastUpdate", type: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "vscToken",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "gearStaking",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "maintenanceMultiplierBps",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  // Write functions
+  {
+    type: "function",
+    name: "deposit",
+    inputs: [{ name: "amount", type: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "withdraw",
+    inputs: [{ name: "amount", type: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "applyDecay",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  // Events
+  {
+    type: "event",
+    name: "MaintenanceDeposited",
+    inputs: [
+      { name: "player", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "newBalance", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "MaintenanceWithdrawn",
+    inputs: [
+      { name: "player", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "newBalance", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "DecayApplied",
+    inputs: [
+      { name: "player", type: "address", indexed: true },
+      { name: "decayAmount", type: "uint256", indexed: false },
+      { name: "newBalance", type: "uint256", indexed: false },
+    ],
+  },
+] as const;
+
+// RewardDistributor ABI - for gameplay reward claims
+export const rewardDistributorAbi = [
+  // Read functions
+  {
+    type: "function",
+    name: "getDailyClaimed",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getGlobalDailyClaimed",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "isNonceUsed",
+    inputs: [
+      { name: "player", type: "address" },
+      { name: "nonce", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getLastClaimTime",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getRemainingDailyAllowance",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getRemainingGlobalAllowance",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "canClaim",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getBalance",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "authorizedSigner",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "dailyPlayerCap",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "globalDailyCap",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  // Write functions
+  {
+    type: "function",
+    name: "claim",
+    inputs: [
+      { name: "amount", type: "uint256" },
+      { name: "rewardType", type: "uint8" },
+      { name: "nonce", type: "uint256" },
+      { name: "expiry", type: "uint256" },
+      { name: "signature", type: "bytes" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  // Events
+  {
+    type: "event",
+    name: "RewardClaimed",
+    inputs: [
+      { name: "player", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "rewardType", type: "uint8", indexed: false },
+      { name: "nonce", type: "uint256", indexed: false },
+    ],
+  },
+] as const;
