@@ -21,6 +21,8 @@ export interface EnemyStatModifiers {
   damageMultiplier?: number;
   /** Speed multiplier (1.0 = normal) */
   speedMultiplier?: number;
+  /** Whether this is a boss enemy (larger, different color) */
+  isBoss?: boolean;
 }
 
 /**
@@ -46,10 +48,14 @@ export function createEnemy(
   const healthMult = modifiers?.healthMultiplier ?? 1;
   const speedMult = modifiers?.speedMultiplier ?? 1;
   const damageMult = modifiers?.damageMultiplier ?? 1;
+  const isBoss = modifiers?.isBoss ?? false;
 
   const effectiveHealth = Math.round(config.combat.health * healthMult);
   const effectiveSpeed = config.movement.maxSpeed * speedMult;
   const effectiveDamage = Math.round(config.combat.damage * damageMult);
+
+  // Bosses are larger (2x radius)
+  const effectiveRadius = isBoss ? config.visual.radius * 2 : config.visual.radius;
 
   // Create Yuka Vehicle for AI
   const vehicle = new Vehicle();
@@ -57,8 +63,10 @@ export function createEnemy(
   vehicle.maxSpeed = effectiveSpeed;
   vehicle.maxForce = config.movement.maxForce;
   vehicle.mass = config.movement.mass;
+  // Set bounding radius for collision/separation (match sprite size)
+  vehicle.boundingRadius = effectiveRadius;
   // Set neighborhood radius for flocking behaviors to find nearby vehicles
-  vehicle.neighborhoodRadius = 150;
+  vehicle.neighborhoodRadius = Math.max(150, effectiveRadius * 5);
   vehicle.updateNeighborhood = true;
 
   // Add flocking behaviors with weights from config
@@ -70,8 +78,9 @@ export function createEnemy(
   cohesion.weight = config.flocking.cohesion;
   vehicle.steering.add(cohesion);
 
+  // Separation weight scaled by sprite size to prevent overlap
   const separation = new SeparationBehavior();
-  separation.weight = config.flocking.separation;
+  separation.weight = config.flocking.separation * (effectiveRadius / config.visual.radius);
   vehicle.steering.add(separation);
 
   // Add seek behavior for chasing player (active by default for survivor gameplay)
@@ -85,8 +94,14 @@ export function createEnemy(
 
   // Create sprite graphics
   const graphics = new Graphics();
-  graphics.circle(0, 0, config.visual.radius);
-  graphics.fill({ color: config.visual.color });
+  graphics.circle(0, 0, effectiveRadius);
+  // Bosses have different color (golden/orange) and a border
+  if (isBoss) {
+    graphics.fill({ color: 0xff8800 }); // Orange/gold for bosses
+    graphics.stroke({ width: 4, color: 0xffcc00 }); // Gold border
+  } else {
+    graphics.fill({ color: config.visual.color });
+  }
 
   container.addChild(graphics);
 

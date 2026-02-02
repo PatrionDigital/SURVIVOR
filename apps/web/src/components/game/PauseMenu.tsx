@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import type { Upgrade } from "../../game";
 
 /**
@@ -33,7 +33,7 @@ function aggregateUpgrades(upgrades: Upgrade[]): AggregatedUpgrade[] {
  * Features:
  * - Resume and Quit buttons
  * - Click outside to resume
- * - ESC key to resume
+ * - ESC key handled by GamePage
  * - Accessible dialog
  * - Display current session upgrades (aggregated by type)
  */
@@ -48,22 +48,7 @@ export interface PauseMenuProps {
 export function PauseMenu({ isOpen, onResume, onQuit, upgrades = [] }: PauseMenuProps) {
   // Aggregate duplicate upgrades
   const aggregatedUpgrades = useMemo(() => aggregateUpgrades(upgrades), [upgrades]);
-  // Handle ESC key to resume
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onResume();
-      }
-    },
-    [isOpen, onResume]
-  );
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleKeyDown]);
+  // Note: ESC key handling is done in GamePage to avoid duplicate handlers
 
   // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -114,7 +99,7 @@ export function PauseMenu({ isOpen, onResume, onQuit, upgrades = [] }: PauseMenu
         {upgrades.length > 0 && (
           <div className="mt-6 pt-6 border-t border-gray-700">
             <h3 className="text-sm font-bold text-gray-400 mb-3">Current Upgrades</h3>
-            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+            <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
               {aggregatedUpgrades.map(({ upgrade, count }) => (
                 <div
                   key={upgrade.id}

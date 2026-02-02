@@ -73,25 +73,8 @@ describe("PauseMenu", () => {
     });
   });
 
-  describe("keyboard navigation", () => {
-    it("calls onResume when Escape key is pressed", () => {
-      const onResume = vi.fn();
-      render(<PauseMenu {...defaultProps} onResume={onResume} />);
-
-      fireEvent.keyDown(document, { key: "Escape" });
-
-      expect(onResume).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not call onResume when other keys are pressed", () => {
-      const onResume = vi.fn();
-      render(<PauseMenu {...defaultProps} onResume={onResume} />);
-
-      fireEvent.keyDown(document, { key: "Enter" });
-
-      expect(onResume).not.toHaveBeenCalled();
-    });
-  });
+  // Note: ESC key handling is done in GamePage to avoid duplicate handlers
+  // PauseMenu no longer handles ESC directly
 
   describe("accessibility", () => {
     it("has proper dialog role", () => {

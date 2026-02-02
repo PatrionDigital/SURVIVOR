@@ -223,6 +223,17 @@ export class GameScene extends Scene {
   private victoryTriggered = false;
   private appliedUpgrades: Upgrade[] = [];
 
+  // Player stats (from upgrades)
+  private playerStats = {
+    damage: 0, // Bonus damage
+    attackSpeed: 0, // Bonus attack speed multiplier
+    moveSpeed: 0, // Bonus move speed
+    maxHealth: 0, // Bonus max health
+    healthRegen: 0, // HP/second
+    pickupRange: 0, // Bonus pickup range
+    xpBonus: 0, // Bonus XP percentage
+  };
+
   // Game dimensions (set on resize)
   private width = 800;
   private height = 600;
@@ -238,6 +249,15 @@ export class GameScene extends Scene {
     this.victoryTriggered = false;
     this.pendingWarnings = [];
     this.appliedUpgrades = [];
+    this.playerStats = {
+      damage: 0,
+      attackSpeed: 0,
+      moveSpeed: 0,
+      maxHealth: 0,
+      healthRegen: 0,
+      pickupRange: 0,
+      xpBonus: 0,
+    };
 
     this.createBackground();
     this.createGameContainer();
@@ -320,6 +340,15 @@ export class GameScene extends Scene {
 
     // 3. Invincibility effects
     invincibilitySystem(this.world, deltaMs);
+
+    // 3.25. Health regeneration
+    if (this.playerStats.healthRegen > 0 && this.playerEntity?.health) {
+      const regenAmount = (this.playerStats.healthRegen * deltaMs) / 1000; // HP per ms
+      this.playerEntity.health.current = Math.min(
+        this.playerEntity.health.current + regenAmount,
+        this.playerEntity.health.max
+      );
+    }
 
     // 3.5. Wave system update
     if (this.waveController) {
@@ -659,11 +688,41 @@ export class GameScene extends Scene {
     // Track the applied upgrade
     this.appliedUpgrades.push(upgrade);
 
-    // TODO: Apply upgrade effects to actual game systems
-    // For now, just log it - actual stat application will be implemented
-    // when player stats system is fully integrated
-    console.log(`Applied upgrade: ${upgrade.name} (${upgrade.description})`);
+    // Apply upgrade effects to player stats
+    switch (upgrade.type) {
+      case "damage":
+        this.playerStats.damage += upgrade.value;
+        break;
+      case "attackSpeed":
+        this.playerStats.attackSpeed += upgrade.value;
+        break;
+      case "moveSpeed":
+        this.playerStats.moveSpeed += upgrade.value;
+        break;
+      case "maxHealth":
+        this.playerStats.maxHealth += upgrade.value;
+        // Also increase current max health on player entity
+        if (this.playerEntity?.health) {
+          this.playerEntity.health.max += upgrade.value;
+          // Optionally heal the amount added (feels better in gameplay)
+          this.playerEntity.health.current = Math.min(
+            this.playerEntity.health.current + upgrade.value,
+            this.playerEntity.health.max
+          );
+        }
+        break;
+      case "healthRegen":
+        this.playerStats.healthRegen += upgrade.value;
+        break;
+      case "pickupRange":
+        this.playerStats.pickupRange += upgrade.value;
+        break;
+      case "xpBonus":
+        this.playerStats.xpBonus += upgrade.value;
+        break;
+    }
 
+    console.log(`Applied upgrade: ${upgrade.name} (${upgrade.description})`);
     return true;
   }
 
@@ -763,6 +822,7 @@ export class GameScene extends Scene {
         healthMultiplier: config.healthMultiplier * (command.isBoss ? 5 : 1),
         damageMultiplier: config.damageMultiplier * (command.isBoss ? 1.5 : 1),
         speedMultiplier: config.speedMultiplier * (command.isBoss ? 0.8 : 1), // Bosses are slower
+        isBoss: command.isBoss, // For visual differentiation
       };
 
       // Spawn the enemy
