@@ -31,7 +31,7 @@ export async function registerAuthPlugin(fastify: FastifyInstance) {
   fastify.decorate("authenticate", async function (request: FastifyRequest, reply: FastifyReply) {
     try {
       await request.jwtVerify();
-    } catch (err) {
+    } catch (_err) {
       reply.status(401).send({ error: "Unauthorized", message: "Invalid or expired token" });
     }
   });
