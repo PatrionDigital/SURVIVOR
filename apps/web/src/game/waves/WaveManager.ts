@@ -178,8 +178,7 @@ export class WaveManager {
     if (event.repeat) {
       // Increment repeat count
       this.state.eventRepeatCounts = this.state.eventRepeatCounts ?? {};
-      this.state.eventRepeatCounts[event.id] =
-        (this.state.eventRepeatCounts[event.id] ?? 0) + 1;
+      this.state.eventRepeatCounts[event.id] = (this.state.eventRepeatCounts[event.id] ?? 0) + 1;
     }
 
     if (!this.state.eventsTriggered.includes(event.id)) {
@@ -192,8 +191,7 @@ export class WaveManager {
    */
   getCurrentPhase(): WavePhase | undefined {
     return this.config.phases.find(
-      (phase) =>
-        this.state.gameTime >= phase.startTime && this.state.gameTime < phase.endTime
+      (phase) => this.state.gameTime >= phase.startTime && this.state.gameTime < phase.endTime
     );
   }
 

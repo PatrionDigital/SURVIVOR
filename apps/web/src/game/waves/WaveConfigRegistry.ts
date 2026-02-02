@@ -97,9 +97,7 @@ export class WaveConfigRegistry {
     const config = this.configs.get(configId);
     if (!config) return undefined;
 
-    return config.phases.find(
-      (phase) => time >= phase.startTime && time < phase.endTime
-    );
+    return config.phases.find((phase) => time >= phase.startTime && time < phase.endTime);
   }
 
   /**

@@ -119,11 +119,7 @@ export class SpawnPatterns {
   /**
    * Generate spawn positions in a ring around a center point
    */
-  static ring(
-    count: number,
-    viewport: ViewportInfo,
-    options: RingOptions = {}
-  ): SpawnPosition[] {
+  static ring(count: number, viewport: ViewportInfo, options: RingOptions = {}): SpawnPosition[] {
     const radius = options.radius ?? 400;
     const centerX = options.centerX ?? viewport.cameraX;
     const centerY = options.centerY ?? viewport.cameraY;
@@ -145,11 +141,7 @@ export class SpawnPatterns {
   /**
    * Generate spawn positions in a line from one edge
    */
-  static line(
-    count: number,
-    viewport: ViewportInfo,
-    options: LineOptions
-  ): SpawnPosition[] {
+  static line(count: number, viewport: ViewportInfo, options: LineOptions): SpawnPosition[] {
     const { edge } = options;
     const positions: SpawnPosition[] = [];
 
@@ -209,11 +201,7 @@ export class SpawnPatterns {
   /**
    * Generate spawn positions all from the same edge
    */
-  static edge(
-    count: number,
-    viewport: ViewportInfo,
-    options: EdgeOptions = {}
-  ): SpawnPosition[] {
+  static edge(count: number, viewport: ViewportInfo, options: EdgeOptions = {}): SpawnPosition[] {
     const edges: Edge[] = ["top", "bottom", "left", "right"];
     const edge = options.edge ?? edges[Math.floor(Math.random() * edges.length)];
 

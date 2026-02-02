@@ -17,9 +17,9 @@ export function getNetworkAddresses() {
 /**
  * Get a specific contract address for the current network
  */
-export function getContractAddress<
-  K extends keyof (typeof CONTRACT_ADDRESSES)["testnet"],
->(contract: K): (typeof CONTRACT_ADDRESSES)["testnet"][K] {
+export function getContractAddress<K extends keyof (typeof CONTRACT_ADDRESSES)["testnet"]>(
+  contract: K
+): (typeof CONTRACT_ADDRESSES)["testnet"][K] {
   const addresses = getNetworkAddresses();
   return addresses[contract];
 }

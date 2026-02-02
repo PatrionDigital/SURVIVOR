@@ -29,7 +29,7 @@ const SLOPE = 10n ** 14n; // 1e14
  */
 function calculatePrice(supply: bigint): bigint {
   const supplySquared = supply * supply;
-  const slopeComponent = (SLOPE * supplySquared) / (10n ** 36n);
+  const slopeComponent = (SLOPE * supplySquared) / 10n ** 36n;
   return BASE_PRICE + slopeComponent;
 }
 
@@ -86,12 +86,20 @@ export function BondingCurveChart({
 
   // Custom tooltip - memoized to prevent recreation
   const CustomTooltip = useCallback(
-    ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { supply: number } }> }) => {
+    ({
+      active,
+      payload,
+    }: {
+      active?: boolean;
+      payload?: Array<{ value: number; payload: { supply: number } }>;
+    }) => {
       if (active && payload && payload.length > 0) {
         return (
           <div className="bg-gray-900 border border-gray-600 rounded-lg p-3 shadow-lg">
             <p className="text-gray-400 text-xs">Supply</p>
-            <p className="text-white font-bold">{formatNumber(payload[0].payload.supply)} {symbol}</p>
+            <p className="text-white font-bold">
+              {formatNumber(payload[0].payload.supply)} {symbol}
+            </p>
             <p className="text-gray-400 text-xs mt-1">Price</p>
             <p className="text-cyan-400 font-bold">{payload[0].value.toFixed(4)} VSC</p>
           </div>
@@ -111,10 +119,7 @@ export function BondingCurveChart({
         // See: https://github.com/recharts/recharts/issues/6716
         initialDimension={{ width: 300, height: 256 }}
       >
-        <AreaChart
-          data={chartData}
-          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-        >
+        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id={`gradient-${symbol}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={color} stopOpacity={0.3} />

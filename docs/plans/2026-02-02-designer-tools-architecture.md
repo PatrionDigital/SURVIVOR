@@ -8,12 +8,12 @@ Designer tools for creating and editing enemy types, wave configurations, and ba
 
 ## Decisions Summary
 
-| Decision | Choice |
-|----------|--------|
+| Decision | Choice                                                          |
+| -------- | --------------------------------------------------------------- |
 | Use case | Balance iteration + content creation + future community modding |
-| Access | Separate Vite entry point (local-only, excluded from prod) |
-| Preview | Isolated sandbox with game engine subset |
-| Storage | localStorage auto-save + JSON file import/export |
+| Access   | Separate Vite entry point (local-only, excluded from prod)      |
+| Preview  | Isolated sandbox with game engine subset                        |
+| Storage  | localStorage auto-save + JSON file import/export                |
 
 ## Architecture
 
@@ -88,13 +88,13 @@ Isolated sandbox using subset of game engine systems.
 
 ### Preview Controls
 
-| Feature | Description |
-|---------|-------------|
-| Target marker | Draggable point that enemies seek (simulates player) |
-| Spawn controls | Add/remove enemies, adjust count |
-| Time controls | Play/pause, speed (0.5x, 1x, 2x, 4x) |
-| Reset button | Clear all entities |
-| Stats overlay | Enemy count, FPS, behavior states |
+| Feature        | Description                                          |
+| -------------- | ---------------------------------------------------- |
+| Target marker  | Draggable point that enemies seek (simulates player) |
+| Spawn controls | Add/remove enemies, adjust count                     |
+| Time controls  | Play/pause, speed (0.5x, 1x, 2x, 4x)                 |
+| Reset button   | Clear all entities                                   |
+| Stats overlay  | Enemy count, FPS, behavior states                    |
 
 ### Wave Designer Additions
 
@@ -134,16 +134,16 @@ Isolated sandbox using subset of game engine systems.
 
 Real-time sliders that directly modify Yuka Vehicle behaviors in preview:
 
-| Control | Description | Range |
-|---------|-------------|-------|
-| Alignment | Match neighbor velocity | 0 - 5 |
-| Cohesion | Group together | 0 - 5 |
-| Separation | Push apart | 0 - 20 |
-| Seek Weight | Chase target | 0 - 5 |
-| Max Force | Steering strength | 10 - 300 |
-| Max Speed | Movement cap | 10 - 500 |
-| Bounding Radius | Collision size | 5 - 100 |
-| Neighborhood | Detection range | 50 - 500 |
+| Control         | Description             | Range    |
+| --------------- | ----------------------- | -------- |
+| Alignment       | Match neighbor velocity | 0 - 5    |
+| Cohesion        | Group together          | 0 - 5    |
+| Separation      | Push apart              | 0 - 20   |
+| Seek Weight     | Chase target            | 0 - 5    |
+| Max Force       | Steering strength       | 10 - 300 |
+| Max Speed       | Movement cap            | 10 - 500 |
+| Bounding Radius | Collision size          | 5 - 100  |
+| Neighborhood    | Detection range         | 50 - 500 |
 
 Changes apply instantly. "Apply to Config" copies values back to property panel.
 
@@ -177,13 +177,13 @@ Changes apply instantly. "Apply to Config" copies values back to property panel.
 
 ### Timeline Features
 
-| Feature | Description |
-|---------|-------------|
-| Phase bars | Drag edges to adjust start/end times |
-| Event markers | Click to edit, drag to move in time |
-| Playhead | Shows current simulation time |
-| Scrubbing | Click anywhere on timeline to jump |
-| Zoom | Scroll to zoom in/out on timeline |
+| Feature       | Description                          |
+| ------------- | ------------------------------------ |
+| Phase bars    | Drag edges to adjust start/end times |
+| Event markers | Click to edit, drag to move in time  |
+| Playhead      | Shows current simulation time        |
+| Scrubbing     | Click anywhere on timeline to jump   |
+| Zoom          | Scroll to zoom in/out on timeline    |
 
 ### Phase Editor
 
@@ -232,13 +232,13 @@ interface DesignerStore {
 
 ### Import/Export
 
-| Action | Behavior |
-|--------|----------|
-| Import Enemy | File picker → parse JSON → validate → add to store |
-| Export Enemy | Serialize config → download as `{id}.json` |
-| Import Wave | Same flow, validates against `WaveConfig` type |
-| Export Wave | Downloads as `{id}-wave.json` |
-| Load from game | Fetch from `public/data/enemies/*.json` |
+| Action         | Behavior                                           |
+| -------------- | -------------------------------------------------- |
+| Import Enemy   | File picker → parse JSON → validate → add to store |
+| Export Enemy   | Serialize config → download as `{id}.json`         |
+| Import Wave    | Same flow, validates against `WaveConfig` type     |
+| Export Wave    | Downloads as `{id}-wave.json`                      |
+| Load from game | Fetch from `public/data/enemies/*.json`            |
 
 ### Validation
 
@@ -263,6 +263,7 @@ Uses existing `validateEnemyTypeConfig()` and wave config validation. Shows inli
 ## Future Extensibility
 
 This architecture supports future tools:
+
 - **Upgrade Path Designer** - Similar property panel approach
 - **Weapon Designer** - Preview with projectile simulation
 - **Map Editor** - Would add tile/terrain layer to preview canvas

@@ -76,9 +76,11 @@ export function EventEditor({ event, availableEnemyTypes, onChange, onDelete }: 
               key={type.value}
               onClick={() => onChange({ type: type.value })}
               className={`px-3 py-2 rounded text-sm text-left flex items-center gap-2
-                         ${event.type === type.value
-                           ? "bg-cyan-600 text-white"
-                           : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
+                         ${
+                           event.type === type.value
+                             ? "bg-cyan-600 text-white"
+                             : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                         }`}
             >
               <span>{type.icon}</span>
               <span>{type.label}</span>
@@ -88,7 +90,9 @@ export function EventEditor({ event, availableEnemyTypes, onChange, onDelete }: 
       </div>
 
       {/* Type-specific fields */}
-      {(event.type === "boss_spawn" || event.type === "horde" || event.type === "special_spawn") && (
+      {(event.type === "boss_spawn" ||
+        event.type === "horde" ||
+        event.type === "special_spawn") && (
         <div className="space-y-3 pt-2 border-t border-gray-700">
           <div>
             <label className="text-xs text-gray-400">Enemy Type</label>
@@ -158,7 +162,10 @@ export function EventEditor({ event, availableEnemyTypes, onChange, onDelete }: 
                   value={event.data.position?.x || 0}
                   onChange={(e) =>
                     updateData({
-                      position: { x: parseInt(e.target.value) || 0, y: event.data.position?.y || 0 },
+                      position: {
+                        x: parseInt(e.target.value) || 0,
+                        y: event.data.position?.y || 0,
+                      },
                     })
                   }
                   className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"
@@ -171,7 +178,10 @@ export function EventEditor({ event, availableEnemyTypes, onChange, onDelete }: 
                   value={event.data.position?.y || 0}
                   onChange={(e) =>
                     updateData({
-                      position: { x: event.data.position?.x || 0, y: parseInt(e.target.value) || 0 },
+                      position: {
+                        x: event.data.position?.x || 0,
+                        y: parseInt(e.target.value) || 0,
+                      },
                     })
                   }
                   className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"

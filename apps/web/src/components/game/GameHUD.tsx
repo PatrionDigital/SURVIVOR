@@ -107,9 +107,7 @@ export function GameHUD({
           {/* Time remaining */}
           {timeRemaining !== undefined && timeRemaining > 0 && (
             <div className="bg-gray-800/80 px-3 py-1 rounded-lg border border-gray-600">
-              <span className="text-sm text-gray-300">
-                {formatTime(timeRemaining)} left
-              </span>
+              <span className="text-sm text-gray-300">{formatTime(timeRemaining)} left</span>
             </div>
           )}
 

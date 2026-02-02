@@ -9,13 +9,16 @@ import {
 import { formatUnits, parseUnits } from "viem";
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CONTRACT_ADDRESSES, gearStakingAbi, gearTokenAbi, GEAR_TOKEN_SYMBOLS } from "@survivor/sdk";
+import { gearStakingAbi, gearTokenAbi, GEAR_TOKEN_SYMBOLS } from "@survivor/sdk";
+import { getNetworkAddresses } from "@/lib/contracts";
+import { useTransactionService } from "@/lib/TransactionService";
 
 export type GearSlot = keyof typeof GEAR_TOKEN_SYMBOLS;
 export type GearSlotIndex = 0 | 1 | 2 | 3 | 4 | 5;
 
 const GEAR_SLOTS: GearSlot[] = ["weapon", "armor", "power", "gloves", "amulet", "boots"];
 const GEAR_DECIMALS = 18;
+const POWER_DECIMALS = 9; // Power uses sqrt, which halves decimal precision
 
 // Tier names and colors
 export const TIER_NAMES = ["None", "Common", "Uncommon", "Rare", "Epic", "Legendary"] as const;
@@ -74,9 +77,10 @@ export function useGearStaking(): UseGearStakingReturn {
   const queryClient = useQueryClient();
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
 
-  // Contract addresses
-  const gearStakingAddress = CONTRACT_ADDRESSES.testnet.gearStaking || undefined;
-  const gearAddresses = CONTRACT_ADDRESSES.testnet.gearTokens;
+  // Contract addresses (auto-selects anvil in local dev, testnet otherwise)
+  const networkAddresses = getNetworkAddresses();
+  const gearStakingAddress = networkAddresses.gearStaking || undefined;
+  const gearAddresses = networkAddresses.gearTokens;
 
   // Get player stats from contract
   const {
@@ -150,8 +154,15 @@ export function useGearStaking(): UseGearStakingReturn {
     }
   }, [blockNumber, queryClient, statsQueryKey]);
 
-  // Write contract hooks
-  const { writeContractAsync, isPending } = useWriteContract();
+  // Write contract hooks - wagmi for production
+  const { writeContractAsync, isPending: wagmiIsPending } = useWriteContract();
+
+  // Transaction service - uses Anvil direct signing in local dev, wagmi in production
+  const txService = useTransactionService(writeContractAsync);
+
+  // Local pending state for Anvil transactions
+  const [localIsPending, setLocalIsPending] = useState(false);
+  const isPending = wagmiIsPending || localIsPending;
 
   // Wait for transaction receipt
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({
@@ -196,7 +207,7 @@ export function useGearStaking(): UseGearStakingReturn {
         stakedAmount,
         formattedStaked: formatUnits(stakedAmount, GEAR_DECIMALS),
         power,
-        formattedPower: formatUnits(power, GEAR_DECIMALS),
+        formattedPower: formatUnits(power, POWER_DECIMALS),
         tier,
         tierName: TIER_NAMES[tier],
         tierColor: TIER_COLORS[tier],
@@ -208,7 +219,7 @@ export function useGearStaking(): UseGearStakingReturn {
 
     return {
       totalPower: rawStats.totalPower,
-      formattedTotalPower: formatUnits(rawStats.totalPower, GEAR_DECIMALS),
+      formattedTotalPower: formatUnits(rawStats.totalPower, POWER_DECIMALS),
       maintenanceActive: rawStats.maintenanceActive,
       slots,
     };
@@ -227,15 +238,21 @@ export function useGearStaking(): UseGearStakingReturn {
       if (!gearStakingAddress) throw new Error("Staking contract not configured");
       const parsedAmount = parseUnits(amount, GEAR_DECIMALS);
 
-      const hash = await writeContractAsync({
-        address: gearStakingAddress,
-        abi: gearStakingAbi,
-        functionName: "stake",
-        args: [slot, parsedAmount],
-      });
-      setTxHash(hash);
+      try {
+        setLocalIsPending(true);
+        const hash = await txService.writeContract({
+          address: gearStakingAddress,
+          abi: gearStakingAbi,
+          functionName: "stake",
+          args: [slot, parsedAmount],
+        });
+        setTxHash(hash);
+        refetch(); // Refresh data after successful transaction
+      } finally {
+        setLocalIsPending(false);
+      }
     },
-    [gearStakingAddress, writeContractAsync]
+    [gearStakingAddress, txService, refetch]
   );
 
   // Unstake tokens
@@ -244,15 +261,21 @@ export function useGearStaking(): UseGearStakingReturn {
       if (!gearStakingAddress) throw new Error("Staking contract not configured");
       const parsedAmount = parseUnits(amount, GEAR_DECIMALS);
 
-      const hash = await writeContractAsync({
-        address: gearStakingAddress,
-        abi: gearStakingAbi,
-        functionName: "unstake",
-        args: [slot, parsedAmount],
-      });
-      setTxHash(hash);
+      try {
+        setLocalIsPending(true);
+        const hash = await txService.writeContract({
+          address: gearStakingAddress,
+          abi: gearStakingAbi,
+          functionName: "unstake",
+          args: [slot, parsedAmount],
+        });
+        setTxHash(hash);
+        refetch(); // Refresh data after successful transaction
+      } finally {
+        setLocalIsPending(false);
+      }
     },
-    [gearStakingAddress, writeContractAsync]
+    [gearStakingAddress, txService, refetch]
   );
 
   // Approve tokens for staking
@@ -262,15 +285,21 @@ export function useGearStaking(): UseGearStakingReturn {
       if (!tokenAddress || !gearStakingAddress) throw new Error("Token not configured");
       const parsedAmount = parseUnits(amount, GEAR_DECIMALS);
 
-      const hash = await writeContractAsync({
-        address: tokenAddress,
-        abi: gearTokenAbi,
-        functionName: "approve",
-        args: [gearStakingAddress, parsedAmount],
-      });
-      setTxHash(hash);
+      try {
+        setLocalIsPending(true);
+        const hash = await txService.writeContract({
+          address: tokenAddress,
+          abi: gearTokenAbi,
+          functionName: "approve",
+          args: [gearStakingAddress, parsedAmount],
+        });
+        setTxHash(hash);
+        refetch(); // Refresh allowances after approval
+      } finally {
+        setLocalIsPending(false);
+      }
     },
-    [gearAddresses, gearStakingAddress, writeContractAsync]
+    [gearAddresses, gearStakingAddress, txService, refetch]
   );
 
   return {

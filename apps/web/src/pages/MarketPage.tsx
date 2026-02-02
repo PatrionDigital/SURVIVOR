@@ -141,8 +141,8 @@ export function MarketPage() {
               <div>
                 <h3 className="font-medium text-cyan-400 mb-2">Buying</h3>
                 <p className="text-gray-400">
-                  When you buy, new tokens are minted and the price increases. Early buyers get lower
-                  prices. 2% fee applies.
+                  When you buy, new tokens are minted and the price increases. Early buyers get
+                  lower prices. 2% fee applies.
                 </p>
               </div>
               <div>

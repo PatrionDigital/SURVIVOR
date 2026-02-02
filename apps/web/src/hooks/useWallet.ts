@@ -87,7 +87,13 @@ export function useWallet(): UseWalletReturn {
         }
         wagmiConnect({ connector: primaryConnector });
       }
-    } else if (isInMiniApp && isMiniAppReady && primaryConnector && !wagmiIsConnected && !isPending) {
+    } else if (
+      isInMiniApp &&
+      isMiniAppReady &&
+      primaryConnector &&
+      !wagmiIsConnected &&
+      !isPending
+    ) {
       wagmiConnect({ connector: primaryConnector });
     }
   }, [

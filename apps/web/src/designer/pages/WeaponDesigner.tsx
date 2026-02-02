@@ -100,7 +100,8 @@ function WeaponPreview({ config, isPaused }: WeaponPreviewProps) {
       const toRemove: number[] = [];
       for (let i = 0; i < projectilesRef.current.length; i++) {
         const p = projectilesRef.current[i];
-        const data = (p as unknown as { userData: { dx: number; dy: number; lifetime: number } }).userData;
+        const data = (p as unknown as { userData: { dx: number; dy: number; lifetime: number } })
+          .userData;
 
         // Move
         p.x += data.dx * config.projectileSpeed * (delta / 1000);
@@ -262,7 +263,13 @@ export function WeaponDesigner() {
                   </button>
 
                   <div className="text-xs text-gray-400 space-y-1 mt-2">
-                    <div>DPS: {Math.round((selectedConfig.damage * selectedConfig.projectilesPerShot) / (selectedConfig.cooldown / 1000))}</div>
+                    <div>
+                      DPS:{" "}
+                      {Math.round(
+                        (selectedConfig.damage * selectedConfig.projectilesPerShot) /
+                          (selectedConfig.cooldown / 1000)
+                      )}
+                    </div>
                     <div>Fire Rate: {(1000 / selectedConfig.cooldown).toFixed(1)}/s</div>
                   </div>
                 </div>
@@ -316,7 +323,9 @@ export function WeaponDesigner() {
                       <input
                         type="number"
                         value={selectedConfig.cooldown}
-                        onChange={(e) => updateConfig({ cooldown: parseInt(e.target.value) || 100 })}
+                        onChange={(e) =>
+                          updateConfig({ cooldown: parseInt(e.target.value) || 100 })
+                        }
                         min={50}
                         step={50}
                         className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"
@@ -355,7 +364,9 @@ export function WeaponDesigner() {
                       <input
                         type="number"
                         value={selectedConfig.projectileSpeed}
-                        onChange={(e) => updateConfig({ projectileSpeed: parseInt(e.target.value) || 100 })}
+                        onChange={(e) =>
+                          updateConfig({ projectileSpeed: parseInt(e.target.value) || 100 })
+                        }
                         min={50}
                         step={50}
                         className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"
@@ -366,7 +377,9 @@ export function WeaponDesigner() {
                       <input
                         type="number"
                         value={selectedConfig.projectileLifetime}
-                        onChange={(e) => updateConfig({ projectileLifetime: parseInt(e.target.value) || 500 })}
+                        onChange={(e) =>
+                          updateConfig({ projectileLifetime: parseInt(e.target.value) || 500 })
+                        }
                         min={100}
                         step={100}
                         className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"
@@ -379,7 +392,10 @@ export function WeaponDesigner() {
                         value={selectedConfig.visual.radius}
                         onChange={(e) =>
                           updateConfig({
-                            visual: { ...selectedConfig.visual, radius: parseInt(e.target.value) || 4 },
+                            visual: {
+                              ...selectedConfig.visual,
+                              radius: parseInt(e.target.value) || 4,
+                            },
                           })
                         }
                         min={2}
@@ -394,7 +410,10 @@ export function WeaponDesigner() {
                         value={`#${selectedConfig.visual.color.toString(16).padStart(6, "0")}`}
                         onChange={(e) =>
                           updateConfig({
-                            visual: { ...selectedConfig.visual, color: parseInt(e.target.value.slice(1), 16) },
+                            visual: {
+                              ...selectedConfig.visual,
+                              color: parseInt(e.target.value.slice(1), 16),
+                            },
                           })
                         }
                         className="w-full h-8 bg-gray-700 border border-gray-600 rounded cursor-pointer"
@@ -412,7 +431,9 @@ export function WeaponDesigner() {
                       <input
                         type="number"
                         value={selectedConfig.projectilesPerShot}
-                        onChange={(e) => updateConfig({ projectilesPerShot: parseInt(e.target.value) || 1 })}
+                        onChange={(e) =>
+                          updateConfig({ projectilesPerShot: parseInt(e.target.value) || 1 })
+                        }
                         min={1}
                         max={12}
                         className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"
@@ -423,7 +444,9 @@ export function WeaponDesigner() {
                       <input
                         type="number"
                         value={selectedConfig.spreadAngle}
-                        onChange={(e) => updateConfig({ spreadAngle: parseInt(e.target.value) || 0 })}
+                        onChange={(e) =>
+                          updateConfig({ spreadAngle: parseInt(e.target.value) || 0 })
+                        }
                         min={0}
                         max={180}
                         step={5}
@@ -436,8 +459,12 @@ export function WeaponDesigner() {
                       <div>
                         Angle between projectiles:{" "}
                         {selectedConfig.projectilesPerShot > 1
-                          ? (selectedConfig.spreadAngle / (selectedConfig.projectilesPerShot - 1)).toFixed(1)
-                          : 0}°
+                          ? (
+                              selectedConfig.spreadAngle /
+                              (selectedConfig.projectilesPerShot - 1)
+                            ).toFixed(1)
+                          : 0}
+                        °
                       </div>
                     )}
                   </div>

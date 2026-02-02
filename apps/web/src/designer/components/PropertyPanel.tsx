@@ -99,16 +99,8 @@ export function PropertyPanel({ config, onChange }: PropertyPanelProps) {
     <div className="space-y-3">
       {/* Basic Info */}
       <PropertySection title="Basic">
-        <TextInput
-          label="ID"
-          value={config.id}
-          onChange={(v) => onChange({ id: v })}
-        />
-        <TextInput
-          label="Name"
-          value={config.name}
-          onChange={(v) => onChange({ name: v })}
-        />
+        <TextInput label="ID" value={config.id} onChange={(v) => onChange({ id: v })} />
+        <TextInput label="Name" value={config.name} onChange={(v) => onChange({ name: v })} />
       </PropertySection>
 
       {/* Visual */}

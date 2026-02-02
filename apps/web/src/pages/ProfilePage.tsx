@@ -1,8 +1,33 @@
 import { Link } from "react-router-dom";
 import { useWallet } from "@/hooks";
 
+// TODO: Remove clearAllWalletState and Reset Wallet button when moving to beta (Sepolia testing)
+// Dev helper to clear all wallet state - only used for local Anvil development
+function clearAllWalletState() {
+  // Clear wagmi state
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith("wagmi"))
+    .forEach((k) => localStorage.removeItem(k));
+  // Clear SIWF state
+  localStorage.removeItem("farcaster_survivors_siwf_session");
+  // Clear react-query cache
+  Object.keys(localStorage)
+    .filter((k) => k.includes("react-query") || k.includes("tanstack"))
+    .forEach((k) => localStorage.removeItem(k));
+  // Clear IndexedDB (wagmi uses this too)
+  if (window.indexedDB) {
+    indexedDB.databases().then((dbs) => {
+      dbs.forEach((db) => {
+        if (db.name) indexedDB.deleteDatabase(db.name);
+      });
+    });
+  }
+  // Reload to apply changes
+  window.location.reload();
+}
+
 export function ProfilePage() {
-  const { isConnected, shortAddress, username, fid } = useWallet();
+  const { isConnected, shortAddress, username, fid, disconnect, isLocalDev } = useWallet();
 
   // Placeholder stats
   const stats = {
@@ -37,8 +62,21 @@ export function ProfilePage() {
             )}
           </div>
           {isConnected && (
-            <div className="bg-green-600/20 border border-green-500/50 text-green-400 text-sm py-2 px-4 rounded">
-              Connected
+            <div className="flex items-center gap-3">
+              <div className="bg-green-600/20 border border-green-500/50 text-green-400 text-sm py-2 px-4 rounded">
+                Connected
+              </div>
+              {isLocalDev && (
+                <button
+                  onClick={() => {
+                    disconnect();
+                    clearAllWalletState();
+                  }}
+                  className="bg-red-600/20 border border-red-500/50 text-red-400 text-sm py-2 px-4 rounded hover:bg-red-600/30 transition-colors"
+                >
+                  Reset Wallet
+                </button>
+              )}
             </div>
           )}
         </div>

@@ -84,9 +84,11 @@ function UpgradeEditor({ upgrade, onChange, onDelete }: UpgradeEditorProps) {
               key={type.value}
               onClick={() => onChange({ type: type.value })}
               className={`px-2 py-2 rounded text-xs text-left flex items-center gap-1
-                         ${upgrade.type === type.value
-                           ? "bg-cyan-600 text-white"
-                           : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
+                         ${
+                           upgrade.type === type.value
+                             ? "bg-cyan-600 text-white"
+                             : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                         }`}
             >
               <span>{type.icon}</span>
               <span className="truncate">{type.label}</span>
@@ -96,20 +98,21 @@ function UpgradeEditor({ upgrade, onChange, onDelete }: UpgradeEditorProps) {
       </div>
 
       <div>
-        <label className="text-xs text-gray-400">
-          Value ({typeInfo.label})
-        </label>
+        <label className="text-xs text-gray-400">Value ({typeInfo.label})</label>
         <div className="flex items-center gap-2">
           <input
             type="number"
-            value={upgrade.type === "attackSpeed" || upgrade.type === "xpBonus"
-              ? upgrade.value * 100
-              : upgrade.value}
+            value={
+              upgrade.type === "attackSpeed" || upgrade.type === "xpBonus"
+                ? upgrade.value * 100
+                : upgrade.value
+            }
             onChange={(e) => {
               const rawValue = parseFloat(e.target.value) || 0;
-              const value = upgrade.type === "attackSpeed" || upgrade.type === "xpBonus"
-                ? rawValue / 100
-                : rawValue;
+              const value =
+                upgrade.type === "attackSpeed" || upgrade.type === "xpBonus"
+                  ? rawValue / 100
+                  : rawValue;
               onChange({ value });
             }}
             step={upgrade.type === "attackSpeed" || upgrade.type === "xpBonus" ? 5 : 1}
@@ -151,9 +154,7 @@ export function UpgradeDesigner() {
 
   // Filter upgrades
   const filteredUpgrades = useMemo(
-    () => filterType === "all"
-      ? upgrades
-      : upgrades.filter((u) => u.type === filterType),
+    () => (filterType === "all" ? upgrades : upgrades.filter((u) => u.type === filterType)),
     [upgrades, filterType]
   );
 
@@ -185,11 +186,7 @@ export function UpgradeDesigner() {
   const handleUpdateUpgrade = useCallback(
     (updates: Partial<Upgrade>) => {
       if (!selectedUpgradeId) return;
-      setUpgrades(
-        upgrades.map((u) =>
-          u.id === selectedUpgradeId ? { ...u, ...updates } : u
-        )
-      );
+      setUpgrades(upgrades.map((u) => (u.id === selectedUpgradeId ? { ...u, ...updates } : u)));
     },
     [upgrades, selectedUpgradeId, setUpgrades]
   );
@@ -279,9 +276,11 @@ export function UpgradeDesigner() {
                 key={upgrade.id}
                 onClick={() => setSelectedUpgradeId(upgrade.id)}
                 className={`w-full px-3 py-2 rounded text-left flex items-center gap-2
-                           ${selectedUpgradeId === upgrade.id
-                             ? "bg-cyan-600 text-white"
-                             : "bg-gray-800 hover:bg-gray-700"}`}
+                           ${
+                             selectedUpgradeId === upgrade.id
+                               ? "bg-cyan-600 text-white"
+                               : "bg-gray-800 hover:bg-gray-700"
+                           }`}
               >
                 <span>{typeInfo.icon}</span>
                 <div className="flex-1 min-w-0">
@@ -312,10 +311,7 @@ export function UpgradeDesigner() {
             {UPGRADE_TYPES.map((type) => {
               const count = upgradesByType.get(type.value)?.length || 0;
               return (
-                <div
-                  key={type.value}
-                  className="bg-gray-800 rounded p-2 text-center"
-                >
+                <div key={type.value} className="bg-gray-800 rounded p-2 text-center">
                   <div className="text-2xl mb-1">{type.icon}</div>
                   <div className="text-lg font-bold text-cyan-400">{count}</div>
                   <div className="text-xs text-gray-400">{type.label}</div>
@@ -357,7 +353,8 @@ export function UpgradeDesigner() {
                 return (
                   <div key={type.value} className="text-center">
                     <div className="text-cyan-400">
-                      Avg: {type.value === "attackSpeed" || type.value === "xpBonus"
+                      Avg:{" "}
+                      {type.value === "attackSpeed" || type.value === "xpBonus"
                         ? `${Math.round(avgValue * 100)}%`
                         : avgValue.toFixed(1)}
                     </div>

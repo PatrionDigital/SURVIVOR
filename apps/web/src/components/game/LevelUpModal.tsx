@@ -150,7 +150,9 @@ export function LevelUpModal({ isOpen, level, choices, onSelectUpgrade }: LevelU
                     {upgrade.type}
                   </span>
                 </div>
-                <p className={`text-sm mt-1 ml-9 ${isSelected ? "text-green-300" : "text-green-400"}`}>
+                <p
+                  className={`text-sm mt-1 ml-9 ${isSelected ? "text-green-300" : "text-green-400"}`}
+                >
                   {upgrade.description}
                 </p>
               </button>

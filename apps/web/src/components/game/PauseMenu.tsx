@@ -108,9 +108,7 @@ export function PauseMenu({ isOpen, onResume, onQuit, upgrades = [] }: PauseMenu
                 >
                   <span className="text-sm text-white">
                     {upgrade.name}
-                    {count > 1 && (
-                      <span className="text-primary-400 ml-1 font-bold">+{count}</span>
-                    )}
+                    {count > 1 && <span className="text-primary-400 ml-1 font-bold">+{count}</span>}
                   </span>
                 </div>
               ))}

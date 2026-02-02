@@ -897,12 +897,14 @@ Show results when player dies.
 Create data-driven wave system with time-based phases and timed events.
 
 **Research Sources:**
+
 - [Phaser Wave Survival Game Guide](https://codepal.ai/chat/query/GJNz60fC/building-wave-survival-game-phaser) - EnemySpawner pattern
 - [Phaser Forum - Wave Spawning](https://phaser.discourse.group/t/how-to-spawn-enemies-in-waves/6054) - Timer events
 - [HoloCure Wiki](https://holocure.wiki.gg/wiki/Stage) - Event system patterns
 - [Vampire Survivors Wiki](https://vampire-survivors.fandom.com/wiki/Timed_Enemy_Spawn) - Time-based progression
 
 **Key Design Decisions:**
+
 - Time-based phases (not discrete waves) - matches Vampire Survivors style
 - JSON-configurable wave definitions
 - Timed events for bosses, hordes, special spawns
@@ -992,6 +994,7 @@ Handle timed events like bosses, hordes, and special spawns.
 Add spawn position patterns for variety in enemy appearance.
 
 **Patterns implemented:**
+
 - `random` - Current behavior (random edge position)
 - `cluster` - Group near single random point
 - `ring` - Circle around player
@@ -1024,12 +1027,14 @@ Add spawn position patterns for variety in enemy appearance.
 Create JSON configurations and additional enemy types.
 
 **New Enemy Types:**
+
 - `fast.json` - Fast but weak enemy
 - `tank.json` - Slow but tanky enemy
 - `elite_basic.json` - Elite variant with more HP
 - `boss_slime.json` - First mini-boss
 
 **Wave Configurations:**
+
 - `survival.json` - Main 20-minute survival mode
 - `easy.json` - Easier difficulty variant
 - `hard.json` - Harder difficulty variant

@@ -33,8 +33,14 @@ export interface UseBondingCurveReturn {
   refetch: () => void;
 
   // Quote functions
-  getBuyQuote: (slot: GearSlot, vscAmount: string) => Promise<{ tokensOut: bigint; fee: bigint } | null>;
-  getSellQuote: (slot: GearSlot, tokenAmount: string) => Promise<{ vscOut: bigint; fee: bigint } | null>;
+  getBuyQuote: (
+    slot: GearSlot,
+    vscAmount: string
+  ) => Promise<{ tokensOut: bigint; fee: bigint } | null>;
+  getSellQuote: (
+    slot: GearSlot,
+    tokenAmount: string
+  ) => Promise<{ vscOut: bigint; fee: bigint } | null>;
 
   // Allowances
   vscAllowance: (slot: GearSlot) => bigint;
@@ -169,13 +175,9 @@ export function useBondingCurve(): UseBondingCurveReturn {
     return GEAR_SLOTS.map((slot, index) => {
       const curveAddress = curveAddresses[slot] as `0x${string}`;
       const price =
-        priceResults?.[index]?.status === "success"
-          ? (priceResults[index].result as bigint)
-          : 0n;
+        priceResults?.[index]?.status === "success" ? (priceResults[index].result as bigint) : 0n;
       const supply =
-        supplyResults?.[index]?.status === "success"
-          ? (supplyResults[index].result as bigint)
-          : 0n;
+        supplyResults?.[index]?.status === "success" ? (supplyResults[index].result as bigint) : 0n;
 
       return {
         slot,
@@ -224,7 +226,10 @@ export function useBondingCurve(): UseBondingCurveReturn {
   // Get buy quote (how many tokens for given VSC amount)
   // TODO: Implement with direct readContract call for real-time quotes
   const getBuyQuote = useCallback(
-    async (slot: GearSlot, _vscAmount: string): Promise<{ tokensOut: bigint; fee: bigint } | null> => {
+    async (
+      slot: GearSlot,
+      _vscAmount: string
+    ): Promise<{ tokensOut: bigint; fee: bigint } | null> => {
       const curveAddress = curveAddresses[slot];
       if (!curveAddress) return null;
       // For now, return null - UI can show current price as estimate
@@ -236,7 +241,10 @@ export function useBondingCurve(): UseBondingCurveReturn {
   // Get sell quote (how much VSC for given token amount)
   // TODO: Implement with direct readContract call for real-time quotes
   const getSellQuote = useCallback(
-    async (slot: GearSlot, _tokenAmount: string): Promise<{ vscOut: bigint; fee: bigint } | null> => {
+    async (
+      slot: GearSlot,
+      _tokenAmount: string
+    ): Promise<{ vscOut: bigint; fee: bigint } | null> => {
       const curveAddress = curveAddresses[slot];
       if (!curveAddress) return null;
       // For now, return null - UI can show current price as estimate

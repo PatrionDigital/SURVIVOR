@@ -92,8 +92,7 @@ describe("SpawnPatterns", () => {
       // All positions should be approximately the same distance from center
       for (const pos of positions) {
         const dist = Math.sqrt(
-          Math.pow(pos.x - viewport.cameraX, 2) +
-            Math.pow(pos.y - viewport.cameraY, 2)
+          Math.pow(pos.x - viewport.cameraX, 2) + Math.pow(pos.y - viewport.cameraY, 2)
         );
         expect(dist).toBeCloseTo(400, 0);
       }

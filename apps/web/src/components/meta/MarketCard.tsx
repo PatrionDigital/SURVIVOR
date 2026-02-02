@@ -86,9 +86,7 @@ export function MarketCard({
     vscAllowance < BigInt(Math.floor(vscCostWithSlippage * 1e18));
 
   const needsGearApproval =
-    mode === "sell" &&
-    parsedAmount > 0 &&
-    gearAllowance < BigInt(Math.floor(parsedAmount * 1e18));
+    mode === "sell" && parsedAmount > 0 && gearAllowance < BigInt(Math.floor(parsedAmount * 1e18));
 
   // Check if user can afford
   const canAffordBuy = mode === "buy" ? vscCostWithSlippage <= parsedVscBalance : true;
@@ -271,10 +269,7 @@ export function MarketCard({
             </button>
             {showSlippageMenu && (
               <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setShowSlippageMenu(false)}
-                />
+                <div className="fixed inset-0 z-10" onClick={() => setShowSlippageMenu(false)} />
                 <div className="absolute right-0 top-full mt-1 z-20 bg-gray-900 border border-gray-600 rounded-lg p-3 shadow-lg min-w-[140px]">
                   <p className="text-xs text-gray-400 mb-2">Slippage Tolerance</p>
                   <div className="flex flex-wrap gap-1">
@@ -311,13 +306,15 @@ export function MarketCard({
         {/* Cost/Return display */}
         {mode === "buy" && parsedAmount > 0 && (
           <p className={`text-xs mt-1 ${canAffordBuy ? "text-cyan-400" : "text-red-400"}`}>
-            Cost: ~{vscCostWithSlippage.toLocaleString(undefined, { maximumFractionDigits: 2 })} / {parsedVscBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} VSC
+            Cost: ~{vscCostWithSlippage.toLocaleString(undefined, { maximumFractionDigits: 2 })} /{" "}
+            {parsedVscBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} VSC
             {!canAffordBuy && " (insufficient)"}
           </p>
         )}
         {mode === "sell" && parsedAmount > 0 && (
           <p className={`text-xs mt-1 ${canAffordSell ? "text-green-400" : "text-red-400"}`}>
-            Return: ~{vscReturnWithSlippage.toLocaleString(undefined, { maximumFractionDigits: 2 })} VSC (min after slippage)
+            Return: ~{vscReturnWithSlippage.toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
+            VSC (min after slippage)
             {!canAffordSell && " (insufficient tokens)"}
           </p>
         )}
