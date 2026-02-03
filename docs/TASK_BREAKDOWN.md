@@ -1858,26 +1858,27 @@ ERC-721 early adopter NFTs.
 
 #### Task 5.2.1: Implement Upgrade Shop
 
-**Priority:** P1  
-**Estimate:** 4 hours  
+**Priority:** P1
+**Estimate:** 4 hours
 **Dependencies:** 5.1.1
+**Status:** Complete
 
 **Description:**
 UI to purchase permanent upgrades.
 
 **Subtasks:**
 
-- [ ] Create UpgradeShop component
-- [ ] Display all upgrade types
-- [ ] Display owned count
-- [ ] Display cost for next
-- [ ] Implement purchase transaction
+- [x] Create UpgradeShop component
+- [x] Display all upgrade types
+- [x] Display owned count
+- [x] Display cost for next
+- [x] Implement purchase transaction
 
 **Acceptance Criteria:**
 
-- Can view all upgrades
-- Can purchase upgrades
-- Costs display correctly
+- ✅ Can view all upgrades
+- ✅ Can purchase upgrades
+- ✅ Costs display correctly
 
 ---
 
