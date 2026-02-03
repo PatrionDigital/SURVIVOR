@@ -43,3 +43,6 @@ export type { UpgradeType, UpgradeData, UseGlobalUpgradesReturn } from "./useGlo
 
 export { useLeaderboard } from "./useLeaderboard";
 export type { LeaderboardPeriod, LeaderboardEntry, UseLeaderboardReturn } from "./useLeaderboard";
+
+export { useNotifications } from "./useNotifications";
+export type { UseNotificationsReturn } from "./useNotifications";

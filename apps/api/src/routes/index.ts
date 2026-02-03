@@ -4,6 +4,8 @@ import { gameRoutes } from "./game.js";
 import { rewardsRoutes } from "./rewards.js";
 import { playerRoutes } from "./player.js";
 import { farcasterRoutes } from "./farcaster.js";
+import { notificationRoutes } from "./notifications.js";
+import { webhookRoutes } from "./webhooks.js";
 
 export async function registerRoutes(fastify: FastifyInstance) {
   // Register all route modules with their prefixes
@@ -12,4 +14,6 @@ export async function registerRoutes(fastify: FastifyInstance) {
   await fastify.register(rewardsRoutes, { prefix: "/api/rewards" });
   await fastify.register(playerRoutes, { prefix: "/api/player" });
   await fastify.register(farcasterRoutes, { prefix: "/api/farcaster" });
+  await fastify.register(notificationRoutes, { prefix: "/api/notifications" });
+  await fastify.register(webhookRoutes, { prefix: "/api/webhooks" });
 }

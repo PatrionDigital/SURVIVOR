@@ -342,6 +342,7 @@ describe("Notification Token Queries", () => {
     const success = await queries.saveNotificationToken(
       testPlayerId,
       "test_token_123",
+      "https://api.farcaster.xyz/v1/notifications",
       "farcaster"
     );
 

@@ -131,6 +131,7 @@ export interface NotificationToken {
   id: string;
   player_id: string;
   token: string;
+  url: string | null;
   platform: string;
   created_at: string;
   updated_at: string;

@@ -17,6 +17,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@farcaster/miniapp-node':
+        specifier: ^0.1.12
+        version: 0.1.12(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@fastify/cors':
         specifier: ^10.0.1
         version: 10.1.0
@@ -909,6 +912,9 @@ packages:
 
   '@farcaster/miniapp-core@0.5.0':
     resolution: {integrity: sha512-3d4rMjKrSv6z2eUHczAP00p3+0zRaoSNUgQUyLM2BLpoi43cXmXmSP5E/tX0xE5//vkBKPLRzXE+nKoMyNL5kQ==}
+
+  '@farcaster/miniapp-node@0.1.12':
+    resolution: {integrity: sha512-bqY8UWuDHijIzSQeXvvEVMJzRIyjvtoFc8Bnpu19IE/5jCvxrffhMciDFMnNFbtLF4+V98q38ezhrbXJD5qqCQ==}
 
   '@farcaster/miniapp-sdk@0.2.2':
     resolution: {integrity: sha512-Z1POThw2yZL255BxZ+18hx+w6rzK47XzovSHpnKSmPFBqfIOPV5J3DuuhNe7vSQeQuMwZnYeUz8TvzxHqvvhPw==}
@@ -5868,6 +5874,18 @@ snapshots:
   '@farcaster/miniapp-core@0.5.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+      ox: 0.4.4(typescript@5.9.3)(zod@3.25.76)
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+
+  '@farcaster/miniapp-node@0.1.12(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@farcaster/miniapp-core': 0.5.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+      '@noble/curves': 1.9.7
       ox: 0.4.4(typescript@5.9.3)(zod@3.25.76)
       zod: 3.25.76
     transitivePeerDependencies:
