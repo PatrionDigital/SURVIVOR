@@ -2,6 +2,25 @@ import { useState } from "react";
 import type { GearSlotData, GearSlotIndex } from "@/hooks/useGearStaking";
 import type { GearSlot } from "@/hooks/useBondingCurve";
 
+// Spinner component for loading states
+function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={`animate-spin h-4 w-4 ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
+}
+
 interface GearSlotCardProps {
   slotData: GearSlotData;
   // Staking actions
@@ -58,6 +77,8 @@ export function GearSlotCard({
   const [mode, setMode] = useState<Mode>("stake");
   const [slippage, setSlippage] = useState(2); // Default 2% slippage
   const [showSlippageMenu, setShowSlippageMenu] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingAction, setProcessingAction] = useState<"approve" | "action" | null>(null);
 
   const statColor = STAT_COLORS[slotData.slot];
   const icon = SLOT_ICONS[slotData.slot];
@@ -110,15 +131,23 @@ export function GearSlotCard({
   const handleAction = async () => {
     if (!amount || parsedAmount <= 0) return;
 
+    setIsProcessing(true);
     try {
       if (mode === "stake") {
         if (needsGearApproval) {
+          setProcessingAction("approve");
           await onApprove(slotData.slotIndex, amount);
+          // After approval succeeds, automatically proceed with the stake
+          setProcessingAction("action");
+          await onStake(slotData.slotIndex, amount);
+          setAmount("");
         } else {
+          setProcessingAction("action");
           await onStake(slotData.slotIndex, amount);
           setAmount("");
         }
       } else if (mode === "unstake") {
+        setProcessingAction("action");
         await onUnstake(slotData.slotIndex, amount);
         setAmount("");
       } else if (mode === "buy" && onBuy && onApproveVsc) {
@@ -133,9 +162,15 @@ export function GearSlotCard({
 
         if (needsVscApproval) {
           // Approve the VSC cost with slippage buffer
+          setProcessingAction("approve");
           await onApproveVsc(slotData.slot as GearSlot, vscAmountStr);
+          // After approval succeeds, automatically proceed with the buy
+          setProcessingAction("action");
+          await onBuy(slotData.slot as GearSlot, vscAmountStr, minTokensStr);
+          setAmount("");
         } else {
           // Buy tokens: spend VSC with buffer, set minimum acceptable tokens
+          setProcessingAction("action");
           await onBuy(slotData.slot as GearSlot, vscAmountStr, minTokensStr);
           setAmount("");
         }
@@ -145,11 +180,15 @@ export function GearSlotCard({
         const minVscWithSlippage = expectedVsc * (1 - slippage / 100);
         // Limit decimal places to avoid parseUnits overflow
         const minVscStr = minVscWithSlippage.toFixed(18);
+        setProcessingAction("action");
         await onSell(slotData.slot as GearSlot, amount, minVscStr);
         setAmount("");
       }
     } catch (error) {
       console.error("Transaction failed:", error);
+    } finally {
+      setIsProcessing(false);
+      setProcessingAction(null);
     }
   };
 
@@ -181,15 +220,36 @@ export function GearSlotCard({
   const hasTradingMode = onBuy && onSell;
 
   const getButtonText = () => {
+    if (isProcessing) {
+      if (processingAction === "approve") return "Approving...";
+      if (processingAction === "action") {
+        switch (mode) {
+          case "stake":
+            return "Staking...";
+          case "unstake":
+            return "Unstaking...";
+          case "buy":
+            return "Buying...";
+          case "sell":
+            return "Selling...";
+          default:
+            return "Processing...";
+        }
+      }
+      return "Processing...";
+    }
+
     if (isPending) return "Processing...";
 
     switch (mode) {
       case "stake":
-        return needsGearApproval ? `Approve ${slotData.symbol}` : `Stake ${slotData.symbol}`;
+        return needsGearApproval
+          ? `Approve & Stake ${slotData.symbol}`
+          : `Stake ${slotData.symbol}`;
       case "unstake":
         return `Unstake ${slotData.symbol}`;
       case "buy":
-        return needsVscApproval ? "Approve VSC" : `Buy ${slotData.symbol}`;
+        return needsVscApproval ? `Approve & Buy ${slotData.symbol}` : `Buy ${slotData.symbol}`;
       case "sell":
         return `Sell ${slotData.symbol}`;
       default:
@@ -340,12 +400,12 @@ export function GearSlotCard({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Token Amount"
-            disabled={disabled || isPending}
+            disabled={disabled || isPending || isProcessing}
             className="flex-1 px-3 py-2 bg-gray-900 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 disabled:opacity-50"
           />
           <button
             onClick={handleMax}
-            disabled={disabled || isPending}
+            disabled={disabled || isPending || isProcessing}
             className="px-2 py-2 bg-gray-700 hover:bg-gray-600 rounded text-xs text-gray-300 disabled:opacity-50"
           >
             MAX
@@ -407,10 +467,16 @@ export function GearSlotCard({
       <button
         onClick={handleAction}
         disabled={
-          disabled || isPending || parsedAmount <= 0 || parsedAmount > maxAmount || !canAffordBuy
+          disabled ||
+          isPending ||
+          isProcessing ||
+          parsedAmount <= 0 ||
+          parsedAmount > maxAmount ||
+          !canAffordBuy
         }
-        className={`w-full py-2 rounded font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${getButtonColor()}`}
+        className={`w-full py-2 rounded font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${getButtonColor()}`}
       >
+        {isProcessing && <Spinner />}
         {getButtonText()}
       </button>
 

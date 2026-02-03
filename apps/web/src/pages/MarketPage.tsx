@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useCallback } from "react";
 import { useBondingCurve, useWallet, useVSCToken, useGearTokens } from "@/hooks";
 import type { GearSlot } from "@/hooks/useBondingCurve";
 import { MarketCard } from "@/components/meta";
@@ -20,10 +21,31 @@ export function MarketPage() {
   } = useBondingCurve();
 
   // VSC token balance
-  const { formattedBalance: vscBalance } = useVSCToken();
+  const { formattedBalance: vscBalance, refetch: refetchVsc } = useVSCToken();
 
   // Gear token balances
-  const { balances: gearBalances, getBalance } = useGearTokens();
+  const { balances: gearBalances, getBalance, refetch: refetchGear } = useGearTokens();
+
+  // Wrap buy/sell to refetch balances after transaction
+  const handleBuy = useCallback(
+    async (slot: GearSlot, vscAmount: string, minTokensOut: string) => {
+      await buy(slot, vscAmount, minTokensOut);
+      // Refetch balances after successful buy
+      refetchVsc();
+      refetchGear();
+    },
+    [buy, refetchVsc, refetchGear]
+  );
+
+  const handleSell = useCallback(
+    async (slot: GearSlot, tokenAmount: string, minVscOut: string) => {
+      await sell(slot, tokenAmount, minVscOut);
+      // Refetch balances after successful sell
+      refetchVsc();
+      refetchGear();
+    },
+    [sell, refetchVsc, refetchGear]
+  );
 
   const isLoading = curvesLoading;
 
@@ -116,8 +138,8 @@ export function MarketPage() {
                 vscBalance={vscBalance}
                 vscAllowance={vscAllowance(curve.slot)}
                 gearAllowance={gearAllowance(curve.slot)}
-                onBuy={buy}
-                onSell={sell}
+                onBuy={handleBuy}
+                onSell={handleSell}
                 onApproveVsc={approveVsc}
                 onApproveGear={approveGear}
                 isPending={curvePending}
