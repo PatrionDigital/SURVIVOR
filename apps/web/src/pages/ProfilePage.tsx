@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useWallet, usePlayerProfile } from "@/hooks";
 import type { GameSession } from "@/hooks";
+import { NotificationSettings } from "@/components/meta";
 
 // TODO: Remove clearAllWalletState and Reset Wallet button when moving to beta (Sepolia testing)
 // Dev helper to clear all wallet state - only used for local Anvil development
@@ -185,8 +186,11 @@ export function ProfilePage() {
         </div>
       )}
 
+      {/* Notification settings */}
+      {isConnected && <NotificationSettings />}
+
       {/* Recent sessions */}
-      <div className="bg-gray-800 rounded-lg p-6">
+      <div className="bg-gray-800 rounded-lg p-6 mt-6">
         <h2 className="text-lg font-bold text-white mb-4">Recent Sessions</h2>
         {!isConnected ? (
           <p className="text-gray-400 text-center py-8">Sign in to view session history</p>
