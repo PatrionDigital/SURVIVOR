@@ -18,12 +18,14 @@ import {
   GameOverScreen,
   type RewardData,
 } from "../components/game";
-import { useGameSession } from "../hooks";
+import { useGameSession, useMiniApp } from "../hooks";
+import sdk from "@farcaster/miniapp-sdk";
 
 export function GamePage() {
   const { isPlaying, endGame, setSurvivalTime, playerPosition, setPlayerPosition, survivalTime } =
     useGameStore();
   const { isAuthenticated, sessionId, startGameSession, endGameSession } = useGameSession();
+  const { isInMiniApp } = useMiniApp();
 
   const engineRef = useRef<GameEngine | null>(null);
   const sceneManagerRef = useRef<SceneManager | null>(null);
@@ -274,14 +276,47 @@ export function GamePage() {
   }, []);
 
   // Handle share from game over screen
-  const handleShare = useCallback(() => {
-    // TODO: Implement Farcaster sharing
-    const text = `I survived ${Math.floor(survivalTime / 60)}:${String(Math.floor(survivalTime % 60)).padStart(2, "0")} and killed ${enemiesKilled} enemies in Farcaster Survivors!`;
-    console.log("Share:", text);
-    // For now, copy to clipboard
-    navigator.clipboard.writeText(text);
-    alert("Score copied to clipboard!");
-  }, [survivalTime, enemiesKilled]);
+  const handleShare = useCallback(async () => {
+    // Use game over stats if available, otherwise use current stats
+    const stats = gameOverStats || {
+      survivalTime,
+      enemiesKilled,
+      levelReached: currentLevel,
+      totalXP,
+    };
+
+    // Format survival time as mm:ss
+    const minutes = Math.floor(stats.survivalTime / 60);
+    const seconds = Math.floor(stats.survivalTime % 60);
+    const timeStr = `${minutes}:${String(seconds).padStart(2, "0")}`;
+
+    // Format share text with all relevant stats
+    const shareText = `🎮 Farcaster Survivors\n\n⏱️ Survived: ${timeStr}\n💀 Kills: ${stats.enemiesKilled.toLocaleString()}\n⭐ Level: ${stats.levelReached}\n✨ XP: ${stats.totalXP.toLocaleString()}\n\nPlay now! 👇`;
+
+    const appUrl = window.location.origin;
+
+    try {
+      if (isInMiniApp) {
+        // In Farcaster Mini App - use SDK to open composer
+        // The SDK doesn't have a direct composeCast method, so we use openUrl with Warpcast compose URL
+        const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(appUrl)}`;
+        await sdk.actions.openUrl(composeUrl);
+      } else {
+        // Not in mini app - copy to clipboard as fallback
+        await navigator.clipboard.writeText(`${shareText}\n\n${appUrl}`);
+        alert("Score copied to clipboard! Paste it in Warpcast to share.");
+      }
+    } catch (error) {
+      console.error("Failed to share:", error);
+      // Fallback to clipboard
+      try {
+        await navigator.clipboard.writeText(`${shareText}\n\n${appUrl}`);
+        alert("Score copied to clipboard!");
+      } catch (clipboardError) {
+        alert("Failed to share. Please try again.");
+      }
+    }
+  }, [survivalTime, enemiesKilled, currentLevel, totalXP, gameOverStats, isInMiniApp]);
 
   // Handle quit from game over screen
   const handleGameOverQuit = useCallback(() => {
