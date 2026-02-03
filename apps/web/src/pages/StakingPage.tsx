@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
+import { useCallback } from "react";
 import {
   useGearStaking,
   useMaintenancePool,
   useWallet,
   useBondingCurve,
   useVSCToken,
+  useGearTokens,
 } from "@/hooks";
 import type { GearSlot } from "@/hooks/useBondingCurve";
+import type { GearSlotIndex } from "@/hooks/useGearStaking";
 import { GearSlotCard, MaintenanceBar } from "@/components/meta";
 
 export function StakingPage() {
@@ -20,6 +23,7 @@ export function StakingPage() {
     unstake,
     approve: approveGear,
     isPending: stakingPending,
+    refetch: refetchStaking,
   } = useGearStaking();
 
   // Maintenance pool hooks
@@ -30,6 +34,7 @@ export function StakingPage() {
     withdraw,
     approve: approveVSC,
     isPending: maintenancePending,
+    refetch: refetchMaintenance,
   } = useMaintenancePool();
 
   // Bonding curve hooks
@@ -44,7 +49,67 @@ export function StakingPage() {
   } = useBondingCurve();
 
   // VSC token balance
-  const { formattedBalance: vscBalance } = useVSCToken();
+  const { formattedBalance: vscBalance, refetch: refetchVsc } = useVSCToken();
+
+  // Gear token balances (for wallet balance refresh)
+  const { refetch: refetchGear } = useGearTokens();
+
+  // Refetch all balances
+  const refetchAll = useCallback(() => {
+    refetchVsc();
+    refetchGear();
+    refetchStaking();
+    refetchMaintenance();
+  }, [refetchVsc, refetchGear, refetchStaking, refetchMaintenance]);
+
+  // Wrap actions to refetch balances after transaction
+  const handleStake = useCallback(
+    async (slot: GearSlotIndex, amount: string) => {
+      await stake(slot, amount);
+      refetchAll();
+    },
+    [stake, refetchAll]
+  );
+
+  const handleUnstake = useCallback(
+    async (slot: GearSlotIndex, amount: string) => {
+      await unstake(slot, amount);
+      refetchAll();
+    },
+    [unstake, refetchAll]
+  );
+
+  const handleBuy = useCallback(
+    async (slot: GearSlot, vscAmount: string, minTokensOut: string) => {
+      await buy(slot, vscAmount, minTokensOut);
+      refetchAll();
+    },
+    [buy, refetchAll]
+  );
+
+  const handleSell = useCallback(
+    async (slot: GearSlot, tokenAmount: string, minVscOut: string) => {
+      await sell(slot, tokenAmount, minVscOut);
+      refetchAll();
+    },
+    [sell, refetchAll]
+  );
+
+  const handleDeposit = useCallback(
+    async (amount: string) => {
+      await deposit(amount);
+      refetchAll();
+    },
+    [deposit, refetchAll]
+  );
+
+  const handleWithdraw = useCallback(
+    async (amount: string) => {
+      await withdraw(amount);
+      refetchAll();
+    },
+    [withdraw, refetchAll]
+  );
 
   const isLoading = stakingLoading || maintenanceLoading || curvesLoading;
   const isPending = stakingPending || maintenancePending || curvePending;
@@ -127,8 +192,8 @@ export function StakingPage() {
           <div className="mb-6">
             <MaintenanceBar
               data={maintenanceData}
-              onDeposit={deposit}
-              onWithdraw={withdraw}
+              onDeposit={handleDeposit}
+              onWithdraw={handleWithdraw}
               onApprove={approveVSC}
               isPending={maintenancePending}
               disabled={isPending}
@@ -141,11 +206,11 @@ export function StakingPage() {
               <GearSlotCard
                 key={slotData.slot}
                 slotData={slotData}
-                onStake={stake}
-                onUnstake={unstake}
+                onStake={handleStake}
+                onUnstake={handleUnstake}
                 onApprove={approveGear}
-                onBuy={buy}
-                onSell={sell}
+                onBuy={handleBuy}
+                onSell={handleSell}
                 onApproveVsc={approveVsc}
                 currentPrice={getCurvePrice(slotData.slot)}
                 vscBalance={vscBalance}

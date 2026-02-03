@@ -1762,6 +1762,39 @@ UI to claim earned rewards.
 
 ---
 
+#### Task 4.3.3: Connect Profile Page to Backend
+
+**Priority:** P1
+**Estimate:** 4 hours
+**Dependencies:** 4.2.3, 3.2.2
+**Status:** TODO
+
+**Description:**
+Integrate Profile page with backend API to display real player statistics and session history.
+
+**Subtasks:**
+
+- [ ] Create usePlayerProfile hook to fetch player stats from API
+- [ ] Display Games Played count
+- [ ] Display Highest Level achieved (renamed from Highest Wave)
+- [ ] Display Highest Score
+- [ ] Display Total $VSC Earned
+- [ ] Create Recent Sessions scrollable panel
+- [ ] Add loading states and error handling
+- [ ] Add pull-to-refresh functionality
+
+**Acceptance Criteria:**
+
+- [ ] Profile shows real Games Played from database
+- [ ] Profile shows Highest Level from player stats
+- [ ] Profile shows Highest Score from player stats
+- [ ] Profile shows Total $VSC Earned
+- [ ] Recent Sessions panel is scrollable
+- [ ] Data refreshes on page load
+- [ ] Loading states shown while fetching
+
+---
+
 ---
 
 ## Phase 5: NFTs & Polish (Weeks 9-10)

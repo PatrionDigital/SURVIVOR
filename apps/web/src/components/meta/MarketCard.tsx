@@ -2,6 +2,32 @@ import { useState } from "react";
 import type { GearSlot } from "@/hooks/useBondingCurve";
 import { BondingCurveChart } from "./BondingCurveChart";
 
+// Spinner component for loading states
+function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={`animate-spin h-4 w-4 ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
+}
+
 interface MarketCardProps {
   slot: GearSlot;
   symbol: string;
@@ -62,6 +88,8 @@ export function MarketCard({
   const [mode, setMode] = useState<Mode>("buy");
   const [slippage, setSlippage] = useState(2); // Default 2%
   const [showSlippageMenu, setShowSlippageMenu] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingAction, setProcessingAction] = useState<"approve" | "trade" | null>(null);
 
   const color = SLOT_COLORS[slot];
   const icon = SLOT_ICONS[slot];
@@ -104,37 +132,60 @@ export function MarketCard({
   })();
 
   const handleAction = async () => {
-    if (!amount || parsedAmount <= 0) return;
+    if (!amount || parsedAmount <= 0) {
+      return;
+    }
 
+    setIsProcessing(true);
     try {
       if (mode === "buy") {
+        // Use more aggressive slippage for bonding curves since price changes during purchase
+        // The curve uses integral pricing, so actual cost may be higher than spot price estimate
         const slippageMultiplier = 1 + slippage / 100;
         const vscWithSlippage = estimatedVscCost * slippageMultiplier;
-        const minTokensWithSlippage = parsedAmount * (1 - slippage / 100);
+        // Use a much lower minTokensOut to account for integral pricing
+        // TODO: Use contract's calculateBuyReturn for accurate quoting
+        const minTokensWithSlippage = parsedAmount * (1 - slippage / 100) * 0.95; // Extra 5% buffer
 
         const vscAmountStr = vscWithSlippage.toFixed(18);
         const minTokensStr = minTokensWithSlippage.toFixed(18);
 
         if (needsVscApproval) {
+          setProcessingAction("approve");
           await onApproveVsc(slot, vscAmountStr);
+          // After approval succeeds, automatically proceed with the buy
+          setProcessingAction("trade");
+          await onBuy(slot, vscAmountStr, minTokensStr);
+          setAmount("");
         } else {
+          setProcessingAction("trade");
           await onBuy(slot, vscAmountStr, minTokensStr);
           setAmount("");
         }
       } else if (mode === "sell") {
-        const minVscWithSlippage = estimatedVscReturn * (1 - slippage / 100);
+        // For selling, also add buffer for integral pricing
+        // TODO: Use contract's calculateSellReturn for accurate quoting
+        const minVscWithSlippage = estimatedVscReturn * (1 - slippage / 100) * 0.95; // Extra 5% buffer
         const minVscStr = minVscWithSlippage.toFixed(18);
 
         if (needsGearApproval) {
-          // Need to approve gear tokens to bonding curve
+          setProcessingAction("approve");
           await onApproveGear(slot, amount);
+          // After approval succeeds, automatically proceed with the sell
+          setProcessingAction("trade");
+          await onSell(slot, amount, minVscStr);
+          setAmount("");
         } else {
+          setProcessingAction("trade");
           await onSell(slot, amount, minVscStr);
           setAmount("");
         }
       }
     } catch (error) {
       console.error("Transaction failed:", error);
+    } finally {
+      setIsProcessing(false);
+      setProcessingAction(null);
     }
   };
 
@@ -148,12 +199,16 @@ export function MarketCard({
   };
 
   const getButtonText = () => {
-    if (isPending) return "Processing...";
+    if (isProcessing) {
+      if (processingAction === "approve") return "Approving...";
+      if (processingAction === "trade") return mode === "buy" ? "Buying..." : "Selling...";
+      return "Processing...";
+    }
 
     if (mode === "buy") {
-      return needsVscApproval ? "Approve VSC" : `Buy ${symbol}`;
+      return needsVscApproval ? `Approve & Buy ${symbol}` : `Buy ${symbol}`;
     }
-    return needsGearApproval ? `Approve ${symbol}` : `Sell ${symbol}`;
+    return needsGearApproval ? `Approve & Sell ${symbol}` : `Sell ${symbol}`;
   };
 
   const getButtonColor = () => {
@@ -170,6 +225,7 @@ export function MarketCard({
   const isButtonDisabled =
     disabled ||
     isPending ||
+    isProcessing ||
     parsedAmount <= 0 ||
     parsedAmount > maxAmount + 0.000001 ||
     (mode === "buy" && !canAffordBuy) ||
@@ -324,8 +380,9 @@ export function MarketCard({
       <button
         onClick={handleAction}
         disabled={isButtonDisabled}
-        className={`w-full py-2 rounded font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${getButtonColor()}`}
+        className={`w-full py-2 rounded font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${getButtonColor()}`}
       >
+        {isProcessing && <Spinner />}
         {getButtonText()}
       </button>
 
