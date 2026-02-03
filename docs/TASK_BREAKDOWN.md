@@ -1886,26 +1886,27 @@ UI to purchase permanent upgrades.
 
 #### Task 5.3.1: Implement Leaderboard UI
 
-**Priority:** P1  
-**Estimate:** 4 hours  
+**Priority:** P1
+**Estimate:** 4 hours
 **Dependencies:** 4.2.2
+**Status:** Complete
 
 **Description:**
 Display player leaderboards.
 
 **Subtasks:**
 
-- [ ] Create Leaderboard component
-- [ ] Fetch leaderboard data
-- [ ] Display daily/weekly/all-time tabs
-- [ ] Highlight current player
-- [ ] Show rank, name, score
+- [x] Create Leaderboard component
+- [x] Fetch leaderboard data
+- [x] Display daily/weekly/all-time tabs
+- [x] Highlight current player
+- [x] Show rank, name, score
 
 **Acceptance Criteria:**
 
-- Leaderboards load correctly
-- Can switch between periods
-- Current player highlighted
+- ✅ Leaderboards load correctly
+- ✅ Can switch between periods
+- ✅ Current player highlighted
 
 ---
 
