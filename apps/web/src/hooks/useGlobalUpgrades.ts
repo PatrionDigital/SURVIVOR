@@ -276,8 +276,7 @@ export function useGlobalUpgrades(): UseGlobalUpgradesReturn {
   // Approve VSC for GlobalUpgradeNFT
   const approve = useCallback(
     async (amount: string) => {
-      if (!vscTokenAddress || !globalUpgradeNftAddress)
-        throw new Error("Contracts not configured");
+      if (!vscTokenAddress || !globalUpgradeNftAddress) throw new Error("Contracts not configured");
       const parsedAmount = parseUnits(amount, VSC_DECIMALS);
 
       try {

@@ -4,7 +4,11 @@ import { useGlobalUpgrades, useWallet } from "@/hooks";
 import type { UpgradeData } from "@/hooks";
 
 // Upgrade card component
-function UpgradeCard({ upgrade, onPurchase, isPending }: {
+function UpgradeCard({
+  upgrade,
+  onPurchase,
+  isPending,
+}: {
   upgrade: UpgradeData;
   onPurchase: (upgradeType: number) => Promise<void>;
   isPending: boolean;
@@ -138,10 +142,7 @@ export function UpgradeShopPage() {
           <h1 className="text-3xl font-bold text-primary-400">Upgrade Shop</h1>
           <p className="text-gray-400 mt-1">Purchase permanent stat upgrades with $VSC</p>
         </div>
-        <Link
-          to="/"
-          className="text-gray-400 hover:text-white transition-colors font-semibold"
-        >
+        <Link to="/" className="text-gray-400 hover:text-white transition-colors font-semibold">
           Back
         </Link>
       </div>
@@ -186,9 +187,7 @@ export function UpgradeShopPage() {
                 </div>
               </div>
               {needsApproval && (
-                <div className="text-sm text-yellow-400">
-                  Approval needed to purchase upgrades
-                </div>
+                <div className="text-sm text-yellow-400">Approval needed to purchase upgrades</div>
               )}
             </div>
           </div>
