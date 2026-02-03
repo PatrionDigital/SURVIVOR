@@ -559,3 +559,99 @@ export const bondingCurveAbi = [
     ],
   },
 ] as const;
+
+// GlobalUpgradeNFT ABI - for purchasing permanent upgrades
+export const globalUpgradeNftAbi = [
+  // Constants
+  {
+    type: "function",
+    name: "BASE_COST",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "ESCALATION_MULTIPLIER",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "MAX_PER_TYPE",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "UPGRADE_TYPES",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  // Read functions
+  {
+    type: "function",
+    name: "getMintCost",
+    inputs: [
+      { name: "player", type: "address" },
+      { name: "upgradeType", type: "uint256" },
+    ],
+    outputs: [{ name: "cost", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getUpgradeCount",
+    inputs: [
+      { name: "player", type: "address" },
+      { name: "upgradeType", type: "uint256" },
+    ],
+    outputs: [{ name: "count", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getAllUpgrades",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "upgrades", type: "uint256[7]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "balanceOf",
+    inputs: [
+      { name: "account", type: "address" },
+      { name: "id", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "vscToken",
+    inputs: [],
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+  },
+  // Write functions
+  {
+    type: "function",
+    name: "mint",
+    inputs: [{ name: "upgradeType", type: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  // Events
+  {
+    type: "event",
+    name: "UpgradeMinted",
+    inputs: [
+      { name: "player", type: "address", indexed: true },
+      { name: "upgradeType", type: "uint256", indexed: true },
+      { name: "cost", type: "uint256", indexed: false },
+    ],
+  },
+] as const;
