@@ -1803,27 +1803,28 @@ Integrate Profile page with backend API to display real player statistics and se
 
 #### Task 5.1.1: Implement GlobalUpgradeNFT.sol
 
-**Priority:** P1  
-**Estimate:** 4 hours  
+**Priority:** P1
+**Estimate:** 4 hours
 **Dependencies:** 1.2.1
+**Status:** Complete
 
 **Description:**
 ERC-1155 permanent upgrade NFTs.
 
 **Subtasks:**
 
-- [ ] Create contract with ERC1155, Pausable
-- [ ] Implement 7 upgrade types
-- [ ] Implement progressive cost formula
-- [ ] Implement mint() with VSC burn
-- [ ] Implement view functions
-- [ ] Test all functionality
+- [x] Create contract with ERC1155, Pausable
+- [x] Implement 7 upgrade types
+- [x] Implement progressive cost formula
+- [x] Implement mint() with VSC burn
+- [x] Implement view functions
+- [x] Test all functionality
 
 **Acceptance Criteria:**
 
-- Can mint upgrades
-- Cost increases correctly
-- Max per type enforced
+- [x] Can mint upgrades
+- [x] Cost increases correctly
+- [x] Max per type enforced
 
 ---
 
