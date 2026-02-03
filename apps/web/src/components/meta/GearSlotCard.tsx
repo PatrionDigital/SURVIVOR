@@ -11,14 +11,7 @@ function Spinner({ className = "" }: { className?: string }) {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -250,7 +243,9 @@ export function GearSlotCard({
 
     switch (mode) {
       case "stake":
-        return needsGearApproval ? `Approve & Stake ${slotData.symbol}` : `Stake ${slotData.symbol}`;
+        return needsGearApproval
+          ? `Approve & Stake ${slotData.symbol}`
+          : `Stake ${slotData.symbol}`;
       case "unstake":
         return `Unstake ${slotData.symbol}`;
       case "buy":
@@ -472,7 +467,12 @@ export function GearSlotCard({
       <button
         onClick={handleAction}
         disabled={
-          disabled || isPending || isProcessing || parsedAmount <= 0 || parsedAmount > maxAmount || !canAffordBuy
+          disabled ||
+          isPending ||
+          isProcessing ||
+          parsedAmount <= 0 ||
+          parsedAmount > maxAmount ||
+          !canAffordBuy
         }
         className={`w-full py-2 rounded font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${getButtonColor()}`}
       >
