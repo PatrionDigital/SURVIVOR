@@ -1767,31 +1767,31 @@ UI to claim earned rewards.
 **Priority:** P1
 **Estimate:** 4 hours
 **Dependencies:** 4.2.3, 3.2.2
-**Status:** TODO
+**Status:** Complete
 
 **Description:**
 Integrate Profile page with backend API to display real player statistics and session history.
 
 **Subtasks:**
 
-- [ ] Create usePlayerProfile hook to fetch player stats from API
-- [ ] Display Games Played count
-- [ ] Display Highest Level achieved (renamed from Highest Wave)
-- [ ] Display Highest Score
-- [ ] Display Total $VSC Earned
-- [ ] Create Recent Sessions scrollable panel
-- [ ] Add loading states and error handling
-- [ ] Add pull-to-refresh functionality
+- [x] Create usePlayerProfile hook to fetch player stats from API
+- [x] Display Games Played count
+- [x] Display Highest Level achieved (renamed from Highest Wave)
+- [x] Display Highest Score
+- [x] Display Total $VSC Earned
+- [x] Create Recent Sessions scrollable panel
+- [x] Add loading states and error handling
+- [ ] Add pull-to-refresh functionality (deferred - not critical for web)
 
 **Acceptance Criteria:**
 
-- [ ] Profile shows real Games Played from database
-- [ ] Profile shows Highest Level from player stats
-- [ ] Profile shows Highest Score from player stats
-- [ ] Profile shows Total $VSC Earned
-- [ ] Recent Sessions panel is scrollable
-- [ ] Data refreshes on page load
-- [ ] Loading states shown while fetching
+- [x] Profile shows real Games Played from database
+- [x] Profile shows Highest Level from player stats
+- [x] Profile shows Highest Score from player stats
+- [x] Profile shows Total $VSC Earned
+- [x] Recent Sessions panel is scrollable
+- [x] Data refreshes on page load
+- [x] Loading states shown while fetching
 
 ---
 
