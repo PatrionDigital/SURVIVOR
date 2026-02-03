@@ -543,6 +543,7 @@ export async function useNonce(
 export async function saveNotificationToken(
   playerId: string,
   token: string,
+  url: string | null,
   platform = "farcaster"
 ): Promise<boolean> {
   const supabase = getSupabaseClient();
@@ -552,6 +553,7 @@ export async function saveNotificationToken(
       {
         player_id: playerId,
         token,
+        url,
         platform,
       },
       { onConflict: "player_id,platform" }

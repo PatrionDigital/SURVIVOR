@@ -31,7 +31,8 @@ export async function notificationRoutes(fastify: FastifyInstance) {
       const playerId = request.user.playerId;
 
       try {
-        const success = await saveNotificationToken(playerId, token, platform);
+        // URL will be provided by webhook, not frontend registration
+        const success = await saveNotificationToken(playerId, token, null, platform);
 
         if (!success) {
           return reply.status(500).send({
@@ -94,7 +95,7 @@ export async function notificationRoutes(fastify: FastifyInstance) {
 
       try {
         // Delete token by setting it to empty string (or we could delete the row)
-        const success = await saveNotificationToken(playerId, "", platform);
+        const success = await saveNotificationToken(playerId, "", null, platform);
 
         return reply.send({
           success,
