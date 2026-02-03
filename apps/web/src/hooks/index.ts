@@ -40,3 +40,6 @@ export type {
 
 export { useGlobalUpgrades, UPGRADE_TYPES } from "./useGlobalUpgrades";
 export type { UpgradeType, UpgradeData, UseGlobalUpgradesReturn } from "./useGlobalUpgrades";
+
+export { useLeaderboard } from "./useLeaderboard";
+export type { LeaderboardPeriod, LeaderboardEntry, UseLeaderboardReturn } from "./useLeaderboard";
