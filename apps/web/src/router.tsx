@@ -1,6 +1,14 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
-import { HomePage, GamePage, LeaderboardPage, ProfilePage, StakingPage, MarketPage } from "./pages";
+import {
+  HomePage,
+  GamePage,
+  LeaderboardPage,
+  ProfilePage,
+  StakingPage,
+  MarketPage,
+  UpgradeShopPage,
+} from "./pages";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +38,10 @@ export const router = createBrowserRouter([
       {
         path: "market",
         element: <MarketPage />,
+      },
+      {
+        path: "upgrades",
+        element: <UpgradeShopPage />,
       },
     ],
   },

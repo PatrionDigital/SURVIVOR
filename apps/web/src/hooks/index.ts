@@ -37,3 +37,6 @@ export type {
   GameSession,
   UsePlayerProfileReturn,
 } from "./usePlayerProfile";
+
+export { useGlobalUpgrades, UPGRADE_TYPES } from "./useGlobalUpgrades";
+export type { UpgradeType, UpgradeData, UseGlobalUpgradesReturn } from "./useGlobalUpgrades";
