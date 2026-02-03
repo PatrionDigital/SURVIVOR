@@ -29,3 +29,11 @@ export type { RewardClaimData, UseRewardDistributorReturn } from "./useRewardDis
 
 export { useGameSession } from "./useGameSession";
 export type { RewardClaimData as GameRewardData } from "./useGameSession";
+
+export { usePlayerProfile } from "./usePlayerProfile";
+export type {
+  PlayerProfile,
+  PlayerStats as ProfilePlayerStats,
+  GameSession,
+  UsePlayerProfileReturn,
+} from "./usePlayerProfile";
