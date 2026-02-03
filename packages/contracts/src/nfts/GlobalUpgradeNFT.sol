@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC1155 } from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Pausable } from "@openzeppelin/contracts/utils/Pausable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @notice Interface for VSCToken with burn function
@@ -67,7 +67,10 @@ contract GlobalUpgradeNFT is ERC1155, Ownable, Pausable {
      * @notice Initializes the GlobalUpgradeNFT contract
      * @param _vscToken Address of the VSC token contract
      */
-    constructor(address _vscToken) ERC1155("https://farcastersurvivors.game/api/metadata/upgrade/{id}") Ownable(msg.sender) {
+    constructor(address _vscToken)
+        ERC1155("https://farcastersurvivors.game/api/metadata/upgrade/{id}")
+        Ownable(msg.sender)
+    {
         if (_vscToken == address(0)) revert InvalidToken();
         vscToken = IVSCToken(_vscToken);
     }
@@ -81,15 +84,11 @@ contract GlobalUpgradeNFT is ERC1155, Ownable, Pausable {
      */
     function mint(uint256 upgradeType) external whenNotPaused {
         // Validate upgrade type
-        if (upgradeType == 0 || upgradeType > UPGRADE_TYPES) {
-            revert InvalidUpgradeType();
-        }
+        if (upgradeType == 0 || upgradeType > UPGRADE_TYPES) revert InvalidUpgradeType();
 
         // Check max upgrades
         uint256 currentCount = balanceOf(msg.sender, upgradeType);
-        if (currentCount >= MAX_PER_TYPE) {
-            revert MaxUpgradesReached();
-        }
+        if (currentCount >= MAX_PER_TYPE) revert MaxUpgradesReached();
 
         // Calculate cost
         uint256 cost = getMintCost(msg.sender, upgradeType);
@@ -130,9 +129,7 @@ contract GlobalUpgradeNFT is ERC1155, Ownable, Pausable {
      *      Example: 1st = 1000, 2nd = 1500, 3rd = 2000, etc.
      */
     function getMintCost(address player, uint256 upgradeType) public view returns (uint256) {
-        if (upgradeType == 0 || upgradeType > UPGRADE_TYPES) {
-            revert InvalidUpgradeType();
-        }
+        if (upgradeType == 0 || upgradeType > UPGRADE_TYPES) revert InvalidUpgradeType();
 
         uint256 ownedCount = balanceOf(player, upgradeType);
 

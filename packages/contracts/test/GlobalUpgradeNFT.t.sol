@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Test} from "forge-std/Test.sol";
-import {GlobalUpgradeNFT} from "../src/nfts/GlobalUpgradeNFT.sol";
-import {VSCToken} from "../src/tokens/VSCToken.sol";
+import { Test } from "forge-std/Test.sol";
+import { GlobalUpgradeNFT } from "../src/nfts/GlobalUpgradeNFT.sol";
+import { VSCToken } from "../src/tokens/VSCToken.sol";
 
 contract GlobalUpgradeNFTTest is Test {
     GlobalUpgradeNFT public upgradeNFT;
