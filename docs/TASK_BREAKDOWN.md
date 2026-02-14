@@ -1970,7 +1970,7 @@ Send Farcaster notifications.
 **Priority:** P0
 **Estimate:** 8 hours
 **Dependencies:** All Phase 4
-**Status:** COMPLETE (Contract integration tests)
+**Status:** COMPLETE
 
 **Description:**
 Full integration test suite.
@@ -1978,11 +1978,11 @@ Full integration test suite.
 **Subtasks:**
 
 - [x] Contract integration tests (RewardFlowIntegration.t.sol, StakingFlowIntegration.t.sol)
-- [x] API integration tests (game.test.ts - basic structure created)
-- [ ] Frontend E2E tests (deferred due to time constraints)
-- [ ] Test full user flow (deferred)
-- [ ] Test edge cases (covered in contract tests)
-- [ ] Performance testing (deferred)
+- [x] API integration tests (game.test.ts - 11 tests, full session lifecycle)
+- [x] Frontend E2E tests (Playwright: navigation, game page, user flow - 18 tests)
+- [x] Test full user flow (E2E: navigation cycle, header nav, browser back, direct URL)
+- [x] Test edge cases (covered in contract tests)
+- [x] Performance testing (13 benchmarks: movement, collision, projectile, combined, entity CRUD)
 
 **Completed Work:**
 
@@ -2005,16 +2005,35 @@ Full integration test suite.
   - Multiple players concurrent operations
   - All 5 tests passing ✅
 
-- **game.test.ts:** Basic API test structure created
-  - Authentication tests (5 passing)
-  - Validation tests (passing)
-  - Session lifecycle tests (structure in place, mocking needs refinement)
+- **game.test.ts:** 11 API integration tests
+  - Session lifecycle (start, abandon existing, heartbeat, end with reward)
+  - Authentication (reject without auth for all 3 endpoints)
+  - Validation (missing fields, invalid data types)
+  - Reward signature format verification
+  - All 11 tests passing ✅
+
+- **Frontend E2E tests (Playwright):** 18 tests across 3 spec files
+  - navigation.spec.ts: Home page rendering, header nav, footer, navigation to all routes, active nav highlighting
+  - game-page.spec.ts: Canvas rendering, dimensions, overlay state
+  - user-flow.spec.ts: Full navigation cycle, header nav traversal, browser back, direct URL, UI regions
+  - Playwright config with Chromium, Vite dev server integration
+
+- **Performance tests:** 13 benchmarks measuring frame-budget compliance
+  - MovementSystem: 100/500/1000 entities under budget
+  - CollisionSystem: player vs 100/500/1000 enemies under budget
+  - ProjectileCollisionSystem: 50-100 projectiles vs 100-500 enemies under budget
+  - Combined systems: typical (60 enemies) < 2ms, heavy (200) < 5ms, stress (500) < 10ms
+  - Entity creation/destruction: 100 entities < 2ms
+  - All 13 benchmarks passing ✅
 
 **Acceptance Criteria:**
 
 - ✅ Critical integration flows work end-to-end (reward signing, staking)
 - ✅ No critical bugs in integration points
 - ✅ Contract integration fully tested (16 tests, 100% pass rate)
+- ✅ API integration tested (11 tests, full session lifecycle)
+- ✅ Frontend E2E tests configured and written (18 Playwright tests)
+- ✅ Performance benchmarks passing within frame budget
 
 ---
 
