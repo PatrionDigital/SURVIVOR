@@ -441,4 +441,133 @@ describe("PlayerWeaponSystem", () => {
       expect(system.getWeaponConfig().cooldown).toBe(300);
     });
   });
+
+  describe("Damage Bonus", () => {
+    it("should apply damage bonus to projectile damage", () => {
+      const container = { addChild: vi.fn() };
+      const system = new PlayerWeaponSystem(world, container as never, basicWeaponConfig);
+
+      // Player
+      world.add({
+        position: { x: 0, y: 0 },
+        playerControlled: true,
+      });
+
+      // Enemy
+      const vehicle = new Vehicle();
+      world.add({
+        position: { x: 100, y: 0 },
+        enemy: {
+          vehicle,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      // Set damage bonus (+5)
+      system.setDamageBonus(5);
+
+      system.update(16, { x: 0, y: 0 });
+
+      const projectiles = Array.from(world.with("projectile"));
+      expect(projectiles.length).toBe(1);
+      // Base damage (10) + bonus (5) = 15
+      expect(projectiles[0].projectile!.damage).toBe(basicWeaponConfig.damage + 5);
+    });
+
+    it("should default to base damage when no bonus set", () => {
+      const container = { addChild: vi.fn() };
+      const system = new PlayerWeaponSystem(world, container as never, basicWeaponConfig);
+
+      world.add({
+        position: { x: 0, y: 0 },
+        playerControlled: true,
+      });
+
+      const vehicle = new Vehicle();
+      world.add({
+        position: { x: 100, y: 0 },
+        enemy: {
+          vehicle,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      system.update(16, { x: 0, y: 0 });
+
+      const projectiles = Array.from(world.with("projectile"));
+      expect(projectiles[0].projectile!.damage).toBe(basicWeaponConfig.damage);
+    });
+  });
+
+  describe("Attack Speed Bonus", () => {
+    it("should reduce cooldown with attack speed bonus", () => {
+      const container = { addChild: vi.fn() };
+      const system = new PlayerWeaponSystem(world, container as never, basicWeaponConfig);
+
+      world.add({
+        position: { x: 0, y: 0 },
+        playerControlled: true,
+      });
+
+      const vehicle = new Vehicle();
+      world.add({
+        position: { x: 100, y: 0 },
+        enemy: {
+          vehicle,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      // Set attack speed bonus (1.0 = doubles fire rate, halves cooldown)
+      system.setAttackSpeedBonus(1.0);
+
+      // Fire once
+      system.update(16, { x: 0, y: 0 });
+      expect(Array.from(world.with("projectile")).length).toBe(1);
+
+      // Base cooldown is 500ms, with 1.0 bonus: 500 / (1 + 1.0) = 250ms
+      // At 260ms, should be able to fire again
+      system.update(260, { x: 0, y: 0 });
+      expect(Array.from(world.with("projectile")).length).toBe(2);
+    });
+
+    it("should not reduce cooldown below minimum (50ms)", () => {
+      const container = { addChild: vi.fn() };
+      const system = new PlayerWeaponSystem(world, container as never, basicWeaponConfig);
+
+      world.add({
+        position: { x: 0, y: 0 },
+        playerControlled: true,
+      });
+
+      const vehicle = new Vehicle();
+      world.add({
+        position: { x: 100, y: 0 },
+        enemy: {
+          vehicle,
+          config: mockEnemyConfig,
+          currentBehavior: "flocking",
+        },
+      });
+
+      // Extreme attack speed bonus
+      system.setAttackSpeedBonus(100);
+
+      // Fire once
+      system.update(16, { x: 0, y: 0 });
+      expect(Array.from(world.with("projectile")).length).toBe(1);
+
+      // Even with huge bonus, minimum cooldown is 50ms
+      // At 30ms, should NOT fire again
+      system.update(30, { x: 0, y: 0 });
+      expect(Array.from(world.with("projectile")).length).toBe(1);
+
+      // At 60ms total, should fire
+      system.update(30, { x: 0, y: 0 });
+      expect(Array.from(world.with("projectile")).length).toBe(2);
+    });
+  });
 });

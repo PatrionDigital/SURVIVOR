@@ -201,4 +201,69 @@ describe("MovementSystem", () => {
       expect(entity.position?.y).toBe(-1000);
     });
   });
+
+  describe("Speed Bonus", () => {
+    it("should apply speed bonus to player movement", () => {
+      const world = createGameWorld();
+      world.add({
+        position: { x: 0, y: 0 },
+        velocity: { vx: 0, vy: 0 },
+        playerControlled: true,
+      });
+
+      const speedBonus = 100; // +100 px/s
+      const input = createMockInput({ x: 1, y: 0 });
+      movementSystem(world, 1000, input, speedBonus); // 1 second
+
+      const [player] = [...world.with("playerControlled", "position")];
+      // Should move at PLAYER_SPEED + speedBonus = 200 + 100 = 300 px/s
+      expect(player.position?.x).toBe(PLAYER_SPEED + speedBonus);
+    });
+
+    it("should default to base speed when no bonus provided", () => {
+      const world = createGameWorld();
+      world.add({
+        position: { x: 0, y: 0 },
+        velocity: { vx: 0, vy: 0 },
+        playerControlled: true,
+      });
+
+      const input = createMockInput({ x: 1, y: 0 });
+      movementSystem(world, 1000, input); // No speedBonus arg
+
+      const [player] = [...world.with("playerControlled", "position")];
+      expect(player.position?.x).toBe(PLAYER_SPEED);
+    });
+
+    it("should stack bonus additively with base speed", () => {
+      const world = createGameWorld();
+      world.add({
+        position: { x: 0, y: 0 },
+        velocity: { vx: 0, vy: 0 },
+        playerControlled: true,
+      });
+
+      const speedBonus = 40; // Two +20 upgrades
+      const input = createMockInput({ x: 0, y: 1 });
+      movementSystem(world, 1000, input, speedBonus);
+
+      const [player] = [...world.with("playerControlled", "position")];
+      expect(player.position?.y).toBe(PLAYER_SPEED + speedBonus);
+    });
+
+    it("should not affect non-player entities with speed bonus", () => {
+      const world = createGameWorld();
+      world.add({
+        position: { x: 0, y: 0 },
+        velocity: { vx: 50, vy: 0 },
+      });
+
+      const input = createMockInput();
+      movementSystem(world, 1000, input, 100);
+
+      const [entity] = [...world.with("position", "velocity")];
+      // Non-player entity velocity is unchanged, moves at its own speed
+      expect(entity.position?.x).toBe(50);
+    });
+  });
 });

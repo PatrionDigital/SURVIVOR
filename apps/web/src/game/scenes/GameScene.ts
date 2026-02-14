@@ -326,7 +326,7 @@ export class GameScene extends Scene {
 
     // Run ECS systems in order
     // 1. Movement (no bounds - infinite arena)
-    movementSystem(this.world, deltaMs, input);
+    movementSystem(this.world, deltaMs, input, this.playerStats.moveSpeed);
 
     // 2. Update camera to follow player
     if (this.playerEntity?.position) {
@@ -424,22 +424,27 @@ export class GameScene extends Scene {
       }
     }
 
-    // 11. Pickup attraction (magnet effect)
+    // 11. Pickup attraction (magnet effect) — apply pickup range bonus
     const playerPos = this.playerEntity?.position ?? null;
-    pickupAttractionSystem(this.world, deltaMs, playerPos, DEFAULT_PICKUP_CONFIG);
+    const effectivePickupConfig = this.playerStats.pickupRange > 0
+      ? { ...DEFAULT_PICKUP_CONFIG, magnetRange: DEFAULT_PICKUP_CONFIG.magnetRange + this.playerStats.pickupRange }
+      : DEFAULT_PICKUP_CONFIG;
+    pickupAttractionSystem(this.world, deltaMs, playerPos, effectivePickupConfig);
 
     // 12. Pickup collection
     const collectionResult = pickupCollectionSystem(
       this.world,
       deltaMs,
       playerPos,
-      DEFAULT_PICKUP_CONFIG
+      effectivePickupConfig
     );
 
-    // Add collected XP to leveling system
+    // Add collected XP to leveling system — apply XP bonus
     if (collectionResult.totalXP > 0 && this.levelingSystem) {
-      this.totalXPCollected += collectionResult.totalXP;
-      const levelResult: LevelUpResult = this.levelingSystem.addXP(collectionResult.totalXP);
+      const xpMultiplier = 1 + this.playerStats.xpBonus / 100;
+      const effectiveXP = Math.floor(collectionResult.totalXP * xpMultiplier);
+      this.totalXPCollected += effectiveXP;
+      const levelResult: LevelUpResult = this.levelingSystem.addXP(effectiveXP);
 
       if (levelResult.leveledUp) {
         // Level up occurred - game will pause for upgrade selection
@@ -717,8 +722,29 @@ export class GameScene extends Scene {
         break;
     }
 
+    // Propagate stat bonuses to game systems
+    this.syncStatsToSystems();
+
     console.log(`Applied upgrade: ${upgrade.name} (${upgrade.description})`);
     return true;
+  }
+
+  /**
+   * Push current player stat bonuses to relevant game systems
+   */
+  private syncStatsToSystems(): void {
+    if (this.playerWeaponSystem) {
+      this.playerWeaponSystem.setDamageBonus(this.playerStats.damage);
+      this.playerWeaponSystem.setAttackSpeedBonus(this.playerStats.attackSpeed);
+    }
+    // moveSpeed, pickupRange, xpBonus are applied per-frame in onUpdate
+  }
+
+  /**
+   * Get current player stats (bonuses from upgrades)
+   */
+  getPlayerStats() {
+    return { ...this.playerStats };
   }
 
   /**
