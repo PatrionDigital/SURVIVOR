@@ -19,7 +19,12 @@ export const PLAYER_SPEED = 200;
  * @param deltaMs - Time since last frame in milliseconds
  * @param input - Current input state
  */
-export function movementSystem(world: GameWorld, deltaMs: number, input: InputState, speedBonus: number = 0): void {
+export function movementSystem(
+  world: GameWorld,
+  deltaMs: number,
+  input: InputState,
+  speedBonus: number = 0
+): void {
   const deltaSeconds = deltaMs / 1000;
   const effectiveSpeed = PLAYER_SPEED + speedBonus;
 

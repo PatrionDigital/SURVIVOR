@@ -426,9 +426,13 @@ export class GameScene extends Scene {
 
     // 11. Pickup attraction (magnet effect) — apply pickup range bonus
     const playerPos = this.playerEntity?.position ?? null;
-    const effectivePickupConfig = this.playerStats.pickupRange > 0
-      ? { ...DEFAULT_PICKUP_CONFIG, magnetRange: DEFAULT_PICKUP_CONFIG.magnetRange + this.playerStats.pickupRange }
-      : DEFAULT_PICKUP_CONFIG;
+    const effectivePickupConfig =
+      this.playerStats.pickupRange > 0
+        ? {
+            ...DEFAULT_PICKUP_CONFIG,
+            magnetRange: DEFAULT_PICKUP_CONFIG.magnetRange + this.playerStats.pickupRange,
+          }
+        : DEFAULT_PICKUP_CONFIG;
     pickupAttractionSystem(this.world, deltaMs, playerPos, effectivePickupConfig);
 
     // 12. Pickup collection
