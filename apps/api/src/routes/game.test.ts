@@ -29,7 +29,7 @@ vi.mock("../lib/rewardSigner.js", () => ({
     expiry: Math.floor(Date.now() / 1000) + 3600,
   }),
   generateNonce: () => "test-nonce-" + Date.now(),
-  calculateExpiry: (hours: number) => Math.floor(Date.now() / 1000) + hours * 3600,
+  calculateExpiry: (_hours: number) => Math.floor(Date.now() / 1000) + _hours * 3600,
   RewardType: {
     GAMEPLAY: 0,
     DAILY_LOGIN: 1,
@@ -38,62 +38,60 @@ vi.mock("../lib/rewardSigner.js", () => ({
   },
 }));
 
-// Mock Supabase client
-const mockSupabase = {
-  from: (table: string) => ({
-    select: (columns?: string) => ({
-      eq: (column: string, value: any) => ({
-        single: async () => {
-          if (table === "game_sessions") {
-            return mockGameSessionQuery(column, value);
-          }
-          return { data: null, error: null };
-        },
-      }),
-    }),
-    insert: (data: any) => ({
-      select: () => ({
-        single: async () => {
-          if (table === "game_sessions") {
-            return {
-              data: {
-                id: "test-session-id",
-                player_id: data.player_id,
-                started_at: new Date().toISOString(),
-                status: "active",
-                gear_snapshot: data.gear_snapshot,
-              },
-              error: null,
-            };
-          }
-          if (table === "session_heartbeats") {
-            return { data: { id: "heartbeat-id" }, error: null };
-          }
-          return { data: null, error: null };
-        },
-      }),
-    }),
-    update: (data: any) => ({
-      eq: (column: string, value: any) => ({
-        eq: (column2: string, value2: any) => ({
-          select: () => async () => ({ data: [{ ...data }], error: null }),
-        }),
-      }),
-    }),
-  }),
-  rpc: async (fn: string, params: any) => {
-    return { data: null, error: null };
-  },
-};
+// Chainable mock builder for Supabase query chains
+function createChainableMock(resolveValue: { data: any; error: any }) {
+  const chain: any = {
+    eq: () => chain,
+    single: async () => resolveValue,
+    select: () => chain,
+  };
+  return chain;
+}
 
 let existingSession: any = null;
 
-function mockGameSessionQuery(column: string, value: any) {
-  if (column === "player_id" && existingSession) {
-    return { data: existingSession, error: null };
-  }
-  return { data: null, error: null };
-}
+// Mock Supabase client with chainable query builders
+const mockSupabase = {
+  from: (table: string) => ({
+    select: (_columns?: string) => {
+      return createChainableMock(
+        table === "game_sessions" && existingSession
+          ? { data: existingSession, error: null }
+          : { data: null, error: null }
+      );
+    },
+    insert: (data: any) => {
+      // For heartbeats, insert returns directly (no .select().single())
+      if (table === "session_heartbeats") {
+        const result = { data: { id: "heartbeat-id" }, error: null };
+        return {
+          ...result,
+          select: () => createChainableMock(result),
+        };
+      }
+      // For game_sessions, insert returns a chainable that ends with .select().single()
+      const sessionResult = {
+        data: {
+          id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+          player_id: data.player_id,
+          started_at: new Date().toISOString(),
+          status: "active",
+          gear_snapshot: data.gear_snapshot,
+        },
+        error: null,
+      };
+      return {
+        select: () => createChainableMock(sessionResult),
+      };
+    },
+    update: (_data: any) => {
+      return createChainableMock({ data: null, error: null });
+    },
+  }),
+  rpc: async (_fn: string, _params: any) => {
+    return { data: null, error: null };
+  },
+};
 
 let fastify: FastifyInstance;
 let authToken: string;
@@ -111,7 +109,7 @@ beforeAll(async () => {
   fastify.decorate("authenticate", async (request: any, reply: any) => {
     try {
       await request.jwtVerify();
-    } catch (err) {
+    } catch (_err) {
       reply.status(401).send({ error: "Unauthorized" });
     }
   });
@@ -170,7 +168,7 @@ describe("Game Session Lifecycle", () => {
 
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.body);
-    expect(body.sessionId).toBe("test-session-id");
+    expect(body.sessionId).toBe("a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d");
     expect(body.serverTime).toBeDefined();
   });
 
@@ -202,10 +200,7 @@ describe("Game Session Lifecycle", () => {
 
     expect(response.statusCode).toBe(200);
     const body = JSON.parse(response.body);
-    expect(body.sessionId).toBe("test-session-id");
-
-    // Old session should be abandoned
-    // This would be verified by checking the update call in a real test
+    expect(body.sessionId).toBe("a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d");
   });
 
   it("should send heartbeat successfully", async () => {
@@ -216,7 +211,7 @@ describe("Game Session Lifecycle", () => {
         authorization: `Bearer ${authToken}`,
       },
       payload: {
-        sessionId: "test-session-id",
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         score: 1000,
         wave: 5,
         kills: 50,
@@ -242,7 +237,7 @@ describe("Game Session Lifecycle", () => {
         authorization: `Bearer ${authToken}`,
       },
       payload: {
-        sessionId: "invalid-session-id",
+        sessionId: "00000000-0000-4000-8000-000000000000",
         score: 1000,
         wave: 5,
         kills: 50,
@@ -264,7 +259,7 @@ describe("Game Session Lifecycle", () => {
         authorization: `Bearer ${authToken}`,
       },
       payload: {
-        sessionId: "test-session-id",
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         finalScore: 10000,
         finalWave: 20,
         totalKills: 500,
@@ -290,7 +285,7 @@ describe("Game Session Lifecycle", () => {
         authorization: `Bearer ${authToken}`,
       },
       payload: {
-        sessionId: "test-session-id",
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         finalScore: 5000,
         finalWave: 10,
         totalKills: 250,
@@ -333,7 +328,7 @@ describe("Authentication", () => {
       method: "POST",
       url: "/session/heartbeat",
       payload: {
-        sessionId: "test-session-id",
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         score: 1000,
         wave: 5,
         kills: 50,
@@ -350,7 +345,7 @@ describe("Authentication", () => {
       method: "POST",
       url: "/session/end",
       payload: {
-        sessionId: "test-session-id",
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         finalScore: 10000,
         finalWave: 20,
         totalKills: 500,
@@ -373,7 +368,7 @@ describe("Validation", () => {
         authorization: `Bearer ${authToken}`,
       },
       payload: {
-        sessionId: "test-session-id",
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         // Missing required fields
       },
     });
@@ -391,7 +386,7 @@ describe("Validation", () => {
         authorization: `Bearer ${authToken}`,
       },
       payload: {
-        sessionId: "test-session-id",
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
         finalScore: "not-a-number", // Invalid type
         finalWave: 20,
         totalKills: 500,
