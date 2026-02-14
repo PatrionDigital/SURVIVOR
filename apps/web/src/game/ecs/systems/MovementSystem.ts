@@ -19,13 +19,19 @@ export const PLAYER_SPEED = 200;
  * @param deltaMs - Time since last frame in milliseconds
  * @param input - Current input state
  */
-export function movementSystem(world: GameWorld, deltaMs: number, input: InputState): void {
+export function movementSystem(
+  world: GameWorld,
+  deltaMs: number,
+  input: InputState,
+  speedBonus: number = 0
+): void {
   const deltaSeconds = deltaMs / 1000;
+  const effectiveSpeed = PLAYER_SPEED + speedBonus;
 
   // Step 1: Update player velocity from input
   for (const entity of world.with("playerControlled", "velocity")) {
-    entity.velocity.vx = input.movement.x * PLAYER_SPEED;
-    entity.velocity.vy = input.movement.y * PLAYER_SPEED;
+    entity.velocity.vx = input.movement.x * effectiveSpeed;
+    entity.velocity.vy = input.movement.y * effectiveSpeed;
   }
 
   // Step 2: Apply velocity to all moving entities

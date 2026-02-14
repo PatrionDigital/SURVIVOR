@@ -17,6 +17,10 @@ export class PlayerWeaponSystem {
   private container: Container;
   private config: WeaponConfig;
   private cooldownRemaining: number = 0;
+  private damageBonus: number = 0;
+  private attackSpeedBonus: number = 0;
+
+  private static readonly MIN_COOLDOWN = 50; // Minimum 50ms cooldown
 
   constructor(world: GameWorld, container: Container, config: WeaponConfig) {
     this.world = world;
@@ -46,7 +50,11 @@ export class PlayerWeaponSystem {
 
     // Fire!
     this.fire(playerPosition, target);
-    this.cooldownRemaining = this.config.cooldown;
+    const effectiveCooldown = Math.max(
+      PlayerWeaponSystem.MIN_COOLDOWN,
+      this.config.cooldown / (1 + this.attackSpeedBonus)
+    );
+    this.cooldownRemaining = effectiveCooldown;
   }
 
   /**
@@ -87,6 +95,9 @@ export class PlayerWeaponSystem {
     // Normalize direction
     const baseDir = { x: dx / distance, y: dy / distance };
 
+    // Calculate effective damage with bonus
+    const effectiveDamage = this.config.damage + this.damageBonus;
+
     // Single projectile or spread?
     if (this.config.projectilesPerShot === 1) {
       // Single projectile
@@ -96,7 +107,7 @@ export class PlayerWeaponSystem {
         "player",
         origin,
         baseDir,
-        this.config.damage,
+        effectiveDamage,
         this.config.projectileSpeed,
         this.config.projectileLifetime,
         this.config.visual,
@@ -125,7 +136,7 @@ export class PlayerWeaponSystem {
           "player",
           origin,
           dir,
-          this.config.damage,
+          effectiveDamage,
           this.config.projectileSpeed,
           this.config.projectileLifetime,
           this.config.visual,
@@ -154,5 +165,20 @@ export class PlayerWeaponSystem {
    */
   setWeaponConfig(config: WeaponConfig): void {
     this.config = config;
+  }
+
+  /**
+   * Set bonus damage added to each projectile (from upgrades)
+   */
+  setDamageBonus(bonus: number): void {
+    this.damageBonus = bonus;
+  }
+
+  /**
+   * Set attack speed bonus (reduces cooldown between shots)
+   * Effective cooldown = baseCooldown / (1 + bonus)
+   */
+  setAttackSpeedBonus(bonus: number): void {
+    this.attackSpeedBonus = bonus;
   }
 }
