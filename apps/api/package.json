@@ -16,29 +16,29 @@
     "db:migrate:status": "tsx src/db/migrate.ts status"
   },
   "dependencies": {
-    "@farcaster/miniapp-node": "^0.1.12",
+    "@farcaster/miniapp-node": "^0.1.13",
     "@fastify/cors": "^10.0.1",
     "@fastify/jwt": "^9.0.1",
     "@fastify/rate-limit": "^10.2.0",
-    "@supabase/supabase-js": "^2.46.0",
-    "bullmq": "^5.25.0",
+    "@supabase/supabase-js": "^2.97.0",
+    "bullmq": "^5.70.1",
     "dotenv": "^16.4.5",
-    "fastify": "^5.1.0",
-    "ioredis": "^5.4.1",
-    "pg": "^8.18.0",
-    "viem": "^2.45.1",
+    "fastify": "^5.7.4",
+    "ioredis": "^5.9.3",
+    "pg": "^8.19.0",
+    "viem": "^2.46.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
-    "@types/node": "^22.9.0",
+    "@eslint/js": "^9.39.3",
+    "@types/node": "^22.19.12",
     "@types/pg": "^8.16.0",
-    "@typescript-eslint/eslint-plugin": "^8.15.0",
-    "@typescript-eslint/parser": "^8.15.0",
-    "eslint": "^9.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^9.39.3",
     "tsx": "^4.19.2",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.54.0",
+    "typescript-eslint": "^8.56.1",
     "vitest": "^2.1.0"
   }
 }
