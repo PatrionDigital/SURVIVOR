@@ -2235,7 +2235,17 @@ Monitor system after launch.
 - [ ] Sign-In with Farcaster (SIWF) integration
 - [ ] Anti-fraud validation
 
-**Phase 5-6:** Not started
+**Phase 5: Polish & Social** - ✅ COMPLETE
+
+- ✅ GlobalUpgradeNFT.sol (ERC-1155)
+- ✅ EarlyAdopterNFT.sol (ERC-721)
+- ✅ Upgrade Shop UI
+- ✅ Leaderboard UI
+- ✅ Share Feature (Farcaster SDK + clipboard fallback)
+- ✅ Notifications (Farcaster webhooks)
+- ✅ Integration Testing (contract, API, E2E, performance benchmarks)
+
+**Phase 6: Deployment** - Not started
 
 ### Phase Breakdown
 
@@ -2245,7 +2255,7 @@ Monitor system after launch.
 | 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | ✅ Complete    |
 | 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | ✅ Complete    |
 | 4     | Backend          | 2 weeks  | API, Sessions, Rewards      | 🔄 In Progress |
-| 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | Not started    |
+| 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | ✅ Complete    |
 | 6     | Deployment       | 2 weeks  | Testnet, Mainnet, Launch    | Not started    |
 
 ### Key Milestones
@@ -2253,6 +2263,6 @@ Monitor system after launch.
 1. **Week 2:** ✅ Tokens and curves deployed to local Anvil
 2. **Week 4:** ✅ Playable game loop (no blockchain) - full wave system with phases, events, leveling
 3. **Week 6:** ✅ Staking UI functional - GearStaking, MaintenancePool, bonding curve trading, Market page
-4. **Week 8:** 🔄 Backend integration in progress (sessions, rewards done; SIWF pending)
+4. **Week 8:** 🔄 Backend integration in progress (sessions, rewards done; SIWF, anti-fraud pending)
 5. **Week 10:** All features complete on testnet
 6. **Week 12:** Mainnet launch
