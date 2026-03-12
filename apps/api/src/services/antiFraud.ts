@@ -43,6 +43,20 @@ export interface FraudFlag {
   penalty: number;
 }
 
+export interface PlayerFraudHistory {
+  flaggedSessionsLast24h: number;
+  flaggedSessionsLast7d: number;
+  currentBanUntil: Date | null;
+  banCount: number;
+}
+
+export interface BanDecision {
+  shouldBan: boolean;
+  banDurationHours?: number;
+  alreadyBanned?: boolean;
+  reason?: string;
+}
+
 // ── Constants ──
 
 const MAX_KILLS_PER_SECOND = 8;
@@ -292,7 +306,6 @@ export async function detectReplay(
     }
   }
 
-  // Add new fingerprint, keep only the last N
   fingerprints.push(fingerprint);
   if (fingerprints.length > MAX_STORED_FINGERPRINTS) {
     fingerprints = fingerprints.slice(-MAX_STORED_FINGERPRINTS);
@@ -300,6 +313,35 @@ export async function detectReplay(
 
   await redis.setex(key, FINGERPRINT_TTL_SECONDS, JSON.stringify(fingerprints));
   return false;
+}
+
+// ── Ban System ──
+
+export function shouldBanPlayer(history: PlayerFraudHistory): BanDecision {
+  // Already banned - do not re-ban
+  if (history.currentBanUntil && history.currentBanUntil.getTime() > Date.now()) {
+    return { shouldBan: false, alreadyBanned: true };
+  }
+
+  // 5+ flagged sessions in 7 days -> 7-day (168h) ban
+  if (history.flaggedSessionsLast7d >= 5) {
+    return {
+      shouldBan: true,
+      banDurationHours: 168,
+      reason: `${history.flaggedSessionsLast7d} flagged sessions in 7 days`,
+    };
+  }
+
+  // 3+ flagged sessions in 24 hours -> 24h ban
+  if (history.flaggedSessionsLast24h >= 3) {
+    return {
+      shouldBan: true,
+      banDurationHours: 24,
+      reason: `${history.flaggedSessionsLast24h} flagged sessions in 24 hours`,
+    };
+  }
+
+  return { shouldBan: false };
 }
 
 // ── Pipeline Orchestrator ──

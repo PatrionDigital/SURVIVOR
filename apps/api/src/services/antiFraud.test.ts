@@ -7,8 +7,9 @@ import {
   computeChecksum,
   generateSessionFingerprint,
   detectReplay,
+  shouldBanPlayer,
 } from "./antiFraud.js";
-import type { HeartbeatData, SessionTrustData } from "./antiFraud.js";
+import type { HeartbeatData, SessionTrustData, PlayerFraudHistory } from "./antiFraud.js";
 
 // ── Shared helpers ──
 
@@ -361,6 +362,46 @@ describe("antiFraud", () => {
       };
       const result = await detectReplay("player-1", "abc123", mockRedis);
       expect(result).toBe(true);
+    });
+  });
+
+  // ── Task 7: Ban System ──
+
+  describe("ban system", () => {
+    const makeHistory = (overrides?: Partial<PlayerFraudHistory>): PlayerFraudHistory => ({
+      flaggedSessionsLast24h: 0,
+      flaggedSessionsLast7d: 0,
+      currentBanUntil: null,
+      banCount: 0,
+      ...overrides,
+    });
+
+    it("does not ban a clean player", () => {
+      const decision = shouldBanPlayer(makeHistory());
+      expect(decision.shouldBan).toBe(false);
+      expect(decision.alreadyBanned).toBeUndefined();
+    });
+
+    it("bans for 24h when 3+ sessions flagged in 24h", () => {
+      const decision = shouldBanPlayer(makeHistory({ flaggedSessionsLast24h: 3 }));
+      expect(decision.shouldBan).toBe(true);
+      expect(decision.banDurationHours).toBe(24);
+    });
+
+    it("bans for 7 days when 5+ sessions flagged in 7d", () => {
+      const decision = shouldBanPlayer(makeHistory({ flaggedSessionsLast7d: 5 }));
+      expect(decision.shouldBan).toBe(true);
+      expect(decision.banDurationHours).toBe(168);
+    });
+
+    it("does not re-ban an already banned player", () => {
+      const futureDate = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+      const decision = shouldBanPlayer(makeHistory({
+        flaggedSessionsLast24h: 10,
+        currentBanUntil: futureDate,
+      }));
+      expect(decision.shouldBan).toBe(false);
+      expect(decision.alreadyBanned).toBe(true);
     });
   });
 });
