@@ -149,20 +149,12 @@ describe("antiFraud", () => {
   describe("rate validator", () => {
     it("passes with normal growth", async () => {
       const now = Date.now();
-      const prevTs = now - 30_000; // 30s ago
+      const prevTs = now - 30_000;
       const prev = makeValidHeartbeat({
-        score: 50,
-        wave: 1,
-        kills: 5,
-        timestamp: prevTs,
-        heartbeatCount: 1,
+        score: 50, wave: 1, kills: 5, timestamp: prevTs, heartbeatCount: 1,
       });
       const hb = makeValidHeartbeat({
-        score: 100,
-        wave: 1,
-        kills: 10,
-        timestamp: now,
-        heartbeatCount: 2,
+        score: 100, wave: 1, kills: 10, timestamp: now, heartbeatCount: 2,
       });
       const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
       const results = await runValidationPipeline(hb, trust);
@@ -174,18 +166,10 @@ describe("antiFraud", () => {
     it("penalizes score decrease", async () => {
       const now = Date.now();
       const prev = makeValidHeartbeat({
-        score: 200,
-        wave: 1,
-        kills: 10,
-        timestamp: now - 30_000,
-        heartbeatCount: 1,
+        score: 200, wave: 1, kills: 10, timestamp: now - 30_000, heartbeatCount: 1,
       });
       const hb = makeValidHeartbeat({
-        score: 100,
-        wave: 1,
-        kills: 10,
-        timestamp: now,
-        heartbeatCount: 2,
+        score: 100, wave: 1, kills: 10, timestamp: now, heartbeatCount: 2,
       });
       const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
       const results = await runValidationPipeline(hb, trust);
@@ -197,19 +181,10 @@ describe("antiFraud", () => {
     it("penalizes impossible kill rate", async () => {
       const now = Date.now();
       const prev = makeValidHeartbeat({
-        score: 50,
-        wave: 1,
-        kills: 0,
-        timestamp: now - 10_000, // 10s ago
-        heartbeatCount: 1,
+        score: 50, wave: 1, kills: 0, timestamp: now - 10_000, heartbeatCount: 1,
       });
-      // 300 kills in 10s = 30 kills/s (way over MAX_KILLS_PER_SECOND * 3 = 24)
       const hb = makeValidHeartbeat({
-        score: 5000,
-        wave: 1,
-        kills: 300,
-        timestamp: now,
-        heartbeatCount: 2,
+        score: 5000, wave: 1, kills: 300, timestamp: now, heartbeatCount: 2,
       });
       const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
       const results = await runValidationPipeline(hb, trust);
@@ -221,24 +196,79 @@ describe("antiFraud", () => {
     it("penalizes wave jump > 1", async () => {
       const now = Date.now();
       const prev = makeValidHeartbeat({
-        score: 50,
-        wave: 1,
-        kills: 5,
-        timestamp: now - 30_000,
-        heartbeatCount: 1,
+        score: 50, wave: 1, kills: 5, timestamp: now - 30_000, heartbeatCount: 1,
       });
       const hb = makeValidHeartbeat({
-        score: 100,
-        wave: 4, // jumped from 1 to 4
-        kills: 10,
-        timestamp: now,
-        heartbeatCount: 2,
+        score: 100, wave: 4, kills: 10, timestamp: now, heartbeatCount: 2,
       });
       const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
       const results = await runValidationPipeline(hb, trust);
       const rateResult = results.find((r) => r.validator === "rates")!;
       expect(rateResult.valid).toBe(false);
       expect(rateResult.trustPenalty).toBeGreaterThanOrEqual(20);
+    });
+  });
+
+  // ── Task 4: Timing Validator ──
+
+  describe("timing validator", () => {
+    it("passes with normal 30s interval", async () => {
+      const now = Date.now();
+      const prev = makeValidHeartbeat({
+        score: 50, wave: 1, kills: 5, timestamp: now - 30_000, heartbeatCount: 1,
+      });
+      const hb = makeValidHeartbeat({
+        score: 100, wave: 1, kills: 10, timestamp: now, heartbeatCount: 2,
+      });
+      const trust = makeTrust({
+        previousHeartbeat: prev,
+        heartbeatCount: 1,
+        sessionStartTime: now - 120_000, // 2 min ago
+      });
+      const results = await runValidationPipeline(hb, trust);
+      const timingResult = results.find((r) => r.validator === "timing")!;
+      expect(timingResult.valid).toBe(true);
+      expect(timingResult.trustPenalty).toBe(0);
+    });
+
+    it("penalizes too-fast heartbeat interval (< 10s)", async () => {
+      const now = Date.now();
+      const prev = makeValidHeartbeat({
+        score: 50, wave: 1, kills: 5, timestamp: now - 5_000, heartbeatCount: 1,
+      });
+      const hb = makeValidHeartbeat({
+        score: 100, wave: 1, kills: 10, timestamp: now, heartbeatCount: 2,
+      });
+      const trust = makeTrust({
+        previousHeartbeat: prev,
+        heartbeatCount: 1,
+        sessionStartTime: now - 60_000,
+      });
+      const results = await runValidationPipeline(hb, trust);
+      const timingResult = results.find((r) => r.validator === "timing")!;
+      expect(timingResult.valid).toBe(false);
+      expect(timingResult.trustPenalty).toBe(15);
+      expect(timingResult.severity).toBe("warning");
+    });
+
+    it("penalizes session duration over 30 minutes", async () => {
+      const now = Date.now();
+      const prev = makeValidHeartbeat({
+        score: 50, wave: 1, kills: 5, timestamp: now - 30_000, heartbeatCount: 1,
+      });
+      const hb = makeValidHeartbeat({
+        score: 100, wave: 1, kills: 10, timestamp: now, heartbeatCount: 2,
+      });
+      const trust = makeTrust({
+        previousHeartbeat: prev,
+        heartbeatCount: 1,
+        sessionStartTime: now - 31 * 60 * 1000, // 31 min ago
+      });
+      const results = await runValidationPipeline(hb, trust);
+      const timingResult = results.find((r) => r.validator === "timing")!;
+      expect(timingResult.valid).toBe(false);
+      expect(timingResult.trustPenalty).toBe(15);
+      expect(timingResult.severity).toBe("warning");
     });
   });
 });

@@ -46,6 +46,8 @@ export interface FraudFlag {
 
 const MAX_KILLS_PER_SECOND = 8;
 const MAX_SCORE_PER_30S = 15_000;
+const MIN_HEARTBEAT_INTERVAL_MS = 10_000;
+const MAX_SESSION_DURATION_MS = 30 * 60 * 1000;
 
 // ── Trust Status ──
 
@@ -123,16 +125,14 @@ function validateRates(
   heartbeat: HeartbeatData,
   trust: SessionTrustData,
 ): ValidationResult {
-  // Skip for first heartbeat
   if (heartbeat.heartbeatCount <= 1 || !trust.previousHeartbeat) {
     return { valid: true, trustPenalty: 0, severity: "info", validator: "rates" };
   }
 
   const prev = trust.previousHeartbeat;
   const elapsedMs = heartbeat.timestamp - prev.timestamp;
-  const elapsedSec = Math.max(elapsedMs / 1000, 0.001); // avoid division by zero
+  const elapsedSec = Math.max(elapsedMs / 1000, 0.001);
 
-  // Score must not decrease
   if (heartbeat.score < prev.score) {
     return {
       valid: false,
@@ -143,7 +143,6 @@ function validateRates(
     };
   }
 
-  // Kill rate check
   const killDelta = heartbeat.kills - prev.kills;
   const killRate = killDelta / elapsedSec;
   if (killRate > MAX_KILLS_PER_SECOND * 3) {
@@ -165,7 +164,6 @@ function validateRates(
     };
   }
 
-  // Score growth per 30s
   const scoreDelta = heartbeat.score - prev.score;
   const scorePer30s = (scoreDelta / elapsedSec) * 30;
   if (scorePer30s > MAX_SCORE_PER_30S * 3) {
@@ -178,7 +176,6 @@ function validateRates(
     };
   }
 
-  // Wave jump > 1
   const waveJump = heartbeat.wave - prev.wave;
   if (waveJump > 1) {
     return {
@@ -194,9 +191,40 @@ function validateRates(
 }
 
 function validateTiming(
-  _heartbeat: HeartbeatData,
-  _trust: SessionTrustData,
+  heartbeat: HeartbeatData,
+  trust: SessionTrustData,
 ): ValidationResult {
+  // Skip for first heartbeat
+  if (heartbeat.heartbeatCount <= 1 || !trust.previousHeartbeat) {
+    return { valid: true, trustPenalty: 0, severity: "info", validator: "timing" };
+  }
+
+  const prev = trust.previousHeartbeat;
+  const intervalMs = heartbeat.timestamp - prev.timestamp;
+
+  // Heartbeat too fast
+  if (intervalMs < MIN_HEARTBEAT_INTERVAL_MS) {
+    return {
+      valid: false,
+      trustPenalty: 15,
+      severity: "warning",
+      validator: "timing",
+      reason: `Heartbeat interval ${intervalMs}ms is below minimum ${MIN_HEARTBEAT_INTERVAL_MS}ms`,
+    };
+  }
+
+  // Session too long
+  const sessionDurationMs = heartbeat.timestamp - trust.sessionStartTime;
+  if (sessionDurationMs > MAX_SESSION_DURATION_MS) {
+    return {
+      valid: false,
+      trustPenalty: 15,
+      severity: "warning",
+      validator: "timing",
+      reason: `Session duration ${Math.round(sessionDurationMs / 60_000)}min exceeds maximum 30min`,
+    };
+  }
+
   return { valid: true, trustPenalty: 0, severity: "info", validator: "timing" };
 }
 
