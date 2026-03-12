@@ -30,7 +30,26 @@ const makeTrust = (overrides?: Partial<SessionTrustData>): SessionTrustData => (
   previousHeartbeat: null,
   sessionStartTime: Date.now() - 60_000,
   heartbeatCount: 0,
+  ...overrides,
 });
+
+/** Build a heartbeat with a valid checksum so checksum validator passes */
+function makeValidHeartbeat(
+  overrides?: Partial<HeartbeatData>,
+  wallet = "0x1234",
+): HeartbeatData {
+  const base = makeHeartbeat(overrides);
+  const secret = computeChecksumSecret(base.sessionId, wallet);
+  const checksum = computeChecksum(
+    base.sessionId,
+    base.score,
+    base.wave,
+    base.kills,
+    base.timestamp,
+    secret,
+  );
+  return { ...base, checksum };
+}
 
 describe("antiFraud", () => {
   // ── Task 1: Core Types and Pipeline Orchestrator ──
@@ -74,11 +93,7 @@ describe("antiFraud", () => {
 
   describe("runValidationPipeline", () => {
     it("returns results from all 4 validators with stubs passing", async () => {
-      // Build a heartbeat with a valid checksum so the checksum validator passes
-      const secret = computeChecksumSecret("session-1", "0x1234");
-      const ts = Date.now();
-      const checksum = computeChecksum("session-1", 100, 1, 10, ts, secret);
-      const hb = makeHeartbeat({ checksum, timestamp: ts });
+      const hb = makeValidHeartbeat();
       const trust = makeTrust();
       const results = await runValidationPipeline(hb, trust);
       expect(results).toHaveLength(4);
@@ -112,10 +127,7 @@ describe("antiFraud", () => {
     });
 
     it("pipeline passes with valid checksum", async () => {
-      const secret = computeChecksumSecret("session-1", "0x1234");
-      const ts = Date.now();
-      const checksum = computeChecksum("session-1", 100, 1, 10, ts, secret);
-      const hb = makeHeartbeat({ checksum, timestamp: ts });
+      const hb = makeValidHeartbeat();
       const results = await runValidationPipeline(hb, makeTrust());
       const checksumResult = results.find((r) => r.validator === "checksum")!;
       expect(checksumResult.valid).toBe(true);
@@ -129,6 +141,104 @@ describe("antiFraud", () => {
       expect(checksumResult.valid).toBe(false);
       expect(checksumResult.trustPenalty).toBe(40);
       expect(checksumResult.severity).toBe("critical");
+    });
+  });
+
+  // ── Task 3: Rate Validator ──
+
+  describe("rate validator", () => {
+    it("passes with normal growth", async () => {
+      const now = Date.now();
+      const prevTs = now - 30_000; // 30s ago
+      const prev = makeValidHeartbeat({
+        score: 50,
+        wave: 1,
+        kills: 5,
+        timestamp: prevTs,
+        heartbeatCount: 1,
+      });
+      const hb = makeValidHeartbeat({
+        score: 100,
+        wave: 1,
+        kills: 10,
+        timestamp: now,
+        heartbeatCount: 2,
+      });
+      const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
+      const results = await runValidationPipeline(hb, trust);
+      const rateResult = results.find((r) => r.validator === "rates")!;
+      expect(rateResult.valid).toBe(true);
+      expect(rateResult.trustPenalty).toBe(0);
+    });
+
+    it("penalizes score decrease", async () => {
+      const now = Date.now();
+      const prev = makeValidHeartbeat({
+        score: 200,
+        wave: 1,
+        kills: 10,
+        timestamp: now - 30_000,
+        heartbeatCount: 1,
+      });
+      const hb = makeValidHeartbeat({
+        score: 100,
+        wave: 1,
+        kills: 10,
+        timestamp: now,
+        heartbeatCount: 2,
+      });
+      const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
+      const results = await runValidationPipeline(hb, trust);
+      const rateResult = results.find((r) => r.validator === "rates")!;
+      expect(rateResult.valid).toBe(false);
+      expect(rateResult.trustPenalty).toBeGreaterThanOrEqual(20);
+    });
+
+    it("penalizes impossible kill rate", async () => {
+      const now = Date.now();
+      const prev = makeValidHeartbeat({
+        score: 50,
+        wave: 1,
+        kills: 0,
+        timestamp: now - 10_000, // 10s ago
+        heartbeatCount: 1,
+      });
+      // 300 kills in 10s = 30 kills/s (way over MAX_KILLS_PER_SECOND * 3 = 24)
+      const hb = makeValidHeartbeat({
+        score: 5000,
+        wave: 1,
+        kills: 300,
+        timestamp: now,
+        heartbeatCount: 2,
+      });
+      const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
+      const results = await runValidationPipeline(hb, trust);
+      const rateResult = results.find((r) => r.validator === "rates")!;
+      expect(rateResult.valid).toBe(false);
+      expect(rateResult.trustPenalty).toBeGreaterThanOrEqual(60);
+    });
+
+    it("penalizes wave jump > 1", async () => {
+      const now = Date.now();
+      const prev = makeValidHeartbeat({
+        score: 50,
+        wave: 1,
+        kills: 5,
+        timestamp: now - 30_000,
+        heartbeatCount: 1,
+      });
+      const hb = makeValidHeartbeat({
+        score: 100,
+        wave: 4, // jumped from 1 to 4
+        kills: 10,
+        timestamp: now,
+        heartbeatCount: 2,
+      });
+      const trust = makeTrust({ previousHeartbeat: prev, heartbeatCount: 1 });
+      const results = await runValidationPipeline(hb, trust);
+      const rateResult = results.find((r) => r.validator === "rates")!;
+      expect(rateResult.valid).toBe(false);
+      expect(rateResult.trustPenalty).toBeGreaterThanOrEqual(20);
     });
   });
 });
