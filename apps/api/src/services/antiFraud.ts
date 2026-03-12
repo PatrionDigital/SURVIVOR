@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import type Redis from "ioredis";
 
 // ── Types ──
 
@@ -49,6 +50,8 @@ const MAX_SCORE_PER_30S = 15_000;
 const MIN_HEARTBEAT_INTERVAL_MS = 10_000;
 const MAX_SESSION_DURATION_MS = 30 * 60 * 1000;
 const MAX_XP_PER_KILL = 100;
+const FINGERPRINT_TTL_SECONDS = 24 * 60 * 60; // 24 hours
+const MAX_STORED_FINGERPRINTS = 20;
 
 // ── Trust Status ──
 
@@ -230,14 +233,12 @@ function validateBehavior(
   heartbeat: HeartbeatData,
   trust: SessionTrustData,
 ): ValidationResult {
-  // Skip for first two heartbeats
   if (heartbeat.heartbeatCount <= 2 || !trust.previousHeartbeat) {
     return { valid: true, trustPenalty: 0, severity: "info", validator: "behavior" };
   }
 
   const prev = trust.previousHeartbeat;
 
-  // Kills decreasing
   if (heartbeat.kills < prev.kills) {
     return {
       valid: false,
@@ -248,7 +249,6 @@ function validateBehavior(
     };
   }
 
-  // Score/kill ratio check
   if (heartbeat.kills > 0) {
     const scorePerKill = heartbeat.score / heartbeat.kills;
     if (scorePerKill > MAX_XP_PER_KILL * 5) {
@@ -263,6 +263,43 @@ function validateBehavior(
   }
 
   return { valid: true, trustPenalty: 0, severity: "info", validator: "behavior" };
+}
+
+// ── Replay Detector ──
+
+export function generateSessionFingerprint(
+  heartbeats: Array<{ score: number; wave: number; kills: number }>,
+): string {
+  const data = heartbeats
+    .map((h) => `${h.score}:${h.wave}:${h.kills}`)
+    .join("|");
+  return crypto.createHash("sha256").update(data).digest("hex").slice(0, 16);
+}
+
+export async function detectReplay(
+  playerId: string,
+  fingerprint: string,
+  redis: Pick<Redis, "get" | "setex">,
+): Promise<boolean> {
+  const key = `antifraud:fingerprints:${playerId}`;
+  const stored = await redis.get(key);
+
+  let fingerprints: string[] = [];
+  if (stored) {
+    fingerprints = JSON.parse(stored) as string[];
+    if (fingerprints.includes(fingerprint)) {
+      return true;
+    }
+  }
+
+  // Add new fingerprint, keep only the last N
+  fingerprints.push(fingerprint);
+  if (fingerprints.length > MAX_STORED_FINGERPRINTS) {
+    fingerprints = fingerprints.slice(-MAX_STORED_FINGERPRINTS);
+  }
+
+  await redis.setex(key, FINGERPRINT_TTL_SECONDS, JSON.stringify(fingerprints));
+  return false;
 }
 
 // ── Pipeline Orchestrator ──

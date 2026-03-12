@@ -5,6 +5,8 @@ import {
   runValidationPipeline,
   computeChecksumSecret,
   computeChecksum,
+  generateSessionFingerprint,
+  detectReplay,
 } from "./antiFraud.js";
 import type { HeartbeatData, SessionTrustData } from "./antiFraud.js";
 
@@ -288,7 +290,6 @@ describe("antiFraud", () => {
 
     it("penalizes disproportionate score to kills ratio", async () => {
       const now = Date.now();
-      // Score/kill ratio = 100000 / 2 = 50000, which is way above MAX_XP_PER_KILL(100) * 5 = 500
       const prev = makeValidHeartbeat({
         score: 50_000, wave: 2, kills: 1, timestamp: now - 30_000, heartbeatCount: 2,
       });
@@ -309,7 +310,6 @@ describe("antiFraud", () => {
       const prev = makeValidHeartbeat({
         score: 500, wave: 2, kills: 100, timestamp: now - 30_000, heartbeatCount: 2,
       });
-      // Kills went from 100 to 50 - decreasing
       const hb = makeValidHeartbeat({
         score: 600, wave: 2, kills: 50, timestamp: now, heartbeatCount: 3,
       });
@@ -321,6 +321,46 @@ describe("antiFraud", () => {
       expect(behaviorResult.valid).toBe(false);
       expect(behaviorResult.trustPenalty).toBe(10);
       expect(behaviorResult.severity).toBe("warning");
+    });
+  });
+
+  // ── Task 6: Replay Detector ──
+
+  describe("replay detector", () => {
+    it("produces deterministic fingerprints", () => {
+      const heartbeats = [
+        { score: 100, wave: 1, kills: 10 },
+        { score: 200, wave: 2, kills: 20 },
+      ];
+      const f1 = generateSessionFingerprint(heartbeats);
+      const f2 = generateSessionFingerprint(heartbeats);
+      expect(f1).toBe(f2);
+      expect(f1).toHaveLength(16);
+    });
+
+    it("produces different fingerprints for different sequences", () => {
+      const seq1 = [{ score: 100, wave: 1, kills: 10 }];
+      const seq2 = [{ score: 200, wave: 1, kills: 10 }];
+      expect(generateSessionFingerprint(seq1)).not.toBe(generateSessionFingerprint(seq2));
+    });
+
+    it("returns false when no previous fingerprints exist", async () => {
+      const mockRedis = {
+        get: async () => null,
+        setex: async () => "OK" as const,
+      };
+      const result = await detectReplay("player-1", "abc123", mockRedis);
+      expect(result).toBe(false);
+    });
+
+    it("returns true when fingerprint matches a stored one", async () => {
+      const storedFingerprints = JSON.stringify(["abc123", "def456"]);
+      const mockRedis = {
+        get: async () => storedFingerprints,
+        setex: async () => "OK" as const,
+      };
+      const result = await detectReplay("player-1", "abc123", mockRedis);
+      expect(result).toBe(true);
     });
   });
 });
