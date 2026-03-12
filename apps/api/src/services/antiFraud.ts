@@ -66,12 +66,51 @@ export function getRewardMultiplier(trustScore: number): number {
   }
 }
 
-// ── Validators (stubs for Task 1, replaced in Tasks 2-5) ──
+// ── Checksum Functions ──
+
+export function computeChecksumSecret(sessionId: string, walletAddress: string): string {
+  return crypto
+    .createHash("sha256")
+    .update(`${sessionId}:${walletAddress}`)
+    .digest("hex");
+}
+
+export function computeChecksum(
+  sessionId: string,
+  score: number,
+  wave: number,
+  kills: number,
+  timestamp: number,
+  secret: string,
+): string {
+  const data = `${sessionId}:${score}:${wave}:${kills}:${timestamp}`;
+  return crypto.createHmac("sha256", secret).update(data).digest("hex");
+}
+
+// ── Validators ──
 
 function validateChecksum(
-  _heartbeat: HeartbeatData,
-  _trust: SessionTrustData,
+  heartbeat: HeartbeatData,
+  trust: SessionTrustData,
 ): ValidationResult {
+  const secret = computeChecksumSecret(heartbeat.sessionId, trust.walletAddress);
+  const expected = computeChecksum(
+    heartbeat.sessionId,
+    heartbeat.score,
+    heartbeat.wave,
+    heartbeat.kills,
+    heartbeat.timestamp,
+    secret,
+  );
+  if (heartbeat.checksum !== expected) {
+    return {
+      valid: false,
+      trustPenalty: 40,
+      severity: "critical",
+      validator: "checksum",
+      reason: "Checksum mismatch",
+    };
+  }
   return { valid: true, trustPenalty: 0, severity: "info", validator: "checksum" };
 }
 
@@ -109,6 +148,3 @@ export async function runValidationPipeline(
     validateBehavior(heartbeat, trust),
   ];
 }
-
-// Keep crypto import used (will be needed in Task 2+)
-void crypto;
