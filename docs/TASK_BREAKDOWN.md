@@ -1671,14 +1671,14 @@ Game session management endpoints.
 - [x] GET /api/game/leaderboard
 - [x] Implement reward calculation service
 - [x] Implement reward signing service (EIP-712 signatures)
-- [ ] Implement anti-fraud validation (TODO: basic validation in place)
+- [x] Implement anti-fraud validation (layered pipeline: checksum, rate, timing, behavioral, replay, ban system)
 - [x] Test all endpoints
 
 **Acceptance Criteria:**
 
 - ✅ Sessions track correctly
 - ✅ Rewards calculated accurately
-- Anti-fraud catches obvious cheats (partial)
+- ✅ Anti-fraud catches obvious cheats (full pipeline with trust scoring and ban escalation)
 
 ---
 
@@ -2224,7 +2224,7 @@ Monitor system after launch.
 - ✅ Integration with bonding curves for gear trading
 - ✅ Local Anvil development support (DeployAnvil.s.sol, TransactionService)
 
-**Phase 4: Backend Integration** - 🔄 IN PROGRESS
+**Phase 4: Backend Integration** - ✅ COMPLETE
 
 - ✅ Game routes (session start/end, heartbeat, leaderboard)
 - ✅ Reward signing service (EIP-712 signatures)
@@ -2232,27 +2232,37 @@ Monitor system after launch.
 - ✅ Local Postgres wrapper (db.ts mimics Supabase API)
 - ✅ Session management integration (useGameSession hook)
 - ✅ Reward claiming UI (GameOverScreen with useRewardDistributor)
-- [ ] Sign-In with Farcaster (SIWF) integration
-- [ ] Anti-fraud validation
+- ✅ Sign-In with Farcaster (SIWF) integration (auth-kit QR + Mini App SDK + EIP-191 verification)
+- ✅ Anti-fraud validation (layered pipeline: checksum, rate, timing, behavioral, replay, ban system)
 
-**Phase 5-6:** Not started
+**Phase 5: Polish & Social** - ✅ COMPLETE
+
+- ✅ GlobalUpgradeNFT.sol (ERC-1155)
+- ✅ EarlyAdopterNFT.sol (ERC-721)
+- ✅ Upgrade Shop UI
+- ✅ Leaderboard UI
+- ✅ Share Feature (Farcaster SDK + clipboard fallback)
+- ✅ Notifications (Farcaster webhooks)
+- ✅ Integration Testing (contract, API, E2E, performance benchmarks)
+
+**Phase 6: Deployment** - Not started
 
 ### Phase Breakdown
 
-| Phase | Focus            | Duration | Critical Path               | Status         |
-| ----- | ---------------- | -------- | --------------------------- | -------------- |
-| 1     | Infrastructure   | 2 weeks  | Monorepo, Tokens, Curves    | ✅ Complete    |
-| 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | ✅ Complete    |
-| 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | ✅ Complete    |
-| 4     | Backend          | 2 weeks  | API, Sessions, Rewards      | 🔄 In Progress |
-| 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | Not started    |
-| 6     | Deployment       | 2 weeks  | Testnet, Mainnet, Launch    | Not started    |
+| Phase | Focus            | Duration | Critical Path               | Status      |
+| ----- | ---------------- | -------- | --------------------------- | ----------- |
+| 1     | Infrastructure   | 2 weeks  | Monorepo, Tokens, Curves    | ✅ Complete |
+| 2     | Game Engine      | 2 weeks  | PixiJS, Combat, Leveling    | ✅ Complete |
+| 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | ✅ Complete |
+| 4     | Backend          | 2 weeks  | API, Sessions, Rewards      | ✅ Complete |
+| 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | ✅ Complete |
+| 6     | Deployment       | 2 weeks  | Testnet, Mainnet, Launch    | Not started |
 
 ### Key Milestones
 
 1. **Week 2:** ✅ Tokens and curves deployed to local Anvil
 2. **Week 4:** ✅ Playable game loop (no blockchain) - full wave system with phases, events, leveling
 3. **Week 6:** ✅ Staking UI functional - GearStaking, MaintenancePool, bonding curve trading, Market page
-4. **Week 8:** 🔄 Backend integration in progress (sessions, rewards done; SIWF pending)
+4. **Week 8:** ✅ Backend integration complete (sessions, rewards, SIWF, anti-fraud pipeline)
 5. **Week 10:** All features complete on testnet
 6. **Week 12:** Mainnet launch

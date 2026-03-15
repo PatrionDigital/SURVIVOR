@@ -38,6 +38,19 @@ vi.mock("../lib/rewardSigner.js", () => ({
   },
 }));
 
+vi.mock("../services/antiFraud.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../services/antiFraud.js")>();
+  return {
+    ...actual,
+    runValidationPipeline: vi.fn().mockResolvedValue([
+      { valid: true, trustPenalty: 0, severity: "info", validator: "checksum" },
+      { valid: true, trustPenalty: 0, severity: "info", validator: "rates" },
+      { valid: true, trustPenalty: 0, severity: "info", validator: "timing" },
+      { valid: true, trustPenalty: 0, severity: "info", validator: "behavior" },
+    ]),
+  };
+});
+
 // Chainable mock builder for Supabase query chains
 function createChainableMock(resolveValue: { data: any; error: any }) {
   const chain: any = {
@@ -61,9 +74,9 @@ const mockSupabase = {
       );
     },
     insert: (data: any) => {
-      // For heartbeats, insert returns directly (no .select().single())
-      if (table === "session_heartbeats") {
-        const result = { data: { id: "heartbeat-id" }, error: null };
+      // For heartbeats or fraud_flags, insert returns directly (no .select().single())
+      if (table === "session_heartbeats" || table === "fraud_flags") {
+        const result = { data: { id: `${table}-id` }, error: null };
         return {
           ...result,
           select: () => createChainableMock(result),
@@ -143,6 +156,10 @@ beforeEach(async () => {
     score: 0,
     wave: 1,
     kills: 0,
+    trustScore: 100,
+    heartbeatCount: 0,
+    sessionStartTime: Date.now() - 60000,
+    previousHeartbeat: null,
   });
 });
 
@@ -397,5 +414,73 @@ describe("Validation", () => {
     });
 
     expect(response.statusCode).toBe(400);
+  });
+});
+
+describe("Anti-Fraud Integration", () => {
+  it("heartbeat response includes serverTime but not trust data (silent flagging)", async () => {
+    const { getCachedSession } = await import("../lib/redis.js");
+    vi.mocked(getCachedSession).mockResolvedValueOnce({
+      playerId: "test-player-123",
+      startedAt: new Date().toISOString(),
+      lastHeartbeat: Date.now() - 30000,
+      score: 100,
+      wave: 1,
+      kills: 10,
+      trustScore: 100,
+      heartbeatCount: 1,
+      sessionStartTime: Date.now() - 60000,
+      previousHeartbeat: null,
+    });
+
+    const response = await fastify.inject({
+      method: "POST",
+      url: "/session/heartbeat",
+      headers: {
+        authorization: `Bearer ${authToken}`,
+      },
+      payload: {
+        sessionId: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+        score: 500,
+        wave: 2,
+        kills: 30,
+        timestamp: Date.now(),
+        checksum: "any-checksum",
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.body);
+    expect(body).toHaveProperty("success", true);
+    expect(body).toHaveProperty("serverTime");
+    // Response must NOT reveal trust status (silent flagging)
+    expect(body).not.toHaveProperty("trustScore");
+    expect(body).not.toHaveProperty("flags");
+  });
+
+  it("session start response includes checksumSecret", async () => {
+    const response = await fastify.inject({
+      method: "POST",
+      url: "/session/start",
+      headers: {
+        authorization: `Bearer ${authToken}`,
+      },
+      payload: {
+        gearSnapshot: {
+          weapon: "100",
+          armor: "50",
+          power: "30",
+          gloves: "20",
+          amulet: "40",
+          boots: "25",
+        },
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.body);
+    expect(body.checksumSecret).toBeDefined();
+    expect(typeof body.checksumSecret).toBe("string");
+    expect(body.checksumSecret.length).toBe(64); // SHA256 hex
   });
 });
