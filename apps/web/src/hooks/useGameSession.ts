@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
 import { useSessionStore } from "../stores";
+import { computeChecksum } from "../lib/checksum";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const IS_DEV = import.meta.env.DEV;
@@ -17,6 +18,7 @@ interface GearSnapshot {
 interface SessionStartResponse {
   sessionId: string;
   serverTime: number;
+  checksumSecret: string;
 }
 
 interface SessionEndResponse {
@@ -40,6 +42,9 @@ export function useGameSession() {
 
   // Track if we're currently authenticating to prevent double calls
   const isAuthenticatingRef = useRef(false);
+
+  // Store the checksum secret received from the server on session start
+  const checksumSecretRef = useRef<string>("");
 
   // Authenticate with the backend (dev mode uses /api/auth/dev)
   const authenticate = useCallback(async (): Promise<boolean> => {
@@ -117,6 +122,7 @@ export function useGameSession() {
         }
 
         const data: SessionStartResponse = await response.json();
+        checksumSecretRef.current = data.checksumSecret;
         startSession(data.sessionId);
         return data.sessionId;
       } catch (error) {
@@ -184,12 +190,22 @@ export function useGameSession() {
 
   // Send heartbeat during gameplay
   const sendHeartbeat = useCallback(
-    async (score: number, wave: number, kills: number, checksum: string) => {
+    async (score: number, wave: number, kills: number) => {
       if (!authToken || !sessionId) {
         return false;
       }
 
       try {
+        const timestamp = Date.now();
+        const checksum = await computeChecksum(
+          sessionId,
+          score,
+          wave,
+          kills,
+          timestamp,
+          checksumSecretRef.current,
+        );
+
         const response = await fetch(`${API_URL}/api/game/session/heartbeat`, {
           method: "POST",
           headers: {
@@ -201,7 +217,7 @@ export function useGameSession() {
             score,
             wave,
             kills,
-            timestamp: Date.now(),
+            timestamp,
             checksum,
           }),
         });
