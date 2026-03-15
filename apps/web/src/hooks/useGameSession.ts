@@ -203,7 +203,7 @@ export function useGameSession() {
           wave,
           kills,
           timestamp,
-          checksumSecretRef.current,
+          checksumSecretRef.current
         );
 
         const response = await fetch(`${API_URL}/api/game/session/heartbeat`, {

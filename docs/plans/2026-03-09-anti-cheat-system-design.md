@@ -20,33 +20,34 @@ Session End → [All above] + [Replay Detector] → Final Trust → Reward Multi
 ```typescript
 interface ValidationResult {
   valid: boolean;
-  trustPenalty: number;       // 0-100
+  trustPenalty: number; // 0-100
   reason?: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: "info" | "warning" | "critical";
 }
 
 interface SessionTrust {
   sessionId: string;
-  trustScore: number;         // Starts at 100
+  trustScore: number; // Starts at 100
   flags: FraudFlag[];
-  status: 'clean' | 'suspicious' | 'flagged' | 'banned';
+  status: "clean" | "suspicious" | "flagged" | "banned";
 }
 ```
 
 ### Trust Thresholds
 
-| Score | Status | Reward Multiplier |
-|-------|--------|-------------------|
-| 100-70 | clean | 1.0x (full) |
-| 69-40 | suspicious | 0.5x |
-| 39-1 | flagged | 0.0x |
-| 0 | banned | Session invalidated |
+| Score  | Status     | Reward Multiplier   |
+| ------ | ---------- | ------------------- |
+| 100-70 | clean      | 1.0x (full)         |
+| 69-40  | suspicious | 0.5x                |
+| 39-1   | flagged    | 0.0x                |
+| 0      | banned     | Session invalidated |
 
 ## Validators
 
 ### 1. Checksum Validator
 
 Client computes HMAC of game state each heartbeat:
+
 ```
 checksum = HMAC-SHA256(sessionId + score + wave + kills + timestamp, secret)
 secret = SHA256(sessionId + playerWallet)
@@ -60,12 +61,12 @@ Session-specific secret derived from `sessionId + playerWallet`. Not unbreakable
 
 Validates that stats don't grow faster than theoretically possible.
 
-| Metric | Max Rate | Basis |
-|--------|----------|-------|
-| Kills per second | ~8 | 60 max enemies, 50ms min cooldown |
-| Score per 30s heartbeat | ~15,000 | Max kill rate x max XP |
-| Wave per heartbeat | 1 | Game mechanic limit |
-| Score direction | Non-decreasing | Cannot lose score |
+| Metric                  | Max Rate       | Basis                             |
+| ----------------------- | -------------- | --------------------------------- |
+| Kills per second        | ~8             | 60 max enemies, 50ms min cooldown |
+| Score per 30s heartbeat | ~15,000        | Max kill rate x max XP            |
+| Wave per heartbeat      | 1              | Game mechanic limit               |
+| Score direction         | Non-decreasing | Cannot lose score                 |
 
 **Penalty:** Exceeding max = 20 (warning). 3x max = 60 (critical).
 
@@ -102,6 +103,7 @@ Fingerprints stored in Redis with 24h TTL.
 ### 6. Ban System
 
 Escalating penalties across sessions:
+
 - 3 flagged sessions in 24h: temp ban (24h)
 - 5 flagged sessions in 7 days: extended ban (7 days)
 - Manual review queue for banned players
@@ -109,18 +111,21 @@ Escalating penalties across sessions:
 ## Integration Points
 
 ### Session Start (`/api/game/session/start`)
+
 - Generate checksum secret: `SHA256(sessionId + playerWallet)`
 - Store in Redis with session cache
 - Return secret to client
 - Initialize trust score at 100
 
 ### Heartbeat (`/api/game/session/heartbeat`)
+
 - Run validators 1-4 against heartbeat data
 - Accumulate penalties, update trust in Redis
 - Store flags in `fraud_flags` table
 - Silent flagging: API response is identical regardless of trust status
 
 ### Session End (`/api/game/session/end`)
+
 - Run all 5 validators (including replay detection)
 - Apply reward multiplier based on final trust:
   - 100-70: 1.0x, 69-40: 0.5x, below 40: 0.0x
@@ -158,11 +163,11 @@ CREATE TABLE fraud_flags (
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `apps/api/src/services/antiFraud.ts` | Pipeline orchestrator + all validators |
-| `apps/api/src/services/antiFraud.test.ts` | Unit + integration tests |
-| `apps/web/src/hooks/useGameSession.ts` | Add client-side checksum computation |
+| File                                      | Purpose                                |
+| ----------------------------------------- | -------------------------------------- |
+| `apps/api/src/services/antiFraud.ts`      | Pipeline orchestrator + all validators |
+| `apps/api/src/services/antiFraud.test.ts` | Unit + integration tests               |
+| `apps/web/src/hooks/useGameSession.ts`    | Add client-side checksum computation   |
 
 ## Testing Strategy
 

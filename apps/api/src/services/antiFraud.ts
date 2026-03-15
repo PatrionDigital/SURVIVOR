@@ -94,10 +94,7 @@ export function getRewardMultiplier(trustScore: number): number {
 // ── Checksum Functions ──
 
 export function computeChecksumSecret(sessionId: string, walletAddress: string): string {
-  return crypto
-    .createHash("sha256")
-    .update(`${sessionId}:${walletAddress}`)
-    .digest("hex");
+  return crypto.createHash("sha256").update(`${sessionId}:${walletAddress}`).digest("hex");
 }
 
 export function computeChecksum(
@@ -106,7 +103,7 @@ export function computeChecksum(
   wave: number,
   kills: number,
   timestamp: number,
-  secret: string,
+  secret: string
 ): string {
   const data = `${sessionId}:${score}:${wave}:${kills}:${timestamp}`;
   return crypto.createHmac("sha256", secret).update(data).digest("hex");
@@ -114,10 +111,7 @@ export function computeChecksum(
 
 // ── Validators ──
 
-function validateChecksum(
-  heartbeat: HeartbeatData,
-  trust: SessionTrustData,
-): ValidationResult {
+function validateChecksum(heartbeat: HeartbeatData, trust: SessionTrustData): ValidationResult {
   const secret = computeChecksumSecret(heartbeat.sessionId, trust.walletAddress);
   const expected = computeChecksum(
     heartbeat.sessionId,
@@ -125,7 +119,7 @@ function validateChecksum(
     heartbeat.wave,
     heartbeat.kills,
     heartbeat.timestamp,
-    secret,
+    secret
   );
   if (heartbeat.checksum !== expected) {
     return {
@@ -139,10 +133,7 @@ function validateChecksum(
   return { valid: true, trustPenalty: 0, severity: "info", validator: "checksum" };
 }
 
-function validateRates(
-  heartbeat: HeartbeatData,
-  trust: SessionTrustData,
-): ValidationResult {
+function validateRates(heartbeat: HeartbeatData, trust: SessionTrustData): ValidationResult {
   if (heartbeat.heartbeatCount <= 1 || !trust.previousHeartbeat) {
     return { valid: true, trustPenalty: 0, severity: "info", validator: "rates" };
   }
@@ -208,10 +199,7 @@ function validateRates(
   return { valid: true, trustPenalty: 0, severity: "info", validator: "rates" };
 }
 
-function validateTiming(
-  heartbeat: HeartbeatData,
-  trust: SessionTrustData,
-): ValidationResult {
+function validateTiming(heartbeat: HeartbeatData, trust: SessionTrustData): ValidationResult {
   if (heartbeat.heartbeatCount <= 1 || !trust.previousHeartbeat) {
     return { valid: true, trustPenalty: 0, severity: "info", validator: "timing" };
   }
@@ -243,10 +231,7 @@ function validateTiming(
   return { valid: true, trustPenalty: 0, severity: "info", validator: "timing" };
 }
 
-function validateBehavior(
-  heartbeat: HeartbeatData,
-  trust: SessionTrustData,
-): ValidationResult {
+function validateBehavior(heartbeat: HeartbeatData, trust: SessionTrustData): ValidationResult {
   if (heartbeat.heartbeatCount <= 2 || !trust.previousHeartbeat) {
     return { valid: true, trustPenalty: 0, severity: "info", validator: "behavior" };
   }
@@ -282,18 +267,16 @@ function validateBehavior(
 // ── Replay Detector ──
 
 export function generateSessionFingerprint(
-  heartbeats: Array<{ score: number; wave: number; kills: number }>,
+  heartbeats: Array<{ score: number; wave: number; kills: number }>
 ): string {
-  const data = heartbeats
-    .map((h) => `${h.score}:${h.wave}:${h.kills}`)
-    .join("|");
+  const data = heartbeats.map((h) => `${h.score}:${h.wave}:${h.kills}`).join("|");
   return crypto.createHash("sha256").update(data).digest("hex").slice(0, 16);
 }
 
 export async function detectReplay(
   playerId: string,
   fingerprint: string,
-  redis: Pick<Redis, "get" | "setex">,
+  redis: Pick<Redis, "get" | "setex">
 ): Promise<boolean> {
   const key = `antifraud:fingerprints:${playerId}`;
   const stored = await redis.get(key);
@@ -348,7 +331,7 @@ export function shouldBanPlayer(history: PlayerFraudHistory): BanDecision {
 
 export async function runValidationPipeline(
   heartbeat: HeartbeatData,
-  trust: SessionTrustData,
+  trust: SessionTrustData
 ): Promise<ValidationResult[]> {
   return [
     validateChecksum(heartbeat, trust),
