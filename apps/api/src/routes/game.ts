@@ -15,6 +15,13 @@ import {
   calculateExpiry,
   RewardType,
 } from "../lib/rewardSigner.js";
+import {
+  type HeartbeatData,
+  type SessionTrustData,
+  runValidationPipeline,
+  getRewardMultiplier,
+  computeChecksumSecret,
+} from "../services/antiFraud.js";
 
 export async function gameRoutes(fastify: FastifyInstance) {
   // POST /api/game/session/start - Start a new game session
@@ -32,6 +39,7 @@ export async function gameRoutes(fastify: FastifyInstance) {
 
       const { gearSnapshot } = validation.data;
       const playerId = request.user.playerId;
+      const walletAddress = request.user.walletAddress as string;
 
       const supabase = getSupabaseClient();
 
@@ -67,6 +75,9 @@ export async function gameRoutes(fastify: FastifyInstance) {
         return reply.status(500).send({ error: "Failed to create session" });
       }
 
+      // Generate checksum secret for anti-fraud validation
+      const checksumSecret = computeChecksumSecret(session.id, walletAddress);
+
       // Cache session in Redis
       await cacheSession(session.id, {
         playerId,
@@ -75,11 +86,16 @@ export async function gameRoutes(fastify: FastifyInstance) {
         score: 0,
         wave: 1,
         kills: 0,
+        trustScore: 100,
+        heartbeatCount: 0,
+        sessionStartTime: Date.now(),
+        checksumSecret,
       });
 
       return reply.send({
         sessionId: session.id,
         serverTime: Date.now(),
+        checksumSecret,
       });
     }
   );
@@ -108,8 +124,49 @@ export async function gameRoutes(fastify: FastifyInstance) {
 
       const supabase = getSupabaseClient();
 
-      // TODO: Validate checksum for anti-fraud
-      // TODO: Check for suspicious patterns (score growth rate, etc.)
+      // Build heartbeat data for anti-fraud validation
+      const heartbeatData: HeartbeatData = {
+        sessionId,
+        playerId,
+        score,
+        wave,
+        kills,
+        timestamp,
+        checksum,
+        heartbeatCount: ((cachedSession.heartbeatCount as number) ?? 0) + 1,
+      };
+
+      const trustData: SessionTrustData = {
+        sessionId,
+        walletAddress: request.user.walletAddress as string,
+        trustScore: (cachedSession.trustScore as number) ?? 100,
+        flags: [],
+        previousHeartbeat: cachedSession.previousHeartbeat
+          ? (cachedSession.previousHeartbeat as HeartbeatData)
+          : null,
+        sessionStartTime: (cachedSession.sessionStartTime as number) ?? Date.now(),
+        heartbeatCount: (cachedSession.heartbeatCount as number) ?? 0,
+      };
+
+      const results = await runValidationPipeline(heartbeatData, trustData);
+      const totalPenalty = results.reduce((sum, r) => sum + r.trustPenalty, 0);
+      const newTrustScore = Math.max(0, trustData.trustScore - totalPenalty);
+
+      // Store fraud flags for violations (non-blocking)
+      const violations = results.filter((r) => !r.valid);
+      if (violations.length > 0) {
+        for (const v of violations) {
+          supabase.from("fraud_flags").insert({
+            session_id: sessionId,
+            player_id: playerId,
+            validator: v.validator,
+            severity: v.severity,
+            penalty: v.trustPenalty,
+            reason: v.reason || "Validation failed",
+            heartbeat_index: heartbeatData.heartbeatCount,
+          });
+        }
+      }
 
       // Store heartbeat
       const { error } = await supabase.from("session_heartbeats").insert({
@@ -126,13 +183,16 @@ export async function gameRoutes(fastify: FastifyInstance) {
         return reply.status(500).send({ error: "Failed to record heartbeat" });
       }
 
-      // Update cache
+      // Update cache with trust data
       await cacheSession(sessionId, {
         ...cachedSession,
         lastHeartbeat: Date.now(),
         score,
         wave,
         kills,
+        trustScore: newTrustScore,
+        heartbeatCount: heartbeatData.heartbeatCount,
+        previousHeartbeat: heartbeatData,
       });
 
       return reply.send({ success: true, serverTime: Date.now() });
@@ -172,9 +232,11 @@ export async function gameRoutes(fastify: FastifyInstance) {
 
       // Calculate VSC reward based on performance
       // Base formula: score * 0.001 + wave * 10 + kills * 0.5
-      // Converted to wei (18 decimals)
+      // Apply trust-based reward multiplier before converting to wei
       const baseReward = Math.floor(finalScore * 0.001 + finalWave * 10 + totalKills * 0.5);
-      const vscReward = BigInt(baseReward) * BigInt(1e18);
+      const trustScore = (cachedSession.trustScore as number) ?? 100;
+      const rewardMultiplier = getRewardMultiplier(trustScore);
+      const vscReward = BigInt(Math.floor(baseReward * rewardMultiplier)) * BigInt(1e18);
 
       // Generate unique nonce and expiry
       const nonce = generateNonce();

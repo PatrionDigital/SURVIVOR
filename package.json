@@ -1,6 +1,6 @@
 {
   "name": "farcaster-survivors",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "Crypto-native bullet heaven game built as a Farcaster Mini App on Base L2",
   "repository": {
