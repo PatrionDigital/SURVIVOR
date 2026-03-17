@@ -11,6 +11,7 @@ import rateLimit from "@fastify/rate-limit";
 import { registerAuthPlugin } from "./lib/auth.js";
 import { registerRoutes } from "./routes/index.js";
 import { getRedisClient } from "./lib/redis.js";
+import { getSupabaseClient } from "./lib/db.js";
 
 const fastify = Fastify({
   logger: {
@@ -50,8 +51,14 @@ fastify.get("/ready", async () => {
     checks.redis = false;
   }
 
-  // TODO: Check database connection
-  checks.database = true;
+  // Check database connection
+  try {
+    const db = getSupabaseClient();
+    const { error } = await db.from("players").select("id").limit(1);
+    checks.database = !error;
+  } catch {
+    checks.database = false;
+  }
 
   const allHealthy = Object.values(checks).every((v) => v);
 

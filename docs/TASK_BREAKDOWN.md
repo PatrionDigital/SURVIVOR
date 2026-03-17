@@ -2054,10 +2054,17 @@ Deploy contracts to testnet.
 
 **Subtasks:**
 
-- [ ] Deploy all contracts
+- [x] Create deployment configs (vercel.json, railway.json)
+- [x] Create environment templates (.env.testnet, .env.mainnet)
+- [x] Create CD workflow (.github/workflows/deploy.yml)
+- [x] Create testnet deploy orchestration script (scripts/deploy-testnet.sh)
+- [x] Create post-deployment verification script (scripts/verify-deployment.sh)
+- [x] Add fraud_flags DB migration (004_add_fraud_flags.sql)
+- [x] Enhance /ready endpoint with DB connectivity check
+- [ ] Deploy all contracts to Base Sepolia
 - [ ] Verify on BaseScan
 - [ ] Configure permissions
-- [ ] Update frontend env vars
+- [ ] Update frontend env vars with deployed addresses
 - [ ] Deploy frontend to Vercel
 - [ ] Deploy backend to Railway
 - [ ] Test full flow on testnet
@@ -2245,7 +2252,7 @@ Monitor system after launch.
 - ✅ Notifications (Farcaster webhooks)
 - ✅ Integration Testing (contract, API, E2E, performance benchmarks)
 
-**Phase 6: Deployment** - Not started
+**Phase 6: Deployment** - In Progress (6.1.1 infrastructure ready — configs, CD pipeline, scripts, migration)
 
 ### Phase Breakdown
 
@@ -2256,7 +2263,7 @@ Monitor system after launch.
 | 3     | Meta-Progression | 2 weeks  | Staking, Maintenance        | ✅ Complete |
 | 4     | Backend          | 2 weeks  | API, Sessions, Rewards      | ✅ Complete |
 | 5     | Polish           | 2 weeks  | NFTs, Leaderboards, Testing | ✅ Complete |
-| 6     | Deployment       | 2 weeks  | Testnet, Mainnet, Launch    | Not started |
+| 6     | Deployment       | 2 weeks  | Testnet, Mainnet, Launch    | In Progress |
 
 ### Key Milestones
 

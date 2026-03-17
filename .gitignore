@@ -13,10 +13,11 @@ packages/contracts/cache/
 packages/contracts/out/
 packages/contracts/broadcast/
 
-# Environment files
+# Environment files (secrets)
 .env
 .env.local
 .env.*.local
+deployed-addresses-*.env
 
 # IDE
 .idea/
