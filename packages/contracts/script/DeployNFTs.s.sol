@@ -2,63 +2,41 @@
 pragma solidity ^0.8.24;
 
 import { Script, console } from "forge-std/Script.sol";
+import { GlobalUpgradeNFT } from "../src/nfts/GlobalUpgradeNFT.sol";
+import { EarlyAdopterNFT } from "../src/nfts/EarlyAdopterNFT.sol";
 
 /**
  * @title DeployNFTs
- * @notice Deployment script for NFT contracts
- * @dev Deploys GlobalUpgradeNFT (ERC-1155) and EarlyAdopterNFT (ERC-721)
- *
- * GlobalUpgradeNFT (ERC-1155):
- * - Permanent upgrades purchasable with VSC
- * - Multiple tiers with increasing costs
- * - Affects all game sessions
- * - Examples: +5% base damage, +10% XP gain
- *
- * EarlyAdopterNFT (ERC-721):
- * - Limited edition badges for early players
- * - Airdropped to qualifying wallets
- * - Cosmetic + minor stat bonuses
- * - Non-transferable (soulbound)
+ * @notice Deployment script for GlobalUpgradeNFT and EarlyAdopterNFT
+ * @dev Run after Deploy.s.sol — requires VSCToken address in env
  *
  * Usage:
- *   forge script script/DeployNFTs.s.sol --rpc-url <RPC_URL> --broadcast --verify
+ *   forge script script/DeployNFTs.s.sol --rpc-url <RPC_URL> --broadcast
  */
 contract DeployNFTs is Script {
-    // Contract addresses
-    address public globalUpgradeNFT;
-    address public earlyAdopterNFT;
-
     function setUp() public { }
 
     function run() public {
-        // Load configuration
         address vscToken = vm.envAddress("VITE_VSC_TOKEN_ADDRESS");
-        address treasury = vm.envAddress("TREASURY_ADDRESS");
+        address mintSigner = vm.envAddress("REWARD_SIGNER_ADDRESS");
 
-        console.log("Deploying NFT contracts...");
+        console.log("=== Deploying NFT Contracts ===");
         console.log("VSCToken:", vscToken);
-        console.log("Treasury:", treasury);
+        console.log("Mint Signer:", mintSigner);
 
         vm.startBroadcast();
 
-        // TODO: Deploy GlobalUpgradeNFT when implemented
-        // globalUpgradeNFT = address(new GlobalUpgradeNFT(
-        //     vscToken,
-        //     treasury,
-        //     "https://api.survivors.game/metadata/upgrades/"
-        // ));
+        GlobalUpgradeNFT globalUpgradeNFT = new GlobalUpgradeNFT(vscToken);
+        console.log("GlobalUpgradeNFT deployed at:", address(globalUpgradeNFT));
 
-        // TODO: Deploy EarlyAdopterNFT when implemented
-        // earlyAdopterNFT = address(new EarlyAdopterNFT(
-        //     "Farcaster Survivors Early Adopter",
-        //     "SURVIVOR-EA",
-        //     "https://api.survivors.game/metadata/early-adopter/"
-        // ));
+        EarlyAdopterNFT earlyAdopterNFT = new EarlyAdopterNFT(mintSigner);
+        console.log("EarlyAdopterNFT deployed at:", address(earlyAdopterNFT));
 
         vm.stopBroadcast();
 
-        console.log("\n=== Deployed NFT Contracts ===");
-        console.log("GlobalUpgradeNFT:", globalUpgradeNFT);
-        console.log("EarlyAdopterNFT:", earlyAdopterNFT);
+        console.log("");
+        console.log("=== NFT Deployment Complete ===");
+        console.log("GlobalUpgradeNFT:", address(globalUpgradeNFT));
+        console.log("EarlyAdopterNFT:", address(earlyAdopterNFT));
     }
 }
