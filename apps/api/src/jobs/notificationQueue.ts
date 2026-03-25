@@ -2,11 +2,13 @@ import { Queue, Worker, Job } from "bullmq";
 import { Redis } from "ioredis";
 
 // Redis connection for BullMQ
-const connection = new Redis({
+const redisClient = new Redis({
   host: process.env.REDIS_HOST || "localhost",
   port: parseInt(process.env.REDIS_PORT || "6379"),
   maxRetriesPerRequest: null,
 });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- ioredis version mismatch with bullmq's bundled version
+const connection = redisClient as any;
 
 // Notification job data types
 export interface LeaderboardNotificationData {
@@ -248,5 +250,5 @@ notificationWorker.on("failed", (job, err) => {
 process.on("SIGTERM", async () => {
   console.log("SIGTERM received, closing notification worker...");
   await notificationWorker.close();
-  await connection.quit();
+  await redisClient.quit();
 });
